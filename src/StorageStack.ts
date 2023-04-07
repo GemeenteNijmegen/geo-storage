@@ -58,7 +58,7 @@ export class StorageStack extends Stack {
       description: 'Allows read/write access to all GEO storage buckets',
       statements: [
         new iam.PolicyStatement({
-          sid: 'Allow list bucket',
+          sid: 'AllowListBucketOnGeoBuckets',
           effect: iam.Effect.ALLOW,
           actions: [
             's3:ListBucket',
@@ -66,7 +66,7 @@ export class StorageStack extends Stack {
           resources: buckets.map(b => b.bucketArn),
         }),
         new iam.PolicyStatement({
-          sid: 'Allow to manage objects in bucket',
+          sid: 'AllowToManageObjectsInGeoBuckets',
           effect: iam.Effect.ALLOW,
           actions: [
             's3:*Object', // Allow get, delete and put

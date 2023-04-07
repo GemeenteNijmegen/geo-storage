@@ -24,6 +24,7 @@ export class PipelineStack extends Stack {
     const pipeline = this.pipeline(props);
 
     const storageStage = new StorageStage(this, 'geo-storage', {
+      env: props.configuration.targetEnvironment,
       configuration: props.configuration,
     });
     pipeline.addStage(storageStage);
