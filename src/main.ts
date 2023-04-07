@@ -8,6 +8,7 @@ const configuration = getConfiguration(buildBranch);
 
 const app = new App();
 
+// TODO fix before multiple deployments
 new PipelineStack(app, 'geo-storage-pipeline-stack', {
   env: configuration.deploymentEnvironment,
   configuration: configuration,

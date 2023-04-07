@@ -1,7 +1,7 @@
 import { Stack, StackProps, Tags, pipelines, Aspects } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Configurable } from './Configuration';
-import { PermissionsBoundaryAspect } from './PermissionsBoundaryAspect';
+import { PermissionsBoundaryAspect } from '@gemeentenijmegen/aws-constructs';
 import { Statics } from './Statics';
 import { StorageStage } from './StorageStage';
 
@@ -14,7 +14,7 @@ export class PipelineStack extends Stack {
   constructor(scope: Construct, id: string, props: PipelineStackProps) {
     super(scope, id, props);
 
-    Aspects.of(this).add(new PermissionsBoundaryAspect('/', 'landingzone-workload-permissions-boundary'));
+    Aspects.of(this).add(new PermissionsBoundaryAspect());
 
     this.branchName = props.configuration.branchName;
 
