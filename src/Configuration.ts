@@ -1,4 +1,4 @@
-import { Statics } from "./Statics";
+import { Statics } from './Statics';
 
 /**
  * Custom Environment with obligatory accountId and region
@@ -43,8 +43,8 @@ export const configurations: { [key: string]: Configuration } = {
     codeStarConnectionArn: Statics.gnBuildCodeStarConnectionArn,
     deploymentEnvironment: Statics.deploymentEnvironment,
     targetEnvironment: Statics.acceptanceEnvironment,
-  }
-}
+  },
+};
 
 export function getConfiguration(buildBranch: string) {
   const config = configurations[buildBranch];

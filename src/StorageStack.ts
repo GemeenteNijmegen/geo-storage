@@ -1,6 +1,6 @@
-import { aws_s3 as s3, Stack, StackProps, Tags } from "aws-cdk-lib";
-import { Construct } from "constructs";
-import { Configurable } from "./Configuration";
+import { aws_s3 as s3, Stack, StackProps, Tags } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import { Configurable } from './Configuration';
 
 export interface StorageStackProps extends Configurable, StackProps {}
 
