@@ -1,7 +1,7 @@
+import { PermissionsBoundaryAspect } from '@gemeentenijmegen/aws-constructs';
 import { Stack, StackProps, Tags, pipelines, Aspects } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Configurable } from './Configuration';
-import { PermissionsBoundaryAspect } from '@gemeentenijmegen/aws-constructs';
 import { Statics } from './Statics';
 import { StorageStage } from './StorageStage';
 

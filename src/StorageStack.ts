@@ -12,31 +12,31 @@ export class StorageStack extends Stack {
 
     const cycloramaBucket = new s3.Bucket(this, 'cyclorama-bucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      bucketName: 'gemeentenijmegen-geo-cyclorama',
+      bucketName: `gemeentenijmegen-geo-cyclorama-${props.configuration.branchName}`,
     });
     Tags.of(cycloramaBucket).add('Contents', 'Cyclorama data');
 
     const obliekBucket = new s3.Bucket(this, 'obliek-bucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      bucketName: 'gemeentenijmegen-geo-obliek',
+      bucketName: `gemeentenijmegen-geo-obliek-${props.configuration.branchName}`,
     });
     Tags.of(obliekBucket).add('Contents', 'Obliek data');
 
     const orthoBucket = new s3.Bucket(this, 'ortho-bucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      bucketName: 'gemeentenijmegen-geo-ortho',
+      bucketName: `gemeentenijmegen-geo-ortho-${props.configuration.branchName}`,
     });
     Tags.of(orthoBucket).add('Contents', 'Obliek data');
 
     const lidarAirborneBucket = new s3.Bucket(this, 'lidar-airborne-bucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      bucketName: 'gemeentenijmegen-geo-lidar-airborne',
+      bucketName: `gemeentenijmegen-geo-lidar-airborne-${props.configuration.branchName}`,
     });
     Tags.of(lidarAirborneBucket).add('Contents', 'LiDAR airborne data');
 
     const lidarTerrestrischBucket = new s3.Bucket(this, 'lidar-terrestrisch-bucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      bucketName: 'gemeentenijmegen-geo-lidar-terrestrisch',
+      bucketName: `gemeentenijmegen-geo-lidar-terrestrisch-${props.configuration.branchName}`,
     });
     Tags.of(lidarTerrestrischBucket).add('Contents', 'LiDAR terrestrisch data');
 
