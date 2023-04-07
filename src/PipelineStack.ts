@@ -32,7 +32,7 @@ export class PipelineStack extends Stack {
 
   pipeline(props: PipelineStackProps): pipelines.CodePipeline {
 
-    const source = pipelines.CodePipelineSource.connection('GemeenteNijmegen/dns-management', this.branchName, {
+    const source = pipelines.CodePipelineSource.connection('GemeenteNijmegen/geo-storage', this.branchName, {
       connectionArn: props.configuration.codeStarConnectionArn,
     });
 
