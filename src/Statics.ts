@@ -14,4 +14,7 @@ export class Statics {
     region: 'eu-central-1',
   };
 
+  // SSM parameters
+  static readonly ssmGeoBucketsManagedPolicyArn = '/cdk/geo-storage/policies/geo-buckets-managment';
+
 }

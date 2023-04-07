@@ -1,6 +1,7 @@
 import { Aspects, Stage, StageProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Configurable } from './Configuration';
+import { IamStack } from './IamStack';
 import { PermissionsBoundaryAspect } from './PermissionsBoundaryAspect';
 import { StorageStack } from './StorageStack';
 
@@ -14,9 +15,15 @@ export class StorageStage extends Stage {
 
     Aspects.of(this).add(new PermissionsBoundaryAspect('/', 'landingzone-workload-permissions-boundary'));
 
-    new StorageStack(this, 'data-stack', {
+    const storageStack = new StorageStack(this, 'data-stack', {
       configuration: props.configuration,
     });
+
+    const iamStack = new IamStack(this, 'iam-stack', {
+      configuration: props.configuration,
+    });
+    iamStack.addDependency(storageStack);
+
 
   }
 
