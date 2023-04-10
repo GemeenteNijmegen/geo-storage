@@ -34,6 +34,11 @@ export interface Configuration {
    */
   targetEnvironment: Environment;
 
+  /**
+   * Deploy EC2 migration instance for cyclorama data
+   */
+  deployEc2MigrationInstance?: boolean;
+
 }
 
 
@@ -43,6 +48,7 @@ export const configurations: { [key: string]: Configuration } = {
     codeStarConnectionArn: Statics.gnBuildCodeStarConnectionArn,
     deploymentEnvironment: Statics.deploymentEnvironment,
     targetEnvironment: Statics.acceptanceEnvironment,
+    deployEc2MigrationInstance: true,
   },
 };
 
