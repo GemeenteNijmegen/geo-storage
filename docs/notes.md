@@ -17,3 +17,7 @@ We gaan proberen de luchtfoto via AWS te serveren als een test voor het aanschaf
 
 ### Toegnag
 Iedereen bij GEO krijgt toegang tot de buckets en mag data kunnen toevoegen en verwijderen.
+
+
+## Backup to cold storage
+Er wordt gekeken hoe we de backup zo goedkoop mogelijk kunnen maken en kunnen dupliceren naar een andere regio met bijv. glacier

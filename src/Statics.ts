@@ -15,6 +15,6 @@ export class Statics {
   };
 
   // SSM parameters
-  static readonly ssmGeoBucketsManagedPolicyArn = '/cdk/geo-storage/policies/geo-buckets-managment';
+  static readonly ssmGeoBucketsManagedPolicyArn = '/geo-storage/policies/geo-buckets-managment';
 
 }
