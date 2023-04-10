@@ -51,7 +51,7 @@ export class StorageStack extends Stack {
     this.createBucketAccessPolicy(buckets);
     this.setupDataMonitoringForBuckets(buckets);
 
-    if(props.configuration.deployEc2MigrationInstance){
+    if (props.configuration.deployEc2MigrationInstance) {
       this.setupEc2MigrationInstance(cycloramaBucket);
     }
 
@@ -98,7 +98,7 @@ export class StorageStack extends Stack {
     const vpcId = ssm.StringParameter.valueForStringParameter(this, '/landingzone/vpc/vpc-id');
     const availabilityZones = [0, 1, 2].map(i => Fn.select(i, Fn.getAzs(Aws.REGION)));
     const publicSubnetRouteTableIds = Array(3).fill(ssm.StringParameter.valueForStringParameter(this, '/gemeentenijmegen/vpc/route-table-public-subnet-id'));
-    const privateSubnetRouteTableIds = [1, 2, 3].map(i => ssm.StringParameter.valueForStringParameter(this, `	/landingzone/vpc/route-table-private-subnet-${i}-id`));
+    const privateSubnetRouteTableIds = [1, 2, 3].map(i => ssm.StringParameter.valueForStringParameter(this, `/landingzone/vpc/route-table-private-subnet-${i}-id`));
     const publicSubnetIds = [1, 2, 3].map(i => ssm.StringParameter.valueForStringParameter(this, `/landingzone/vpc/public-subnet-${i}-id`));
     const privateSubnetIds = [1, 2, 3].map(i => ssm.StringParameter.valueForStringParameter(this, `/landingzone/vpc/private-subnet-${i}-id`));
 
