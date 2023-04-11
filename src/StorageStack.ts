@@ -114,8 +114,8 @@ export class StorageStack extends Stack {
     const instance = new ec2.Instance(this, 'ec2-migration-instance', {
       vpc, // By default in private subnet
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.SMALL),
-      machineImage: ec2.MachineImage.latestAmazonLinux({
-        generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
+      machineImage: ec2.MachineImage.genericLinux({
+        'eu-central-1': 'ami-0750be70a912aa1e9', // Amazon linux 2023 AMI (ARM)
       }),
     });
 
