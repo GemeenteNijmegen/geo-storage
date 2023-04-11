@@ -112,11 +112,14 @@ export class StorageStack extends Stack {
     });
 
     const instance = new ec2.Instance(this, 'ec2-migration-instance', {
-      vpc, // By default in private subnet
+      vpc,
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.SMALL),
       machineImage: ec2.MachineImage.genericLinux({
         'eu-central-1': 'ami-0750be70a912aa1e9', // Amazon linux 2023 AMI (ARM)
       }),
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PUBLIC, // Place in public subnet for Session manager access without SSM VPC endpoint.
+      },
     });
 
     // Allow the ec2 instance to write to the bucket
