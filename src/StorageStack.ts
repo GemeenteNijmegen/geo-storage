@@ -111,6 +111,8 @@ export class StorageStack extends Stack {
       privateSubnetIds,
     });
 
+    const elasticIp = new ec2.CfnEIP(this, 'elastic-ip');
+
     const instance = new ec2.Instance(this, 'ec2-migration-instance', {
       vpc,
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.SMALL),
@@ -121,6 +123,12 @@ export class StorageStack extends Stack {
         subnetType: ec2.SubnetType.PUBLIC, // Place in public subnet for Session manager access without SSM VPC endpoint.
       },
     });
+
+    // Attatch the elastic ip to the ec2 instance
+    new ec2.CfnEIPAssociation(this, 'elastic-ip-instance', {
+      instanceId: instance.instanceId,
+      eip: elasticIp.ref,
+    })
 
     // Allow the ec2 instance to write to the bucket
     cycloramaBucket.grantReadWrite(instance);
