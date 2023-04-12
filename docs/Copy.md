@@ -5,7 +5,7 @@ If the cdk is configured to do so, a EC2 instance will be deployed to the accoun
 Steps: 
 - Start the instance 
 - Start a session using the `Session Manager` service in AWS Systems manager.
-- Install Rclone (todo check how?)
+- Install Rclone using `sudo -v ; curl https://rclone.org/install.sh | sudo bash`
 - Configure rclone by setting `~/.config/rclone/rclone.config`
 ```
 [AZStorageAccount]

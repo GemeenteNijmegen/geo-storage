@@ -1,4 +1,14 @@
-import { aws_s3 as s3, Stack, StackProps, Tags, aws_iam as iam, aws_ssm as ssm, aws_ec2 as ec2, Fn, Aws } from 'aws-cdk-lib';
+import {
+  aws_s3 as s3,
+  Stack,
+  StackProps,
+  Tags,
+  aws_iam as iam,
+  aws_ssm as ssm,
+  aws_ec2 as ec2,
+  Fn,
+  Aws,
+} from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Configurable } from './Configuration';
 import { Statics } from './Statics';
@@ -87,8 +97,25 @@ export class StorageStack extends Stack {
 
   }
 
-  setupDataMonitoringForBuckets(_buckets: s3.IBucket[]) {
-    // TODO implement
+  setupDataMonitoringForBuckets(buckets: s3.Bucket[]) {
+
+    // Enable download metrics for buckets
+    buckets.forEach(bucket => {
+      bucket.addMetric({
+        id: 'BytesDownloaded',
+      });
+    });
+
+    // // Setup alarm on all metrics
+    // new cloudwatch.Alarm(this, 's3-downloads-alarm', {
+    //   metric: new cloudwatch.Metric({
+    //     metricName: 'BytesDownloaded',
+    //     namespace: 'AWS/S3',
+    //   }),
+    //   alarmDescription: 'Alarm when a lot of data is downloaded from the storage buckets in this account.',
+    //   evaluationPeriods: 80,
+    //   threshold: 1000000000 // 1GB
+    // })
   }
 
 
@@ -128,7 +155,7 @@ export class StorageStack extends Stack {
     new ec2.CfnEIPAssociation(this, 'elastic-ip-instance', {
       instanceId: instance.instanceId,
       eip: elasticIp.ref,
-    })
+    });
 
     // Allow the ec2 instance to write to the bucket
     cycloramaBucket.grantReadWrite(instance);
