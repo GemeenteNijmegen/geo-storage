@@ -48,7 +48,7 @@ export const configurations: { [key: string]: Configuration } = {
     codeStarConnectionArn: Statics.gnBuildCodeStarConnectionArn,
     deploymentEnvironment: Statics.deploymentEnvironment,
     targetEnvironment: Statics.acceptanceEnvironment,
-    deployEc2MigrationInstance: false,
+    deployEc2MigrationInstance: true,
   },
 };
 
