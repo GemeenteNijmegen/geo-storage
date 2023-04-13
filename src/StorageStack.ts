@@ -6,6 +6,7 @@ import {
   aws_iam as iam,
   aws_ssm as ssm,
   aws_ec2 as ec2,
+  aws_cloudwatch as cloudwatch,
   Fn,
   Aws,
   Duration,
@@ -121,23 +122,28 @@ export class StorageStack extends Stack {
 
   setupDataMonitoringForBuckets(buckets: s3.Bucket[]) {
 
-    // Enable download metrics for buckets
     buckets.forEach(bucket => {
+      // Enable download metric on bucket
       bucket.addMetric({
         id: 'BytesDownloaded',
       });
+      // Setup alarm on download metric
+      // For now use 1 GB / 12h to alarm
+      new cloudwatch.Alarm(this, 's3-downloads-alarm', {
+        alarmDescription: 'Alarm when a lot of data is downloaded from the storage buckets in this account.',
+        metric: new cloudwatch.Metric({
+          metricName: 'BytesDownloaded',
+          namespace: 'AWS/S3',
+          statistic: 'sum',
+          dimensionsMap: {
+            "BucketName": bucket.bucketName,
+            "FilterId": "BytesDownloaded",
+          }
+        }),
+        threshold: 1000000000, // 1GB in bytes
+        evaluationPeriods: 60 * 12, // AWS metric in standard resolution is 1m periods
+      })
     });
-
-    // // Setup alarm on all metrics
-    // new cloudwatch.Alarm(this, 's3-downloads-alarm', {
-    //   metric: new cloudwatch.Metric({
-    //     metricName: 'BytesDownloaded',
-    //     namespace: 'AWS/S3',
-    //   }),
-    //   alarmDescription: 'Alarm when a lot of data is downloaded from the storage buckets in this account.',
-    //   evaluationPeriods: 80,
-    //   threshold: 1000000000 // 1GB
-    // })
   }
 
 
