@@ -20,33 +20,40 @@ export class StorageStack extends Stack {
   constructor(scope: Construct, id: string, props: StorageStackProps) {
     super(scope, id, props);
 
+    const optimalGeoStorage = this.createInteligentTieringConfigurations();
+
     const cycloramaBucket = new s3.Bucket(this, 'cyclorama-bucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       bucketName: `gemeentenijmegen-geo-cyclorama-${props.configuration.branchName}`,
+      intelligentTieringConfigurations: optimalGeoStorage,
     });
     Tags.of(cycloramaBucket).add('Contents', 'Cyclorama data');
 
     const obliekBucket = new s3.Bucket(this, 'obliek-bucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       bucketName: `gemeentenijmegen-geo-obliek-${props.configuration.branchName}`,
+      intelligentTieringConfigurations: optimalGeoStorage,
     });
     Tags.of(obliekBucket).add('Contents', 'Obliek data');
 
     const orthoBucket = new s3.Bucket(this, 'ortho-bucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       bucketName: `gemeentenijmegen-geo-ortho-${props.configuration.branchName}`,
+      intelligentTieringConfigurations: optimalGeoStorage,
     });
     Tags.of(orthoBucket).add('Contents', 'Obliek data');
 
     const lidarAirborneBucket = new s3.Bucket(this, 'lidar-airborne-bucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       bucketName: `gemeentenijmegen-geo-lidar-airborne-${props.configuration.branchName}`,
+      intelligentTieringConfigurations: optimalGeoStorage,
     });
     Tags.of(lidarAirborneBucket).add('Contents', 'LiDAR airborne data');
 
     const lidarTerrestrischBucket = new s3.Bucket(this, 'lidar-terrestrisch-bucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       bucketName: `gemeentenijmegen-geo-lidar-terrestrisch-${props.configuration.branchName}`,
+      intelligentTieringConfigurations: optimalGeoStorage,
     });
     Tags.of(lidarTerrestrischBucket).add('Contents', 'LiDAR terrestrisch data');
 
@@ -65,6 +72,16 @@ export class StorageStack extends Stack {
       this.setupEc2MigrationInstance(cycloramaBucket);
     }
 
+  }
+
+  createInteligentTieringConfigurations(): s3.IntelligentTieringConfiguration[] {
+    return [{
+      name: 'optimal-geo-storage',
+      // https://docs.aws.amazon.com/AmazonS3/latest/userguide/intelligent-tiering-overview.html
+      // archiveAccessTierTime Do not enable asynchronous retreival (currently we have 3 storage layers)
+      // deepArchiveAccessTierTime Do not deep archive +1h retrieval latency
+      // prefix, tags Apply to all objects in the bucket
+    }]
   }
 
   createBucketAccessPolicy(buckets: s3.IBucket[]) {
