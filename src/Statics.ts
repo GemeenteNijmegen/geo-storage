@@ -14,6 +14,11 @@ export class Statics {
     region: 'eu-central-1',
   };
 
+  static readonly productionEnvironment = {
+    account: 'to fill',
+    region: 'eu-central-1',
+  };
+
   // SSM parameters
   static readonly ssmGeoBucketsManagedPolicyArn = '/geo-storage/policies/geo-buckets-managment';
 

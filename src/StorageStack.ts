@@ -81,7 +81,7 @@ export class StorageStack extends Stack {
       // archiveAccessTierTime Do not enable asynchronous retreival (currently we have 3 storage layers)
       // deepArchiveAccessTierTime Do not deep archive +1h retrieval latency
       // prefix, tags Apply to all objects in the bucket
-    }]
+    }];
   }
 
   createBucketAccessPolicy(buckets: s3.IBucket[]) {
