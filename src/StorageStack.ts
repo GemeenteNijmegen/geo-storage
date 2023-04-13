@@ -144,7 +144,7 @@ export class StorageStack extends Stack {
           },
         }),
         threshold: 1000000000, // 1GB in bytes
-        evaluationPeriods: 1, // AWS metric in standard resolution is 1m periods (but this is in days?)
+        evaluationPeriods: 12, // AWS metric in standard resolution is 1m periods (but this is in days?)
         treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
       });
     });
