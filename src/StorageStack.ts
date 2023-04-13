@@ -8,6 +8,7 @@ import {
   aws_ec2 as ec2,
   Fn,
   Aws,
+  Duration,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Configurable } from './Configuration';
@@ -20,40 +21,44 @@ export class StorageStack extends Stack {
   constructor(scope: Construct, id: string, props: StorageStackProps) {
     super(scope, id, props);
 
-    const optimalGeoStorage = this.createInteligentTieringConfigurations();
+    // Note no need to use inteligentTieringConfiguration (see https://github.com/aws/aws-cdk/issues/20937)
+    // Instead supply a lifecycle rule that moves objects on creation to the Inteligent tiering storage class
+    // const optimalGeoStorage = this.createInteligentTieringConfigurations();
+
+    const moveToInteligentStorageTier = this.createInteligentTieringLifecycleRule();
 
     const cycloramaBucket = new s3.Bucket(this, 'cyclorama-bucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       bucketName: `gemeentenijmegen-geo-cyclorama-${props.configuration.branchName}`,
-      intelligentTieringConfigurations: optimalGeoStorage,
+      lifecycleRules: [moveToInteligentStorageTier],
     });
     Tags.of(cycloramaBucket).add('Contents', 'Cyclorama data');
 
     const obliekBucket = new s3.Bucket(this, 'obliek-bucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       bucketName: `gemeentenijmegen-geo-obliek-${props.configuration.branchName}`,
-      intelligentTieringConfigurations: optimalGeoStorage,
+      lifecycleRules: [moveToInteligentStorageTier],
     });
     Tags.of(obliekBucket).add('Contents', 'Obliek data');
 
     const orthoBucket = new s3.Bucket(this, 'ortho-bucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       bucketName: `gemeentenijmegen-geo-ortho-${props.configuration.branchName}`,
-      intelligentTieringConfigurations: optimalGeoStorage,
+      lifecycleRules: [moveToInteligentStorageTier],
     });
     Tags.of(orthoBucket).add('Contents', 'Obliek data');
 
     const lidarAirborneBucket = new s3.Bucket(this, 'lidar-airborne-bucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       bucketName: `gemeentenijmegen-geo-lidar-airborne-${props.configuration.branchName}`,
-      intelligentTieringConfigurations: optimalGeoStorage,
+      lifecycleRules: [moveToInteligentStorageTier],
     });
     Tags.of(lidarAirborneBucket).add('Contents', 'LiDAR airborne data');
 
     const lidarTerrestrischBucket = new s3.Bucket(this, 'lidar-terrestrisch-bucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       bucketName: `gemeentenijmegen-geo-lidar-terrestrisch-${props.configuration.branchName}`,
-      intelligentTieringConfigurations: optimalGeoStorage,
+      lifecycleRules: [moveToInteligentStorageTier],
     });
     Tags.of(lidarTerrestrischBucket).add('Contents', 'LiDAR terrestrisch data');
 
@@ -74,14 +79,14 @@ export class StorageStack extends Stack {
 
   }
 
-  createInteligentTieringConfigurations(): s3.IntelligentTieringConfiguration[] {
-    return [{
-      name: 'optimal-geo-storage',
-      // https://docs.aws.amazon.com/AmazonS3/latest/userguide/intelligent-tiering-overview.html
-      // archiveAccessTierTime Do not enable asynchronous retreival (currently we have 3 storage layers)
-      // deepArchiveAccessTierTime Do not deep archive +1h retrieval latency
-      // prefix, tags Apply to all objects in the bucket
-    }];
+  createInteligentTieringLifecycleRule(): s3.LifecycleRule {
+    return {
+      enabled: true,
+      transitions: [{
+        storageClass: s3.StorageClass.INTELLIGENT_TIERING,
+        transitionAfter: Duration.days(0), // On create
+      }],
+    };
   }
 
   createBucketAccessPolicy(buckets: s3.IBucket[]) {
