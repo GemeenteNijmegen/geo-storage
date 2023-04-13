@@ -137,6 +137,7 @@ export class StorageStack extends Stack {
           metricName: 'BytesDownloaded',
           namespace: 'AWS/S3',
           statistic: 'sum',
+          period: Duration.hours(1),
           dimensionsMap: {
             BucketName: bucket.bucketName,
             FilterId: 'BytesDownloaded',
@@ -144,6 +145,7 @@ export class StorageStack extends Stack {
         }),
         threshold: 1000000000, // 1GB in bytes
         evaluationPeriods: 60 * 12, // AWS metric in standard resolution is 1m periods
+        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
       });
     });
   }
