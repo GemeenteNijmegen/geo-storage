@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import {
   aws_s3 as s3,
   Stack,
@@ -129,20 +130,21 @@ export class StorageStack extends Stack {
       });
       // Setup alarm on download metric
       // For now use 1 GB / 12h to alarm
-      new cloudwatch.Alarm(this, 's3-downloads-alarm', {
+      const cdkId = crypto.createHash('md5').update(bucket.bucketName).digest('hex').substring(0, 7);
+      new cloudwatch.Alarm(this, `s3-downloads-alarm-${cdkId}`, {
         alarmDescription: 'Alarm when a lot of data is downloaded from the storage buckets in this account.',
         metric: new cloudwatch.Metric({
           metricName: 'BytesDownloaded',
           namespace: 'AWS/S3',
           statistic: 'sum',
           dimensionsMap: {
-            "BucketName": bucket.bucketName,
-            "FilterId": "BytesDownloaded",
-          }
+            BucketName: bucket.bucketName,
+            FilterId: 'BytesDownloaded',
+          },
         }),
         threshold: 1000000000, // 1GB in bytes
         evaluationPeriods: 60 * 12, // AWS metric in standard resolution is 1m periods
-      })
+      });
     });
   }
 
