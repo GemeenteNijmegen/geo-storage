@@ -1,4 +1,4 @@
-import { Statics } from "./Statics";
+import { Statics } from './Statics';
 
 /**
  * Custom Environment with obligatory accountId and region
@@ -34,6 +34,11 @@ export interface Configuration {
    */
   targetEnvironment: Environment;
 
+  /**
+   * Deploy EC2 migration instance for cyclorama data
+   */
+  deployEc2MigrationInstance?: boolean;
+
 }
 
 
@@ -43,8 +48,16 @@ export const configurations: { [key: string]: Configuration } = {
     codeStarConnectionArn: Statics.gnBuildCodeStarConnectionArn,
     deploymentEnvironment: Statics.deploymentEnvironment,
     targetEnvironment: Statics.acceptanceEnvironment,
-  }
-}
+    deployEc2MigrationInstance: false,
+  },
+  main: {
+    branchName: 'main',
+    codeStarConnectionArn: Statics.gnBuildCodeStarConnectionArn,
+    deploymentEnvironment: Statics.deploymentEnvironment,
+    targetEnvironment: Statics.productionEnvironment,
+    deployEc2MigrationInstance: true,
+  },
+};
 
 export function getConfiguration(buildBranch: string) {
   const config = configurations[buildBranch];

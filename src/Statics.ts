@@ -7,11 +7,19 @@ export class Statics {
   static readonly deploymentEnvironment = {
     account: '836443378780',
     region: 'eu-central-1',
-  }
+  };
 
   static readonly acceptanceEnvironment = {
     account: '766983128454',
     region: 'eu-central-1',
-  }
+  };
+
+  static readonly productionEnvironment = {
+    account: 'to fill',
+    region: 'eu-central-1',
+  };
+
+  // SSM parameters
+  static readonly ssmGeoBucketsManagedPolicyArn = '/geo-storage/policies/geo-buckets-managment';
 
 }
