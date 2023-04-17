@@ -15,7 +15,7 @@ export class Statics {
   };
 
   static readonly productionEnvironment = {
-    account: 'to fill',
+    account: '549334216741',
     region: 'eu-central-1',
   };
 
