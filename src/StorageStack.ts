@@ -104,7 +104,7 @@ export class StorageStack extends Stack {
   createBucketAccessPolicy(buckets: s3.IBucket[]) {
     const policy = new iam.ManagedPolicy(this, 'bucket-access-policy', {
       description: 'Allows read/write access to all GEO storage buckets',
-      managedPolicyName: Statics.geoUserManagedPolicyName,
+      managedPolicyName: Statics.geoStorageOperatorrManagedPolicyName,
       statements: [
         new iam.PolicyStatement({
           sid: 'AllowListBucketOnGeoBuckets',
@@ -139,9 +139,12 @@ export class StorageStack extends Stack {
       bucket.addMetric({
         id: 'BytesDownloaded',
       });
+
+      // Use bucket.node.id as a dirty trick to get the buckets cdk id and hash it
+      const cdkId = crypto.createHash('md5').update(bucket.node.id).digest('hex').substring(0, 7);
+
       // Setup alarm on download metric
       // For now use 1 GB / 12h to alarm
-      const cdkId = crypto.createHash('md5').update(bucket.bucketName).digest('hex').substring(0, 7);
       new cloudwatch.Alarm(this, `s3-downloads-alarm-${cdkId}`, {
         alarmDescription: 'Alarm when a lot of data is downloaded from the storage buckets in this account.',
         metric: new cloudwatch.Metric({
