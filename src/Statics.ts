@@ -22,4 +22,7 @@ export class Statics {
   // SSM parameters
   static readonly ssmGeoBucketsManagedPolicyArn = '/geo-storage/policies/geo-buckets-managment';
 
+  // Statics
+  static readonly geoUserManagedPolicyName = 'geo-storage-operator-policy';
+
 }

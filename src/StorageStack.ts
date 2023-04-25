@@ -104,6 +104,7 @@ export class StorageStack extends Stack {
   createBucketAccessPolicy(buckets: s3.IBucket[]) {
     const policy = new iam.ManagedPolicy(this, 'bucket-access-policy', {
       description: 'Allows read/write access to all GEO storage buckets',
+      managedPolicyName: Statics.geoUserManagedPolicyName,
       statements: [
         new iam.PolicyStatement({
           sid: 'AllowListBucketOnGeoBuckets',
