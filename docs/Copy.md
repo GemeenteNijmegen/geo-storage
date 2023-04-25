@@ -18,4 +18,47 @@ provider = AWS
 env_auth = true
 region = eu-central-1
 ```
-- We should be able to run the command `rclone sync AZStorageAccount:nijmegen s3:gemeentenijmegen-geo-cyclorama-*` (suffix is the environment name e.g. acceptance, production)
+- We should be able to run the command `rclone copy AZStorageAccount:nijmegen s3:gemeentenijmegen-geo-cyclorama-*` (suffix is the environment name e.g. acceptance, production) (or `sync`?)
+
+
+The folder statistics on Azure look like:
+```
+Finished calculating statistics for 'pwecmdlvdeliverystorage/nijmegen/'. Completed 17/04/2023, 14:31.
+Active blobs: 2.331.555 blobs, 5,06 TiB (5.559.793.749.415 bytes).
+Snapshots: 0 blobs, 0,00 B (0 bytes).
+Versions: 0 blobs, 0,00 B (0 bytes).
+Deleted blobs: 0 blobs, 0,00 B (0 bytes).
+Total: 2.331.555 items, 5,06 TiB (5.559.793.749.415 bytes).
+```
+
+Current year:
+```
+Active blobs: 166.769 blobs, 2,09 TiB (2.302.478.640.059 bytes).
+Snapshots: 0 blobs, 0,00 B (0 bytes).
+Versions: 0 blobs, 0,00 B (0 bytes).
+Deleted blobs: 0 blobs, 0,00 B (0 bytes).
+Total: 166.769 items, 2,09 TiB (2.302.478.640.059 bytes).
+```
+
+# Renewed (with metadata + 2 missing datasets)
+```
+Active blobs: 2.436.278 blobs, 5,23 TiB (5.747.296.822.708 bytes).
+Snapshots: 0 blobs, 0,00 B (0 bytes).
+Versions: 0 blobs, 0,00 B (0 bytes).
+Deleted blobs: 38 blobs, 199,70 MiB (209.404.810 bytes).
+Total: 2.436.316 items, 5,23 TiB (5.747.506.227.518 bytes).
+```
+
+
+
+Calculations:
+
+Gegevens: 2.331.555 items (5,09TiB of ±5000 GB)
+
+For S3 Intelligent-Tiering:
+- Monitoring and automation (per 1000 objects) 0,0025 = (2.331.555 / 1000) * 0,0025 = 5,8$ / month
+- First tier (frequent access) 0,0245/GB/Month = 5TB = 5000GB * 0,0245 = 122,5$ / month
+Only used after 30 days (calculation for all data)
+- Second tier (infrequent access) 0,0135/GB/Month = 5TB = 5000GB * 0,0135 = 67,5$ / month
+Only used after 90 days (caclulation for all data)
+- Third tier (Archive Instant Access) 0,005/GB/Month = 5TB = 5000GB * 0,005 = 25$ / month
