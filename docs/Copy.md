@@ -31,6 +31,26 @@ Deleted blobs: 0 blobs, 0,00 B (0 bytes).
 Total: 2.331.555 items, 5,06 TiB (5.559.793.749.415 bytes).
 ```
 
+Current year:
+```
+Active blobs: 166.769 blobs, 2,09 TiB (2.302.478.640.059 bytes).
+Snapshots: 0 blobs, 0,00 B (0 bytes).
+Versions: 0 blobs, 0,00 B (0 bytes).
+Deleted blobs: 0 blobs, 0,00 B (0 bytes).
+Total: 166.769 items, 2,09 TiB (2.302.478.640.059 bytes).
+```
+
+# Renewed (with metadata + 2 missing datasets)
+```
+Active blobs: 2.436.278 blobs, 5,23 TiB (5.747.296.822.708 bytes).
+Snapshots: 0 blobs, 0,00 B (0 bytes).
+Versions: 0 blobs, 0,00 B (0 bytes).
+Deleted blobs: 38 blobs, 199,70 MiB (209.404.810 bytes).
+Total: 2.436.316 items, 5,23 TiB (5.747.506.227.518 bytes).
+```
+
+
+
 Calculations:
 
 Gegevens: 2.331.555 items (5,09TiB of ±5000 GB)

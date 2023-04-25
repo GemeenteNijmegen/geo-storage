@@ -33,6 +33,7 @@ export class StorageStack extends Stack {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       bucketName: `gemeentenijmegen-geo-cyclorama-${props.configuration.branchName}`,
       lifecycleRules: [moveToInteligentStorageTier],
+      enforceSSL: true,
     });
     Tags.of(cycloramaBucket).add('Contents', 'Cyclorama data');
 
@@ -40,6 +41,7 @@ export class StorageStack extends Stack {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       bucketName: `gemeentenijmegen-geo-obliek-${props.configuration.branchName}`,
       lifecycleRules: [moveToInteligentStorageTier],
+      enforceSSL: true,
     });
     Tags.of(obliekBucket).add('Contents', 'Obliek data');
 
@@ -47,6 +49,7 @@ export class StorageStack extends Stack {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       bucketName: `gemeentenijmegen-geo-ortho-${props.configuration.branchName}`,
       lifecycleRules: [moveToInteligentStorageTier],
+      enforceSSL: true,
     });
     Tags.of(orthoBucket).add('Contents', 'Obliek data');
 
@@ -54,6 +57,7 @@ export class StorageStack extends Stack {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       bucketName: `gemeentenijmegen-geo-lidar-airborne-${props.configuration.branchName}`,
       lifecycleRules: [moveToInteligentStorageTier],
+      enforceSSL: true,
     });
     Tags.of(lidarAirborneBucket).add('Contents', 'LiDAR airborne data');
 
@@ -61,6 +65,7 @@ export class StorageStack extends Stack {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       bucketName: `gemeentenijmegen-geo-lidar-terrestrisch-${props.configuration.branchName}`,
       lifecycleRules: [moveToInteligentStorageTier],
+      enforceSSL: true,
     });
     Tags.of(lidarTerrestrischBucket).add('Contents', 'LiDAR terrestrisch data');
 
