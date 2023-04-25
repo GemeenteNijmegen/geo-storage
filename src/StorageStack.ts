@@ -122,6 +122,14 @@ export class StorageStack extends Stack {
           ],
           resources: buckets.map(b => b.bucketArn + '/*'),
         }),
+        new iam.PolicyStatement({
+          sid: 'AllowToListBuckets',
+          effect: iam.Effect.ALLOW,
+          actions: [
+            's3:ListAllMyBuckets',
+          ],
+          resources: buckets.map(b => b.bucketArn + '/*'),
+        }),
       ],
     });
 
