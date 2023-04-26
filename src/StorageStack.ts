@@ -128,7 +128,7 @@ export class StorageStack extends Stack {
           actions: [
             's3:ListAllMyBuckets',
           ],
-          resources: buckets.map(b => b.bucketArn + '/*'),
+          resources: ['*'],
         }),
       ],
     });
