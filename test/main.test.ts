@@ -20,5 +20,5 @@ test('StackHasBuckets', () => {
   });
 
   const template = Template.fromStack(stack);
-  template.resourceCountIs('AWS::S3::Bucket', 5);
+  template.resourceCountIs('AWS::S3::Bucket', 6);
 });

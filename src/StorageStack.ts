@@ -74,12 +74,22 @@ export class StorageStack extends Stack {
     });
     Tags.of(lidarTerrestrischBucket).add('Contents', 'LiDAR terrestrisch data');
 
+
+    const aanbestedingBucket = new s3.Bucket(this, 'aanbesteding-bucket', {
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      bucketName: `gemeentenijmegen-aanbesteding-${props.configuration.branchName}`,
+      enforceSSL: true,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+    });
+    Tags.of(aanbestedingBucket).add('Contents', 'Bucket voor aanbesteding beeldmateriaalviewer');
+
     const buckets = [
       cycloramaBucket,
       obliekBucket,
       orthoBucket,
       lidarAirborneBucket,
       lidarTerrestrischBucket,
+      aanbestedingBucket,
     ];
 
     this.createBucketAccessPolicy(buckets);
@@ -88,6 +98,19 @@ export class StorageStack extends Stack {
     if (props.configuration.deployEc2MigrationInstance) {
       this.setupEc2MigrationInstance(cycloramaBucket);
     }
+
+    this.setupAccessForThirdParties(aanbestedingBucket);
+
+  }
+
+  setupAccessForThirdParties(bucket: s3.Bucket) {
+
+    // User for accessing the bucket
+    const user = new iam.User(this, 'aanbesteding-user', {
+      userName: 'aanbesteding-user',
+    });
+
+    bucket.grantRead(user);
 
   }
 
