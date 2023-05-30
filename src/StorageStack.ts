@@ -106,7 +106,9 @@ export class StorageStack extends Stack {
   setupAccessForThirdParties(bucket: s3.Bucket) {
 
     // User for accessing the bucket
-    const user = new iam.User(this, 'third-party-user');
+    const user = new iam.User(this, 'third-party-user', {
+      userName: 'aanbesteding-user',
+    });
 
     user.addToPolicy(new iam.PolicyStatement({
       sid: 'AllowListBucket',
