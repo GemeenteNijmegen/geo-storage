@@ -35,6 +35,7 @@ export class StorageStack extends Stack {
       lifecycleRules: [moveToInteligentStorageTier],
       enforceSSL: true,
       encryption: s3.BucketEncryption.S3_MANAGED,
+      versioned: true,
     });
     Tags.of(cycloramaBucket).add('Contents', 'Cyclorama data');
 
@@ -44,6 +45,7 @@ export class StorageStack extends Stack {
       lifecycleRules: [moveToInteligentStorageTier],
       enforceSSL: true,
       encryption: s3.BucketEncryption.S3_MANAGED,
+      versioned: true,
     });
     Tags.of(obliekBucket).add('Contents', 'Obliek data');
 
@@ -62,6 +64,7 @@ export class StorageStack extends Stack {
       lifecycleRules: [moveToInteligentStorageTier],
       enforceSSL: true,
       encryption: s3.BucketEncryption.S3_MANAGED,
+      versioned: true,
     });
     Tags.of(lidarAirborneBucket).add('Contents', 'LiDAR airborne data');
 
@@ -71,6 +74,7 @@ export class StorageStack extends Stack {
       lifecycleRules: [moveToInteligentStorageTier],
       enforceSSL: true,
       encryption: s3.BucketEncryption.S3_MANAGED,
+      versioned: true,
     });
     Tags.of(lidarTerrestrischBucket).add('Contents', 'LiDAR terrestrisch data');
 
@@ -80,6 +84,7 @@ export class StorageStack extends Stack {
       bucketName: `gemeentenijmegen-aanbesteding-${props.configuration.branchName}`,
       enforceSSL: true,
       encryption: s3.BucketEncryption.S3_MANAGED,
+      versioned: true,
     });
     Tags.of(aanbestedingBucket).add('Contents', 'Bucket voor aanbesteding beeldmateriaalviewer');
 
