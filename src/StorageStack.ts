@@ -74,12 +74,22 @@ export class StorageStack extends Stack {
     });
     Tags.of(lidarTerrestrischBucket).add('Contents', 'LiDAR terrestrisch data');
 
+
+    const aanbestedingBucket = new s3.Bucket(this, 'aanbesteding-bucket', {
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      bucketName: `gemeentenijmegen-aanbesteding-${props.configuration.branchName}`,
+      enforceSSL: true,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+    });
+    Tags.of(aanbestedingBucket).add('Contents', 'Bucket voor aanbesteding beeldmateriaalviewer');
+
     const buckets = [
       cycloramaBucket,
       obliekBucket,
       orthoBucket,
       lidarAirborneBucket,
       lidarTerrestrischBucket,
+      aanbestedingBucket
     ];
 
     this.createBucketAccessPolicy(buckets);
@@ -88,6 +98,32 @@ export class StorageStack extends Stack {
     if (props.configuration.deployEc2MigrationInstance) {
       this.setupEc2MigrationInstance(cycloramaBucket);
     }
+
+  }
+
+  setupAccessForThirdParties(bucket: s3.Bucket) {
+
+    // User for accessing the bucket
+    const user = new iam.User(this, 'third-party-user');
+
+    user.addToPolicy(new iam.PolicyStatement({
+      sid: 'AllowListBucket',
+      effect: iam.Effect.ALLOW,
+      actions: [
+        's3:ListBucket',
+      ],
+      resources: [bucket.bucketArn],
+    }));
+
+    user.addToPolicy(new iam.PolicyStatement({
+      sid: 'AllowAccessToObjectsInBucket',
+      effect: iam.Effect.ALLOW,
+      actions: [
+        's3:GetObject', // Allow to get objects from the bucket
+      ],
+      resources: [bucket.bucketArn],
+    }));
+
 
   }
 
