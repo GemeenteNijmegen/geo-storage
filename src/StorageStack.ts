@@ -110,24 +110,7 @@ export class StorageStack extends Stack {
       userName: 'aanbesteding-user',
     });
 
-    user.addToPolicy(new iam.PolicyStatement({
-      sid: 'AllowListBucket',
-      effect: iam.Effect.ALLOW,
-      actions: [
-        's3:ListBucket',
-      ],
-      resources: [bucket.bucketArn],
-    }));
-
-    user.addToPolicy(new iam.PolicyStatement({
-      sid: 'AllowAccessToObjectsInBucket',
-      effect: iam.Effect.ALLOW,
-      actions: [
-        's3:GetObject', // Allow to get objects from the bucket
-      ],
-      resources: [bucket.bucketArn],
-    }));
-
+    bucket.grantRead(user);
 
   }
 
