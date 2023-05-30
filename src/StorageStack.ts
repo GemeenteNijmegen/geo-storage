@@ -89,7 +89,7 @@ export class StorageStack extends Stack {
       orthoBucket,
       lidarAirborneBucket,
       lidarTerrestrischBucket,
-      aanbestedingBucket
+      aanbestedingBucket,
     ];
 
     this.createBucketAccessPolicy(buckets);
