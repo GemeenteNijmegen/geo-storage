@@ -99,6 +99,8 @@ export class StorageStack extends Stack {
       this.setupEc2MigrationInstance(cycloramaBucket);
     }
 
+    this.setupAccessForThirdParties(aanbestedingBucket);
+
   }
 
   setupAccessForThirdParties(bucket: s3.Bucket) {
