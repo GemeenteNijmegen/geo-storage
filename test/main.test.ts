@@ -31,7 +31,7 @@ test('Bucket names (without backup)', () => {
   expect(Statics.orthoBucket('test', false)).toBe('gemeentenijmegen-geo-ortho-test');
   expect(Statics.lidarAirborneBucket('test', false)).toBe('gemeentenijmegen-geo-lidar-airborne-test');
   expect(Statics.lidarTerrestrischBucket('test', false)).toBe('gemeentenijmegen-geo-lidar-terrestrisch-test');
-  expect(Statics.aanbestedingBucket('test', false)).toBe('gemeentenijmegen-geo-aanbesteding-test');
+  expect(Statics.aanbestedingBucket('test', false)).toBe('gemeentenijmegen-aanbesteding-test');
 });
 
 test('Bucket names (with backup)', () => {
@@ -40,5 +40,5 @@ test('Bucket names (with backup)', () => {
   expect(Statics.orthoBucket('test', true)).toBe('gemeentenijmegen-geo-ortho-test-backup');
   expect(Statics.lidarAirborneBucket('test', true)).toBe('gemeentenijmegen-geo-lidar-airborne-test-backup');
   expect(Statics.lidarTerrestrischBucket('test', true)).toBe('gemeentenijmegen-geo-lidar-terrestrisch-test-backup');
-  expect(Statics.aanbestedingBucket('test', true)).toBe('gemeentenijmegen-geo-aanbesteding-test-backup');
+  expect(Statics.aanbestedingBucket('test', true)).toBe('gemeentenijmegen-aanbesteding-test-backup');
 });
