@@ -49,7 +49,7 @@ export class StorageStack extends Stack {
     this.createBucketAccessPolicy(buckets);
     this.setupDataDownloadAlarms(buckets);
     this.setupAccessForThirdParties(aanbestedingBucket);
-    this.setupReplication(buckets);
+    //this.setupReplication(buckets);
 
 
     if (props.configuration.deployEc2MigrationInstance) {
