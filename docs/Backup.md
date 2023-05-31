@@ -61,6 +61,15 @@ total = $8,25
   - No considerable amount of new data
   - No creation of multiple versions of objects
 
+
+## Backup acccount
+Some considerations:
+- For now use the gn-backup account to deploy the backup buckets
+- Backup buckets will be defined in this project
+- Backup buckets may be moved to workload or ensia ou specific backup accounts.
+- Implementing the buckets in this project enables us to move the pipeline to a workload ou build account and a workload ou backup account. 
+- gn-build account can later be used as a platform specific build account
+
 ## Conclusion
 - AWS backup offers better restoring options (point in time)
 - AWS backup is less complex to setup compared to S3 replication

@@ -39,6 +39,11 @@ export interface Configuration {
    */
   deployEc2MigrationInstance?: boolean;
 
+  /**
+   * The environment to replicate objects to
+   */
+  backupEnvironment: Environment;
+
 }
 
 
@@ -49,6 +54,7 @@ export const configurations: { [key: string]: Configuration } = {
     deploymentEnvironment: Statics.deploymentEnvironment,
     targetEnvironment: Statics.acceptanceEnvironment,
     deployEc2MigrationInstance: false,
+    backupEnvironment: Statics.backupEnvironment,
   },
   main: {
     branchName: 'main',
@@ -56,6 +62,7 @@ export const configurations: { [key: string]: Configuration } = {
     deploymentEnvironment: Statics.deploymentEnvironment,
     targetEnvironment: Statics.productionEnvironment,
     deployEc2MigrationInstance: false,
+    backupEnvironment: Statics.backupEnvironment,
   },
 };
 
