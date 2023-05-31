@@ -3,11 +3,9 @@ import {
   StackProps,
   aws_s3 as s3,
   aws_iam as iam,
-  aws_ssm as ssm,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Configurable } from './Configuration';
-import { Statics } from './Statics';
 import { setupBuckets } from './utils';
 
 export interface BackupStackProps extends Configurable, StackProps {}
@@ -17,7 +15,11 @@ export class BackupStack extends Stack {
   constructor(scope: Construct, id: string, props: BackupStackProps) {
     super(scope, id, props);
 
-    const replicationRoleArn = ssm.StringParameter.valueForStringParameter(this, Statics.ssmBackupRoleArn);
+    const role = new iam.Role(this, 'temp-role', {
+      assumedBy: new iam.AnyPrincipal(),
+    });
+    const replicationRoleArn = role.roleArn;
+    // const replicationRoleArn = ssm.StringParameter.valueForStringParameter(this, Statics.ssmBackupRoleArn);
 
     const lifecycleRules = undefined;
 
