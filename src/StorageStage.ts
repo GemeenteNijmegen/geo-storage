@@ -15,15 +15,16 @@ export class StorageStage extends Stage {
 
     Aspects.of(this).add(new PermissionsBoundaryAspect());
 
-    new BackupIamStack(this, `${props.configuration.branchName}-backup-iam`, {
+    const backupIamStack = new BackupIamStack(this, `${props.configuration.branchName}-backup-iam`, {
       env: props.configuration.backupEnvironment,
       configuration: props.configuration,
     });
 
-    new StorageStack(this, 'data-stack', {
+    const storageStack = new StorageStack(this, 'data-stack', {
       env: props.configuration.targetEnvironment,
       configuration: props.configuration,
     });
+    storageStack.addDependency(backupIamStack);
 
     // new BackupStack(this, `${props.configuration.branchName}-backup`, {
     // });
