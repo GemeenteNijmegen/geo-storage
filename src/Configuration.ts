@@ -54,7 +54,7 @@ export const configurations: { [key: string]: Configuration } = {
     deploymentEnvironment: Statics.deploymentEnvironment,
     targetEnvironment: Statics.acceptanceEnvironment,
     deployEc2MigrationInstance: false,
-    backupEnvironment: Statics.backupEnvironment,
+    backupEnvironment: Statics.backupEnvironmentAcceptance,
   },
   main: {
     branchName: 'main',

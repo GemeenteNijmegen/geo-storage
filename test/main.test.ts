@@ -16,6 +16,7 @@ test('StackHasBuckets', () => {
       codeStarConnectionArn: Statics.gnBuildCodeStarConnectionArn,
       deploymentEnvironment: testEnv,
       targetEnvironment: testEnv,
+      backupEnvironment: testEnv,
     },
   });
 

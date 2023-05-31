@@ -24,6 +24,11 @@ export class Statics {
     region: 'eu-west-1', // Different region!
   };
 
+  static readonly backupEnvironmentAcceptance = {
+    account: '766983128454', // Same acceptance account!
+    region: 'eu-west-1', // Different region!
+  };
+
   // SSM parameters
   static readonly ssmGeoBucketsManagedPolicyArn = '/geo-storage/policies/geo-buckets-managment';
   static readonly ssmBackupRoleArn = '/geo-storage/backup/role-arn';
