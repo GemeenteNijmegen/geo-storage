@@ -5,7 +5,6 @@ import {
   aws_iam as iam,
   Tags,
 } from 'aws-cdk-lib';
-import { RemoteParameters } from 'cdk-remote-stack';
 import { Construct } from 'constructs';
 import { Configurable } from './Configuration';
 import { Statics } from './Statics';
@@ -17,12 +16,10 @@ export class BackupStack extends Stack {
   constructor(scope: Construct, id: string, props: BackupStackProps) {
     super(scope, id, props);
 
-    // Import role arn form different region
-    const backupParameters = new RemoteParameters(this, 'backup-parameters', {
-      path: Statics.ssmBackupPath,
-      region: props.configuration.targetEnvironment.region,
-    });
-    const replicationRoleArn = backupParameters.get(Statics.ssmBackupRoleArn);
+    // Construct the role arn from the different account
+    // Note: uses name as we do not want to get into cross-account parameters.
+    const sourceAccount = props.configuration.targetEnvironment.account;
+    const replicationRoleArn = `arn:aws:iam::${sourceAccount}:role/${Statics.backupRoleName}`;
 
     for (const bucketSettings of props.configuration.buckets) {
 

@@ -29,6 +29,7 @@ export class Statics {
     region: 'eu-west-1', // Different region!
   };
 
+
   // SSM parameters
   static readonly ssmGeoBucketsManagedPolicyArn = '/geo-storage/policies/geo-buckets-managment';
   static readonly ssmBackupPath = '/geo-storage/backup';
@@ -36,6 +37,7 @@ export class Statics {
 
   // Statics
   static readonly geoStorageOperatorrManagedPolicyName = 'geo-storage-operator-policy';
+  static readonly backupRoleName = 'backup-replicaiton-role';
 
   // Bucket names
   static bucketBackupSuffix = (backup: boolean) => backup ? '-backup' : '';
