@@ -1,7 +1,7 @@
 import { Statics } from './Statics';
 
 export function getBucketArns(branchName: string, backup: boolean) {
-  return [
+  const names = [
     Statics.cycloramaBucket(branchName, backup),
     Statics.obliekBucket(branchName, backup),
     Statics.orthoBucket(branchName, backup),
@@ -9,4 +9,5 @@ export function getBucketArns(branchName: string, backup: boolean) {
     Statics.lidarTerrestrischBucket(branchName, backup),
     Statics.aanbestedingBucket(branchName, backup),
   ];
+  return names.map(name => `arn:aws:s3:::${name}`);
 }
