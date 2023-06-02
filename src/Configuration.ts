@@ -159,6 +159,7 @@ export function getBucketConfig(branchName: string) {
       name: Statics.aanbestedingBucket(branchName, false),
       backupName: undefined, // NO BACKUP!
       description: 'Bucket voor aanbesteding beeldmateriaalviewer',
+      setupAccessForIamUser: true, // ALLOW IAM user to read bucket!
       bucketConfiguration: {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,

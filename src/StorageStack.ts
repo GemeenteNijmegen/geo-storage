@@ -25,6 +25,11 @@ export class StorageStack extends Stack {
       this.createInteligentTieringLifecycleRule(),
     ];
 
+    // User for accessing the bucket
+    const user = new iam.User(this, 'aanbesteding-user', {
+      userName: 'aanbesteding-user',
+    });
+
     const buckets: s3.Bucket[] = [];
     for (const bucketSettings of props.configuration.buckets) {
 
@@ -36,11 +41,12 @@ export class StorageStack extends Stack {
       Tags.of(bucket).add('Contents', bucketSettings.description);
 
       if (bucketSettings.setupAccessForIamUser) {
-        this.setupAccessForThirdParties(bucket);
+        bucket.grantRead(user);
       }
 
       if (bucketSettings.backupName) {
         // TODO setup replication to target bucket!
+        // this.setupReplication(bucket, bucketSettings.backupName, props.configuration.backupEnvironment.account, '');
       }
 
       buckets.push(bucket);
@@ -51,42 +57,25 @@ export class StorageStack extends Stack {
 
   }
 
-
-  setupAccessForThirdParties(bucket: s3.Bucket) {
-
-    // User for accessing the bucket
-    const user = new iam.User(this, 'aanbesteding-user', {
-      userName: 'aanbesteding-user',
-    });
-
-    bucket.grantRead(user);
-
-  }
-
-  setupReplication(buckets: s3.IBucket[], props: StorageStackProps) {
-
-    // Import replication role ARN form backup iam stack
-    // const replicationRoleArn = ssm.StringParameter.valueForStringParameter(this, Statics.ssmBackupRoleArn);
-
-    buckets.forEach(bucket => {
+  setupReplication(bucket: s3.IBucket, destinationBucketName: string, destinationAccount: string, backupRoleArn: string) {
       const cfnBucket = bucket.node.defaultChild as CfnBucket;
       cfnBucket.replicationConfiguration = {
-        role: '',
+        role: backupRoleArn,
         rules: [
           {
             id: 'CrossAccountBackupReplicationRule',
             status: 'Enabled',
             destination: {
-              bucket: '',
+              bucket: destinationBucketName, // destinationBucketName convert to arn!
               accessControlTranslation: {
                 owner: 'Destination',
               },
-              account: props.configuration.backupEnvironment.account,
+              account: destinationAccount,
               // encryptionConfiguration: { replicaKmsKeyId: 'destinationKmsKeyArn.valueAsString' },
             },
             priority: 1,
             deleteMarkerReplication: {
-              status: 'Disabled',
+              status: 'Disabled', // Prevent deletion for now
             },
             // filter: {
             //   prefix: '',
@@ -99,8 +88,6 @@ export class StorageStack extends Stack {
           },
         ],
       };
-
-    });
   }
 
   createInteligentTieringLifecycleRule(): s3.LifecycleRule {
