@@ -71,7 +71,9 @@ export class StorageStack extends Stack {
         {
           id: 'CrossAccountBackupReplicationRule',
           priority: 0,
-          filter: {},
+          filter: {
+            prefix: ''
+          },
           status: 'Enabled',
           destination: {
             bucket: `arn:aws:s3:::${destinationBucketName}`,
