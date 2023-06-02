@@ -7,7 +7,6 @@ import {
 import { Construct } from 'constructs';
 import { Configurable } from './Configuration';
 import { Statics } from './Statics';
-import { getBucketArns } from './utils';
 
 export interface BackupIamStackProps extends Configurable, StackProps { }
 
@@ -16,8 +15,8 @@ export class BackupIamStack extends Stack {
   constructor(scope: Construct, id: string, props: BackupIamStackProps) {
     super(scope, id, props);
 
-    const sourceBucketArns = getBucketArns(props.configuration.branchName, false);
-    const backupBucketArns = getBucketArns(props.configuration.branchName, true);
+    const sourceBucketArns = props.configuration.buckets.filter(bucket => bucket.backupName).map(bucket => `arn:aws:s3:::${bucket.name}`);
+    const backupBucketArns = props.configuration.buckets.filter(bucket => bucket.backupName).map(bucket => `arn:aws:s3:::${bucket.name}`);
     const sourceBucketContents = sourceBucketArns.map(arn => `${arn}/*`);
     const backupBucketContents = backupBucketArns.map(arn => `${arn}/*`);
 
