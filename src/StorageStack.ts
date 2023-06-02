@@ -58,36 +58,36 @@ export class StorageStack extends Stack {
   }
 
   setupReplication(bucket: s3.IBucket, destinationBucketName: string, destinationAccount: string, backupRoleArn: string) {
-      const cfnBucket = bucket.node.defaultChild as CfnBucket;
-      cfnBucket.replicationConfiguration = {
-        role: backupRoleArn,
-        rules: [
-          {
-            id: 'CrossAccountBackupReplicationRule',
-            status: 'Enabled',
-            destination: {
-              bucket: destinationBucketName, // destinationBucketName convert to arn!
-              accessControlTranslation: {
-                owner: 'Destination',
-              },
-              account: destinationAccount,
-              // encryptionConfiguration: { replicaKmsKeyId: 'destinationKmsKeyArn.valueAsString' },
+    const cfnBucket = bucket.node.defaultChild as CfnBucket;
+    cfnBucket.replicationConfiguration = {
+      role: backupRoleArn,
+      rules: [
+        {
+          id: 'CrossAccountBackupReplicationRule',
+          status: 'Enabled',
+          destination: {
+            bucket: destinationBucketName, // destinationBucketName convert to arn!
+            accessControlTranslation: {
+              owner: 'Destination',
             },
-            priority: 1,
-            deleteMarkerReplication: {
-              status: 'Disabled', // Prevent deletion for now
-            },
-            // filter: {
-            //   prefix: '',
-            // },
-            // sourceSelectionCriteria: {
-            //   sseKmsEncryptedObjects: {
-            //     status: 'Enabled',
-            //   },
-            // },
+            account: destinationAccount,
+            // encryptionConfiguration: { replicaKmsKeyId: 'destinationKmsKeyArn.valueAsString' },
           },
-        ],
-      };
+          priority: 1,
+          deleteMarkerReplication: {
+            status: 'Disabled', // Prevent deletion for now
+          },
+          // filter: {
+          //   prefix: '',
+          // },
+          // sourceSelectionCriteria: {
+          //   sseKmsEncryptedObjects: {
+          //     status: 'Enabled',
+          //   },
+          // },
+        },
+      ],
+    };
   }
 
   createInteligentTieringLifecycleRule(): s3.LifecycleRule {
