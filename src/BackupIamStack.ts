@@ -23,6 +23,7 @@ export class BackupIamStack extends Stack {
     const role = new iam.Role(this, 'backup-role', {
       assumedBy: new iam.ServicePrincipal('s3.amazonaws.com'),
       description: 'Role used for replication objects in the geo buckets to the backup account',
+      roleName: Statics.backupRoleName,
     });
 
     // Also allow batch replication
