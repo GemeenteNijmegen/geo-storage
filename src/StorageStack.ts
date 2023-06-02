@@ -5,17 +5,14 @@ import {
   StackProps,
   aws_iam as iam,
   aws_ssm as ssm,
-  aws_ec2 as ec2,
   aws_cloudwatch as cloudwatch,
-  Fn,
-  Aws,
   Duration,
+  Tags,
 } from 'aws-cdk-lib';
 import { CfnBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { Configurable } from './Configuration';
 import { Statics } from './Statics';
-import { setupBuckets } from './utils';
 
 export interface StorageStackProps extends Configurable, StackProps {}
 
@@ -28,87 +25,69 @@ export class StorageStack extends Stack {
       this.createInteligentTieringLifecycleRule(),
     ];
 
-    const {
-      cycloramaBucket,
-      obliekBucket,
-      orthoBucket,
-      lidarAirborneBucket,
-      lidarTerrestrischBucket,
-      aanbestedingBucket,
-    } = setupBuckets(this, props.configuration.branchName, false, moveToInteligentStorageTier);
-
-    const buckets = [
-      cycloramaBucket,
-      obliekBucket,
-      orthoBucket,
-      lidarAirborneBucket,
-      lidarTerrestrischBucket,
-      aanbestedingBucket,
-    ];
-
-    this.createBucketAccessPolicy(buckets);
-    this.setupDataDownloadAlarms(buckets);
-    this.setupAccessForThirdParties(aanbestedingBucket);
-    //this.setupReplication(buckets);
-
-
-    if (props.configuration.deployEc2MigrationInstance) {
-      this.setupEc2MigrationInstance(cycloramaBucket);
-    }
-
-  }
-
-
-  setupAccessForThirdParties(bucket: s3.Bucket) {
-
     // User for accessing the bucket
     const user = new iam.User(this, 'aanbesteding-user', {
       userName: 'aanbesteding-user',
     });
 
-    bucket.grantRead(user);
+    const buckets: s3.Bucket[] = [];
+    for (const bucketSettings of props.configuration.buckets) {
+
+      const bucket = new s3.Bucket(this, bucketSettings.cdkId, {
+        bucketName: bucketSettings.name,
+        lifecycleRules: moveToInteligentStorageTier,
+        ...bucketSettings.bucketConfiguration,
+      });
+      Tags.of(bucket).add('Contents', bucketSettings.description);
+
+      if (bucketSettings.setupAccessForIamUser) {
+        bucket.grantRead(user);
+      }
+
+      if (bucketSettings.backupName) {
+        // TODO setup replication to target bucket!
+        // this.setupReplication(bucket, bucketSettings.backupName, props.configuration.backupEnvironment.account, '');
+      }
+
+      buckets.push(bucket);
+    }
+
+    this.createBucketAccessPolicy(buckets);
+    this.setupDataDownloadAlarms(buckets);
 
   }
 
-  setupReplication(buckets: s3.IBucket[]) {
-
-    // Import replication role ARN form backup stack
-
-    // Import destination bucket ARN
-
-    buckets.forEach(bucket => {
-      const lowLevelSourceS3Bucket = bucket.node.defaultChild as CfnBucket;
-      lowLevelSourceS3Bucket.replicationConfiguration = {
-        role: '',
-        rules: [
-          {
-            id: 'CrossAccountReplicationRule',
-            status: 'Enabled',
-            destination: {
-              bucket: '',
-              accessControlTranslation: {
-                owner: 'Destination',
-              },
-              account: '',
-              encryptionConfiguration: { replicaKmsKeyId: 'destinationKmsKeyArn.valueAsString' },
+  setupReplication(bucket: s3.IBucket, destinationBucketName: string, destinationAccount: string, backupRoleArn: string) {
+    const cfnBucket = bucket.node.defaultChild as CfnBucket;
+    cfnBucket.replicationConfiguration = {
+      role: backupRoleArn,
+      rules: [
+        {
+          id: 'CrossAccountBackupReplicationRule',
+          status: 'Enabled',
+          destination: {
+            bucket: destinationBucketName, // destinationBucketName convert to arn!
+            accessControlTranslation: {
+              owner: 'Destination',
             },
-            priority: 1,
-            deleteMarkerReplication: {
-              status: 'Disabled',
-            },
-            filter: {
-              prefix: '',
-            },
-            sourceSelectionCriteria: {
-              sseKmsEncryptedObjects: {
-                status: 'Enabled',
-              },
-            },
+            account: destinationAccount,
+            // encryptionConfiguration: { replicaKmsKeyId: 'destinationKmsKeyArn.valueAsString' },
           },
-        ],
-      };
-
-    });
+          priority: 1,
+          deleteMarkerReplication: {
+            status: 'Disabled', // Prevent deletion for now
+          },
+          // filter: {
+          //   prefix: '',
+          // },
+          // sourceSelectionCriteria: {
+          //   sseKmsEncryptedObjects: {
+          //     status: 'Enabled',
+          //   },
+          // },
+        },
+      ],
+    };
   }
 
   createInteligentTieringLifecycleRule(): s3.LifecycleRule {
@@ -191,47 +170,5 @@ export class StorageStack extends Stack {
       });
     });
   }
-
-
-  /**
-   * Import the VPC and deploy an EC2 instance
-   * Note: requires a VPC to be present in the account
-   * @param cycloramaBucket
-   */
-  setupEc2MigrationInstance(cycloramaBucket: s3.IBucket) {
-
-    // Import vpc config (only public and private subnets)
-    const vpcId = ssm.StringParameter.valueForStringParameter(this, '/landingzone/vpc/vpc-id');
-    const availabilityZones = [0, 1, 2].map(i => Fn.select(i, Fn.getAzs(Aws.REGION)));
-    const publicSubnetRouteTableIds = Array(3).fill(ssm.StringParameter.valueForStringParameter(this, '/landingzone/vpc/route-table-public-subnets-id'));
-    const privateSubnetRouteTableIds = [1, 2, 3].map(i => ssm.StringParameter.valueForStringParameter(this, `/landingzone/vpc/route-table-private-subnet-${i}-id`));
-    const publicSubnetIds = [1, 2, 3].map(i => ssm.StringParameter.valueForStringParameter(this, `/landingzone/vpc/public-subnet-${i}-id`));
-    const privateSubnetIds = [1, 2, 3].map(i => ssm.StringParameter.valueForStringParameter(this, `/landingzone/vpc/private-subnet-${i}-id`));
-
-    const vpc = ec2.Vpc.fromVpcAttributes(this, 'vpc', {
-      vpcId,
-      availabilityZones,
-      privateSubnetRouteTableIds,
-      publicSubnetRouteTableIds,
-      publicSubnetIds,
-      privateSubnetIds,
-    });
-
-    const instance = new ec2.Instance(this, 'ec2-migration-instance', {
-      vpc,
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.SMALL),
-      machineImage: ec2.MachineImage.genericLinux({
-        'eu-central-1': 'ami-0750be70a912aa1e9', // Amazon linux 2023 AMI (ARM)
-      }),
-      vpcSubnets: {
-        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-      },
-    });
-
-    // Allow the ec2 instance to write to the bucket
-    cycloramaBucket.grantReadWrite(instance);
-    instance.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
-  }
-
 
 }

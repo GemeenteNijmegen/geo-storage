@@ -3,10 +3,12 @@ import {
   StackProps,
   aws_s3 as s3,
   aws_iam as iam,
+  aws_ssm as ssm,
+  Tags,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Configurable } from './Configuration';
-import { setupBuckets } from './utils';
+import { Statics } from './Statics';
 
 export interface BackupStackProps extends Configurable, StackProps {}
 
@@ -15,37 +17,27 @@ export class BackupStack extends Stack {
   constructor(scope: Construct, id: string, props: BackupStackProps) {
     super(scope, id, props);
 
-    const role = new iam.Role(this, 'temp-role', {
-      assumedBy: new iam.AnyPrincipal(),
-    });
-    const replicationRoleArn = role.roleArn;
-    // const replicationRoleArn = ssm.StringParameter.valueForStringParameter(this, Statics.ssmBackupRoleArn);
+    const replicationRoleArn = ssm.StringParameter.valueForStringParameter(this, Statics.ssmBackupRoleArn);
 
-    const lifecycleRules = undefined;
+    for (const bucketSettings of props.configuration.buckets) {
 
-    const {
-      cycloramaBucket,
-      obliekBucket,
-      orthoBucket,
-      lidarAirborneBucket,
-      lidarTerrestrischBucket,
-      aanbestedingBucket,
-    } =
-    setupBuckets(this, props.configuration.branchName, true, lifecycleRules);
+      if (!bucketSettings.backupName) {
+        // Only create buckets that are backedup!
+        continue;
+      }
 
-    const buckets = [
-      cycloramaBucket,
-      obliekBucket,
-      orthoBucket,
-      lidarAirborneBucket,
-      lidarTerrestrischBucket,
-      aanbestedingBucket,
-    ];
+      const bucket = new s3.Bucket(this, bucketSettings.cdkId, {
+        bucketName: bucketSettings.backupName,
+        lifecycleRules: undefined, // TODO check if needed or can be done using storage class
+        ...bucketSettings.bucketConfiguration,
+      });
+      Tags.of(bucket).add('Contents', `${bucketSettings.description} (backup)`);
 
-    buckets.forEach(bucket => this.allowReplicationToBucket(bucket, replicationRoleArn));
+      this.allowReplicationToBucket(bucket, replicationRoleArn);
+
+    }
 
   }
-
 
   allowReplicationToBucket(bucket: s3.Bucket, replicationRoleArn: string) {
 
