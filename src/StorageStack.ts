@@ -50,8 +50,7 @@ export class StorageStack extends Stack {
       if (bucketSettings.backupName) {
         const destinationBucketName = bucketSettings.backupName;
         const destinationAccount = props.configuration.backupEnvironment.account;
-        const crossAccount = destinationAccount !== props.configuration.targetEnvironment.account;
-        this.setupReplication(bucket, destinationBucketName, destinationAccount, replicationRoleArn, crossAccount);
+        this.setupReplication(bucket, destinationBucketName, destinationAccount, replicationRoleArn);
       }
 
       bucket.grantReadWrite(backupRole);
@@ -64,22 +63,22 @@ export class StorageStack extends Stack {
 
   }
 
-  setupReplication(bucket: s3.IBucket, destinationBucketName: string, destinationAccount: string, backupRoleArn: string, crossAccount: boolean) {
+  setupReplication(bucket: s3.IBucket, destinationBucketName: string, destinationAccount: string, backupRoleArn: string) {
     const cfnBucket = bucket.node.defaultChild as CfnBucket;
     cfnBucket.replicationConfiguration = {
       role: backupRoleArn,
       rules: [
         {
           id: 'CrossAccountBackupReplicationRule',
-          priority: 1,
-          filter: {},
+          priority: 0,
+          //filter: {},
           status: 'Enabled',
           destination: {
             bucket: `arn:aws:s3:::${destinationBucketName}`,
-            accessControlTranslation: crossAccount ? {
+            accessControlTranslation: {
               owner: 'Destination',
-            } : undefined,
-            account: crossAccount ? destinationAccount : undefined,
+            },
+            account: destinationAccount,
             storageClass: 'DEEP_ARCHIVE',
           },
           deleteMarkerReplication: {
