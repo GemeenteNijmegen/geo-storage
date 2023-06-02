@@ -1,5 +1,6 @@
 import { App } from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
+import { getBucketConfig } from '../src/Configuration';
 import { Statics } from '../src/Statics';
 import { StorageStack } from '../src/StorageStack';
 
@@ -17,6 +18,7 @@ test('StackHasBuckets', () => {
       deploymentEnvironment: testEnv,
       targetEnvironment: testEnv,
       backupEnvironment: testEnv,
+      buckets: getBucketConfig('test'),
     },
   });
 

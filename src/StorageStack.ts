@@ -5,17 +5,14 @@ import {
   StackProps,
   aws_iam as iam,
   aws_ssm as ssm,
-  aws_ec2 as ec2,
   aws_cloudwatch as cloudwatch,
-  Fn,
-  Aws,
   Duration,
+  Tags,
 } from 'aws-cdk-lib';
 import { CfnBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { Configurable } from './Configuration';
 import { Statics } from './Statics';
-import { setupBuckets } from './utils';
 
 export interface StorageStackProps extends Configurable, StackProps {}
 
@@ -28,33 +25,29 @@ export class StorageStack extends Stack {
       this.createInteligentTieringLifecycleRule(),
     ];
 
-    const {
-      cycloramaBucket,
-      obliekBucket,
-      orthoBucket,
-      lidarAirborneBucket,
-      lidarTerrestrischBucket,
-      aanbestedingBucket,
-    } = setupBuckets(this, props.configuration.branchName, false, moveToInteligentStorageTier);
+    const buckets: s3.Bucket[] = [];
+    for (const bucketSettings of props.configuration.buckets) {
 
-    const buckets = [
-      cycloramaBucket,
-      obliekBucket,
-      orthoBucket,
-      lidarAirborneBucket,
-      lidarTerrestrischBucket,
-      aanbestedingBucket,
-    ];
+      const bucket = new s3.Bucket(this, bucketSettings.cdkId, {
+        bucketName: bucketSettings.name,
+        lifecycleRules: moveToInteligentStorageTier,
+        ...bucketSettings.bucketConfiguration,
+      });
+      Tags.of(bucket).add('Contents', bucketSettings.description);
+
+      if (bucketSettings.setupAccessForIamUser) {
+        this.setupAccessForThirdParties(bucket);
+      }
+
+      if (bucketSettings.backupName) {
+        // TODO setup replication to target bucket!
+      }
+
+      buckets.push(bucket);
+    }
 
     this.createBucketAccessPolicy(buckets);
     this.setupDataDownloadAlarms(buckets);
-    this.setupAccessForThirdParties(aanbestedingBucket);
-    //this.setupReplication(buckets);
-
-
-    if (props.configuration.deployEc2MigrationInstance) {
-      this.setupEc2MigrationInstance(cycloramaBucket);
-    }
 
   }
 
@@ -70,40 +63,39 @@ export class StorageStack extends Stack {
 
   }
 
-  setupReplication(buckets: s3.IBucket[]) {
+  setupReplication(buckets: s3.IBucket[], props: StorageStackProps) {
 
-    // Import replication role ARN form backup stack
-
-    // Import destination bucket ARN
+    // Import replication role ARN form backup iam stack
+    // const replicationRoleArn = ssm.StringParameter.valueForStringParameter(this, Statics.ssmBackupRoleArn);
 
     buckets.forEach(bucket => {
-      const lowLevelSourceS3Bucket = bucket.node.defaultChild as CfnBucket;
-      lowLevelSourceS3Bucket.replicationConfiguration = {
+      const cfnBucket = bucket.node.defaultChild as CfnBucket;
+      cfnBucket.replicationConfiguration = {
         role: '',
         rules: [
           {
-            id: 'CrossAccountReplicationRule',
+            id: 'CrossAccountBackupReplicationRule',
             status: 'Enabled',
             destination: {
               bucket: '',
               accessControlTranslation: {
                 owner: 'Destination',
               },
-              account: '',
-              encryptionConfiguration: { replicaKmsKeyId: 'destinationKmsKeyArn.valueAsString' },
+              account: props.configuration.backupEnvironment.account,
+              // encryptionConfiguration: { replicaKmsKeyId: 'destinationKmsKeyArn.valueAsString' },
             },
             priority: 1,
             deleteMarkerReplication: {
               status: 'Disabled',
             },
-            filter: {
-              prefix: '',
-            },
-            sourceSelectionCriteria: {
-              sseKmsEncryptedObjects: {
-                status: 'Enabled',
-              },
-            },
+            // filter: {
+            //   prefix: '',
+            // },
+            // sourceSelectionCriteria: {
+            //   sseKmsEncryptedObjects: {
+            //     status: 'Enabled',
+            //   },
+            // },
           },
         ],
       };
@@ -191,47 +183,5 @@ export class StorageStack extends Stack {
       });
     });
   }
-
-
-  /**
-   * Import the VPC and deploy an EC2 instance
-   * Note: requires a VPC to be present in the account
-   * @param cycloramaBucket
-   */
-  setupEc2MigrationInstance(cycloramaBucket: s3.IBucket) {
-
-    // Import vpc config (only public and private subnets)
-    const vpcId = ssm.StringParameter.valueForStringParameter(this, '/landingzone/vpc/vpc-id');
-    const availabilityZones = [0, 1, 2].map(i => Fn.select(i, Fn.getAzs(Aws.REGION)));
-    const publicSubnetRouteTableIds = Array(3).fill(ssm.StringParameter.valueForStringParameter(this, '/landingzone/vpc/route-table-public-subnets-id'));
-    const privateSubnetRouteTableIds = [1, 2, 3].map(i => ssm.StringParameter.valueForStringParameter(this, `/landingzone/vpc/route-table-private-subnet-${i}-id`));
-    const publicSubnetIds = [1, 2, 3].map(i => ssm.StringParameter.valueForStringParameter(this, `/landingzone/vpc/public-subnet-${i}-id`));
-    const privateSubnetIds = [1, 2, 3].map(i => ssm.StringParameter.valueForStringParameter(this, `/landingzone/vpc/private-subnet-${i}-id`));
-
-    const vpc = ec2.Vpc.fromVpcAttributes(this, 'vpc', {
-      vpcId,
-      availabilityZones,
-      privateSubnetRouteTableIds,
-      publicSubnetRouteTableIds,
-      publicSubnetIds,
-      privateSubnetIds,
-    });
-
-    const instance = new ec2.Instance(this, 'ec2-migration-instance', {
-      vpc,
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.SMALL),
-      machineImage: ec2.MachineImage.genericLinux({
-        'eu-central-1': 'ami-0750be70a912aa1e9', // Amazon linux 2023 AMI (ARM)
-      }),
-      vpcSubnets: {
-        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-      },
-    });
-
-    // Allow the ec2 instance to write to the bucket
-    cycloramaBucket.grantReadWrite(instance);
-    instance.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
-  }
-
 
 }
