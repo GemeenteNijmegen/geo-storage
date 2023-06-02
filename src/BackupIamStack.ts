@@ -26,8 +26,12 @@ export class BackupIamStack extends Stack {
       roleName: Statics.backupRoleName,
     });
 
-    // Also allow batch replication
-    role.grantAssumeRole(new iam.ServicePrincipal('batchoperations.s3.amazonaws.com'));
+    // Also allow batch replication (note: cannot be done by grantAssumeRole)
+    role.assumeRolePolicy?.addStatements(new iam.PolicyStatement({
+      actions: ['sts:AssumeRole'],
+      principals: [new iam.ServicePrincipal('batchoperations.s3.amazonaws.com')],
+    }))
+    console.log(role.assumeRolePolicy?.toJSON())
 
     const crossAccountReplicationRolePolicy = new iam.PolicyDocument({
       statements: [
