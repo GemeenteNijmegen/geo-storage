@@ -22,6 +22,7 @@ export class StorageStack extends Stack {
     super(scope, id, props);
 
     const replicationRoleArn = ssm.StringParameter.valueForStringParameter(this, Statics.ssmBackupRoleArn);
+    const backupRole = iam.Role.fromRoleArn(this, 'backup-role', replicationRoleArn);
 
     const moveToInteligentStorageTier = [
       this.createInteligentTieringLifecycleRule(),
@@ -49,8 +50,11 @@ export class StorageStack extends Stack {
       if (bucketSettings.backupName) {
         const destinationBucketName = bucketSettings.backupName;
         const destinationAccount = props.configuration.backupEnvironment.account;
-        this.setupReplication(bucket, destinationBucketName, destinationAccount, replicationRoleArn);
+        const crossAccount = destinationAccount !== props.configuration.targetEnvironment.account;
+        this.setupReplication(bucket, destinationBucketName, destinationAccount, replicationRoleArn, crossAccount);
       }
+
+      bucket.grantReadWrite(backupRole);
 
       buckets.push(bucket);
     }
@@ -60,7 +64,7 @@ export class StorageStack extends Stack {
 
   }
 
-  setupReplication(bucket: s3.IBucket, destinationBucketName: string, destinationAccount: string, backupRoleArn: string) {
+  setupReplication(bucket: s3.IBucket, destinationBucketName: string, destinationAccount: string, backupRoleArn: string, crossAccount: boolean) {
     const cfnBucket = bucket.node.defaultChild as CfnBucket;
     cfnBucket.replicationConfiguration = {
       role: backupRoleArn,
@@ -72,10 +76,10 @@ export class StorageStack extends Stack {
           status: 'Enabled',
           destination: {
             bucket: `arn:aws:s3:::${destinationBucketName}`,
-            accessControlTranslation: {
+            accessControlTranslation: crossAccount ? {
               owner: 'Destination',
-            },
-            account: destinationAccount,
+            } : undefined,
+            account: crossAccount ? destinationAccount : undefined,
             storageClass: 'DEEP_ARCHIVE',
           },
           deleteMarkerReplication: {

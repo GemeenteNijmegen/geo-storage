@@ -30,8 +30,8 @@ export class BackupIamStack extends Stack {
     role.assumeRolePolicy?.addStatements(new iam.PolicyStatement({
       actions: ['sts:AssumeRole'],
       principals: [new iam.ServicePrincipal('batchoperations.s3.amazonaws.com')],
-    }))
-    console.log(role.assumeRolePolicy?.toJSON())
+    }));
+    console.log(role.assumeRolePolicy?.toJSON());
 
     const crossAccountReplicationRolePolicy = new iam.PolicyDocument({
       statements: [
