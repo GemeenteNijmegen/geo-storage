@@ -77,7 +77,7 @@ export class StorageStack extends Stack {
             storageClass: 'DEEP_ARCHIVE',
             // encryptionConfiguration: { replicaKmsKeyId: 'destinationKmsKeyArn.valueAsString' },
           },
-          priority: 1,
+          // priority: 1, CloudFormation: Priority cannot be used for this version of Cross Region Replication configuration schema.
           deleteMarkerReplication: {
             status: 'Disabled', // Prevent deletion for now
           },
