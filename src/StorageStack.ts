@@ -67,6 +67,8 @@ export class StorageStack extends Stack {
       rules: [
         {
           id: 'CrossAccountBackupReplicationRule',
+          priority: 1,
+          filter: {},
           status: 'Enabled',
           destination: {
             bucket: `arn:aws:s3:::${destinationBucketName}`,
@@ -75,20 +77,10 @@ export class StorageStack extends Stack {
             },
             account: destinationAccount,
             storageClass: 'DEEP_ARCHIVE',
-            // encryptionConfiguration: { replicaKmsKeyId: 'destinationKmsKeyArn.valueAsString' },
           },
-          // priority: 1, CloudFormation: Priority cannot be used for this version of Cross Region Replication configuration schema.
           deleteMarkerReplication: {
             status: 'Disabled', // Prevent deletion for now
           },
-          // filter: {
-          //   prefix: '',
-          // },
-          // sourceSelectionCriteria: {
-          //   sseKmsEncryptedObjects: {
-          //     status: 'Enabled',
-          //   },
-          // },
         },
       ],
     };
