@@ -31,7 +31,7 @@ export class BackupStack extends Stack {
         lifecycleRules: undefined, // TODO check if needed or can be done using storage class
         ...bucketSettings.bucketConfiguration,
       });
-      Tags.of(bucket).add('Contents', `${bucketSettings.description} (backup)`);
+      Tags.of(bucket).add('Contents', `${bucketSettings.description} backup`);
 
       this.allowReplicationToBucket(bucket, replicationRoleArn);
 
