@@ -6,6 +6,7 @@ const project = new GemeenteNijmegenCdkApp({
   name: 'geo-storage',
   deps: [
     '@gemeentenijmegen/aws-constructs',
+    'cdk-remote-stack',
   ],
 });
 project.synth();

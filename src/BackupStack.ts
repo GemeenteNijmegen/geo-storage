@@ -3,9 +3,9 @@ import {
   StackProps,
   aws_s3 as s3,
   aws_iam as iam,
-  aws_ssm as ssm,
   Tags,
 } from 'aws-cdk-lib';
+import { RemoteParameters } from 'cdk-remote-stack';
 import { Construct } from 'constructs';
 import { Configurable } from './Configuration';
 import { Statics } from './Statics';
@@ -17,7 +17,12 @@ export class BackupStack extends Stack {
   constructor(scope: Construct, id: string, props: BackupStackProps) {
     super(scope, id, props);
 
-    const replicationRoleArn = ssm.StringParameter.valueForStringParameter(this, Statics.ssmBackupRoleArn);
+    // Import role arn form different region
+    const backupParameters = new RemoteParameters(this, 'backup-parameters', {
+      path: Statics.ssmBackupPath,
+      region: props.configuration.targetEnvironment.region,
+    });
+    const replicationRoleArn = backupParameters.get(Statics.ssmBackupRoleArn);
 
     for (const bucketSettings of props.configuration.buckets) {
 

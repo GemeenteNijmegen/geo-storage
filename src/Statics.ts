@@ -31,6 +31,7 @@ export class Statics {
 
   // SSM parameters
   static readonly ssmGeoBucketsManagedPolicyArn = '/geo-storage/policies/geo-buckets-managment';
+  static readonly ssmBackupPath = '/geo-storage/backup';
   static readonly ssmBackupRoleArn = '/geo-storage/backup/role-arn';
 
   // Statics
