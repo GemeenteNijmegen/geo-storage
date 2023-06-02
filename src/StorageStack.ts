@@ -21,6 +21,8 @@ export class StorageStack extends Stack {
   constructor(scope: Construct, id: string, props: StorageStackProps) {
     super(scope, id, props);
 
+    const replicationRoleArn = ssm.StringParameter.valueForStringParameter(this, Statics.ssmBackupRoleArn);
+
     const moveToInteligentStorageTier = [
       this.createInteligentTieringLifecycleRule(),
     ];
@@ -45,8 +47,9 @@ export class StorageStack extends Stack {
       }
 
       if (bucketSettings.backupName) {
-        // TODO setup replication to target bucket!
-        // this.setupReplication(bucket, bucketSettings.backupName, props.configuration.backupEnvironment.account, '');
+        const destinationBucketName = bucketSettings.backupName;
+        const destinationAccount = props.configuration.backupEnvironment.account;
+        this.setupReplication(bucket, destinationBucketName, destinationAccount, replicationRoleArn);
       }
 
       buckets.push(bucket);
@@ -66,11 +69,12 @@ export class StorageStack extends Stack {
           id: 'CrossAccountBackupReplicationRule',
           status: 'Enabled',
           destination: {
-            bucket: destinationBucketName, // destinationBucketName convert to arn!
+            bucket: `arn:aws:s3:::${destinationBucketName}`,
             accessControlTranslation: {
               owner: 'Destination',
             },
             account: destinationAccount,
+            storageClass: 'DEEP_ARCHIVE',
             // encryptionConfiguration: { replicaKmsKeyId: 'destinationKmsKeyArn.valueAsString' },
           },
           priority: 1,
