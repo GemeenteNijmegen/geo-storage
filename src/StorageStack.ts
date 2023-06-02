@@ -47,12 +47,12 @@ export class StorageStack extends Stack {
         bucket.grantRead(user);
       }
 
-      if (bucketSettings.backupName) {
-        const destinationBucketName = bucketSettings.backupName;
-        const destinationAccount = props.configuration.backupEnvironment.account;
-        const crossAccount = destinationAccount !== props.configuration.targetEnvironment.account;
-        this.setupReplication(bucket, destinationBucketName, destinationAccount, replicationRoleArn, crossAccount);
-      }
+      // if (bucketSettings.backupName) {
+      //   const destinationBucketName = bucketSettings.backupName;
+      //   const destinationAccount = props.configuration.backupEnvironment.account;
+      //   const crossAccount = destinationAccount !== props.configuration.targetEnvironment.account;
+      //   this.setupReplication(bucket, destinationBucketName, destinationAccount, replicationRoleArn, crossAccount);
+      // }
 
       bucket.grantReadWrite(backupRole);
 
