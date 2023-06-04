@@ -60,6 +60,15 @@ export class BackupIamStack extends Stack {
           ],
           resources: sourceBucketContents.concat(backupBucketContents),
         }),
+        new iam.PolicyStatement({
+          sid: 'AllowBatchReplication',
+          effect: iam.Effect.ALLOW,
+          actions: [
+            's3:InitiateReplication',
+            's3:PutInventoryConfiguration',
+          ],
+          resources: sourceBucketArns.concat(backupBucketArns, sourceBucketContents, backupBucketContents),
+        }),
       ],
     });
 
