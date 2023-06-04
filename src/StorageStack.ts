@@ -53,10 +53,7 @@ export class StorageStack extends Stack {
         this.setupReplication(bucket, destinationBucketName, destinationAccount, replicationRoleArn);
       }
 
-      // Used for writing manifest and replication reports to the bucket that contains the actual data.
-      // Note maybe this can be more secure by using a bucket with replication reports.
-      bucket.grantReadWrite(backupRole);
-
+      bucket.grantRead(backupRole);
       buckets.push(bucket);
     }
 

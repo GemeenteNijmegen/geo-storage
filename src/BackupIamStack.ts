@@ -7,6 +7,7 @@ import {
 import { Construct } from 'constructs';
 import { Configurable } from './Configuration';
 import { Statics } from './Statics';
+import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
 
 export interface BackupIamStackProps extends Configurable, StackProps { }
 
@@ -25,6 +26,13 @@ export class BackupIamStack extends Stack {
       description: 'Role used for replication objects in the geo buckets to the backup account',
       roleName: Statics.backupRoleName,
     });
+
+    // Create a bucket for placing reports and manifests in when using batch replication.
+    const manifestAndReportsBucket = new Bucket(this, 'manifests-and-reports-bucket', {
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      enforceSSL: true,
+    });
+    manifestAndReportsBucket.grantReadWrite(role);
 
     // Also allow batch replication (note: cannot be done by grantAssumeRole)
     role.assumeRolePolicy?.addStatements(new iam.PolicyStatement({
