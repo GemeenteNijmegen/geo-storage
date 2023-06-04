@@ -4,10 +4,10 @@ import {
   aws_iam as iam,
   aws_ssm as ssm,
 } from 'aws-cdk-lib';
+import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { Configurable } from './Configuration';
 import { Statics } from './Statics';
-import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
 
 export interface BackupIamStackProps extends Configurable, StackProps { }
 
