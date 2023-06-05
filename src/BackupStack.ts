@@ -20,6 +20,7 @@ export class BackupStack extends Stack {
     // Note: uses name as we do not want to get into cross-account parameters.
     const sourceAccount = props.configuration.targetEnvironment.account;
     const replicationRoleArn = `arn:aws:iam::${sourceAccount}:role/${Statics.backupRoleName}`;
+    const replicationRole = iam.Role.fromRoleArn(this, 'replicationr-role', replicationRoleArn);
 
     for (const bucketSettings of props.configuration.buckets) {
 
@@ -34,6 +35,8 @@ export class BackupStack extends Stack {
         ...bucketSettings.bucketConfiguration,
       });
       Tags.of(bucket).add('Contents', `${bucketSettings.description} backup`);
+
+      bucket.grantReadWrite(replicationRole);
 
       this.allowReplicationToBucket(bucket, replicationRoleArn);
 
