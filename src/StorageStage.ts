@@ -32,7 +32,7 @@ export class StorageStage extends Stage {
     });
 
     storageStack.addDependency(backupIamStack);
-    backupStack.addDependency(backupIamStack);
+    storageStack.addDependency(backupStack);
 
   }
 
