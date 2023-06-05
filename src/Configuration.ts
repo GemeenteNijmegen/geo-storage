@@ -1,3 +1,4 @@
+import { aws_s3 as s3 } from 'aws-cdk-lib';
 import { Statics } from './Statics';
 
 /**
@@ -35,10 +36,31 @@ export interface Configuration {
   targetEnvironment: Environment;
 
   /**
-   * Deploy EC2 migration instance for cyclorama data
+   * The environment to replicate objects to
    */
-  deployEc2MigrationInstance?: boolean;
+  backupEnvironment: Environment;
 
+  /**
+   * Setup the buckets used for geo storage
+   */
+  buckets: GeoBucketConfig[];
+
+}
+
+export interface GeoBucketConfig {
+  cdkId: string;
+  name: string;
+  /**
+   * If undefined no backup is configured for this bucket
+   */
+  backupName?: string;
+  description: string;
+  bucketConfiguration: s3.BucketProps;
+
+  /**
+   * @default false
+   */
+  setupAccessForIamUser?: boolean;
 }
 
 
@@ -48,14 +70,16 @@ export const configurations: { [key: string]: Configuration } = {
     codeStarConnectionArn: Statics.gnBuildCodeStarConnectionArn,
     deploymentEnvironment: Statics.deploymentEnvironment,
     targetEnvironment: Statics.acceptanceEnvironment,
-    deployEc2MigrationInstance: false,
+    backupEnvironment: Statics.backupEnvironmentAcceptance,
+    buckets: getBucketConfig('acceptance'),
   },
   main: {
     branchName: 'main',
     codeStarConnectionArn: Statics.gnBuildCodeStarConnectionArn,
     deploymentEnvironment: Statics.deploymentEnvironment,
     targetEnvironment: Statics.productionEnvironment,
-    deployEc2MigrationInstance: false,
+    backupEnvironment: Statics.backupEnvironment,
+    buckets: getBucketConfig('main'),
   },
 };
 
@@ -65,4 +89,83 @@ export function getConfiguration(buildBranch: string) {
     throw Error(`No configuration for branch ${buildBranch} found. Add a configuration in Configuration.ts`);
   }
   return config;
+}
+
+
+export function getBucketConfig(branchName: string) {
+  return [
+    {
+      cdkId: 'cyclorama-bucket',
+      name: Statics.cycloramaBucket(branchName, false),
+      backupName: Statics.cycloramaBucket(branchName, true),
+      description: 'Cyclorama data',
+      bucketConfiguration: {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        enforceSSL: true,
+        encryption: s3.BucketEncryption.S3_MANAGED,
+        versioned: true,
+      },
+    },
+    {
+      cdkId: 'obliek-bucket',
+      name: Statics.obliekBucket(branchName, false),
+      backupName: Statics.obliekBucket(branchName, true),
+      description: 'Obliek data',
+      bucketConfiguration: {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        enforceSSL: true,
+        encryption: s3.BucketEncryption.S3_MANAGED,
+        versioned: true,
+      },
+    },
+    {
+      cdkId: 'ortho-bucket',
+      name: Statics.orthoBucket(branchName, false),
+      backupName: Statics.orthoBucket(branchName, true),
+      description: 'Ortho data',
+      bucketConfiguration: {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        enforceSSL: true,
+        encryption: s3.BucketEncryption.S3_MANAGED,
+        versioned: true,
+      },
+    },
+    {
+      cdkId: 'lidar-airborne-bucket',
+      name: Statics.lidarAirborneBucket(branchName, false),
+      backupName: Statics.lidarAirborneBucket(branchName, true),
+      description: 'LiDAR airborne data',
+      bucketConfiguration: {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        enforceSSL: true,
+        encryption: s3.BucketEncryption.S3_MANAGED,
+        versioned: true,
+      },
+    },
+    {
+      cdkId: 'lidar-terrestrisch-bucket',
+      name: Statics.lidarTerrestrischBucket(branchName, false),
+      backupName: Statics.lidarTerrestrischBucket(branchName, true),
+      description: 'LiDAR terrestrisch data',
+      bucketConfiguration: {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        enforceSSL: true,
+        encryption: s3.BucketEncryption.S3_MANAGED,
+        versioned: true,
+      },
+    },
+    {
+      cdkId: 'aanbesteding-bucket',
+      name: Statics.aanbestedingBucket(branchName, false),
+      backupName: undefined, // NO BACKUP!
+      description: 'Bucket voor aanbesteding beeldmateriaalviewer',
+      setupAccessForIamUser: true, // ALLOW IAM user to read bucket!
+      bucketConfiguration: {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        enforceSSL: true,
+        encryption: s3.BucketEncryption.S3_MANAGED,
+        versioned: true,
+      },
+    },
+  ];
 }
