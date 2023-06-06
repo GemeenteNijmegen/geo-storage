@@ -37,7 +37,7 @@ export class Statics {
 
   // Statics
   static readonly geoStorageOperatorrManagedPolicyName = 'geo-storage-operator-policy';
-  static readonly backupRoleName = 'backup-replicaiton-role';
+  static readonly backupRoleName = 'backup-replication-role';
 
   // Bucket names
   static bucketBackupSuffix = (backup: boolean) => backup ? '-backup' : '';

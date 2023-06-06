@@ -3,8 +3,6 @@
 Requirements;
 - Total data: 7 TB (7000GB)
 
-
-
 ## 1 AWS Backup
 - Only supports warm storage (not cold)
 - Billed per GB-month
@@ -81,3 +79,11 @@ We'll be going with replication.
 ## Steps to implementing replication
 - Enable versioning on buckets
 - Look into deleting objects (delete markers)
+
+
+
+## Setup
+
+
+- Batch replication failed due to DstMultipartUploadNotPermitted
+  - https://stackoverflow.com/questions/73466230/dstmultipartuploadnotpermitted-during-cross-account-s3-replication
