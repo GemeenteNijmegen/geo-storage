@@ -33,6 +33,7 @@ export class BackupStack extends Stack {
         bucketName: bucketSettings.backupName,
         lifecycleRules: undefined, // TODO check if needed or can be done using storage class
         ...bucketSettings.bucketConfiguration,
+        encryption: s3.BucketEncryption.S3_MANAGED,
       });
       Tags.of(bucket).add('Contents', `${bucketSettings.description} backup`);
 

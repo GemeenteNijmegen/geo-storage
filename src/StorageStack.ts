@@ -42,6 +42,7 @@ export class StorageStack extends Stack {
         bucketName: bucketSettings.name,
         lifecycleRules: moveToInteligentStorageTier,
         encryptionKey: sseKey,
+        encryption: s3.BucketEncryption.KMS,
         ...bucketSettings.bucketConfiguration,
       });
       Tags.of(bucket).add('Contents', bucketSettings.description);
@@ -65,7 +66,7 @@ export class StorageStack extends Stack {
 
   }
 
-  setupKmsSseKey(){
+  setupKmsSseKey() {
     const key = new kms.Key(this, 'bucket-key', {
       description: 'SSE key for geo storage buckets',
       alias: 'geo-storage-sse-key',
