@@ -6,6 +6,7 @@ import {
   aws_iam as iam,
   aws_ssm as ssm,
   aws_cloudwatch as cloudwatch,
+  aws_kms as kms,
   Duration,
   Tags,
 } from 'aws-cdk-lib';
@@ -23,6 +24,7 @@ export class StorageStack extends Stack {
 
     const replicationRoleArn = ssm.StringParameter.valueForStringParameter(this, Statics.ssmBackupRoleArn);
     const backupRole = iam.Role.fromRoleArn(this, 'backup-role', replicationRoleArn);
+    const sseKey = this.setupKmsSseKey();
 
     const moveToInteligentStorageTier = [
       this.createInteligentTieringLifecycleRule(),
@@ -39,6 +41,7 @@ export class StorageStack extends Stack {
       const bucket = new s3.Bucket(this, bucketSettings.cdkId, {
         bucketName: bucketSettings.name,
         lifecycleRules: moveToInteligentStorageTier,
+        encryptionKey: sseKey,
         ...bucketSettings.bucketConfiguration,
       });
       Tags.of(bucket).add('Contents', bucketSettings.description);
@@ -60,6 +63,14 @@ export class StorageStack extends Stack {
     this.createBucketAccessPolicy(buckets);
     this.setupDataDownloadAlarms(buckets);
 
+  }
+
+  setupKmsSseKey(){
+    const key = new kms.Key(this, 'bucket-key', {
+      description: 'SSE key for geo storage buckets',
+      alias: 'geo-storage-sse-key',
+    });
+    return key;
   }
 
   setupReplication(bucket: s3.IBucket, destinationBucketName: string, destinationAccount: string, backupRoleArn: string) {
