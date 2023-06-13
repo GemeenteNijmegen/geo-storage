@@ -43,6 +43,7 @@ export class StorageStack extends Stack {
         lifecycleRules: moveToInteligentStorageTier,
         encryptionKey: sseKey,
         encryption: s3.BucketEncryption.KMS,
+        bucketKeyEnabled: true,
         ...bucketSettings.bucketConfiguration,
       });
       Tags.of(bucket).add('Contents', bucketSettings.description);
