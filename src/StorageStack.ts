@@ -62,7 +62,7 @@ export class StorageStack extends Stack {
       buckets.push(bucket);
     }
 
-    this.createBucketAccessPolicy(buckets);
+    this.createBucketAccessPolicy(buckets, sseKey);
     this.setupDataDownloadAlarms(buckets);
 
   }
