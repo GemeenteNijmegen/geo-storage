@@ -36,8 +36,9 @@ export class Statics {
   static readonly ssmBackupRoleArn = '/geo-storage/backup/role-arn';
 
   // Statics
-  static readonly geoStorageOperatorrManagedPolicyName = 'geo-storage-operator-policy';
   static readonly backupRoleName = 'backup-replication-role';
+  static readonly geoStorageOperatorrManagedPolicyName = 'geo-storage-operator-policy';
+  static readonly landingzonePlatformOperatorRoleArn = 'arn:aws:iam::766983128454:role/aws-reserved/sso.amazonaws.com/eu-central-1/AWSReservedSSO_lz-platform-operator_*';
 
   // Bucket names
   static bucketBackupSuffix = (backup: boolean) => backup ? '-backup' : '';

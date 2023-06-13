@@ -72,6 +72,20 @@ export class StorageStack extends Stack {
       description: 'SSE key for geo storage buckets',
       alias: 'geo-storage-sse-key',
     });
+
+    // Allow lz-platform-operator read rights
+    key.addToResourcePolicy(new iam.PolicyStatement({
+      sid: 'AllowPlatformOperatorToUseKey',
+      effect: iam.Effect.ALLOW,
+      actions: [
+        'kms:Decrypt',
+        'kms:GenerateDataKey*',
+      ],
+      principals: [
+        new iam.ArnPrincipal(Statics.landingzonePlatformOperatorRoleArn),
+      ],
+    }));
+
     return key;
   }
 
@@ -146,11 +160,11 @@ export class StorageStack extends Stack {
           sid: 'AllowKmsKeyForBucket',
           effect: iam.Effect.ALLOW,
           actions: [
-            "kms:Encrypt",
-            "kms:Decrypt",
-            "kms:ReEncrypt*",
-            "kms:GenerateDataKey*",
-            "kms:DescribeKey",
+            'kms:Encrypt',
+            'kms:Decrypt',
+            'kms:ReEncrypt*',
+            'kms:GenerateDataKey*',
+            'kms:DescribeKey',
           ],
           resources: [key.keyArn],
         }),
