@@ -113,7 +113,7 @@ export class StorageStack extends Stack {
     };
   }
 
-  createBucketAccessPolicy(buckets: s3.IBucket[]) {
+  createBucketAccessPolicy(buckets: s3.IBucket[], key: kms.Key) {
     const policy = new iam.ManagedPolicy(this, 'bucket-access-policy', {
       description: 'Allows read/write access to all GEO storage buckets',
       managedPolicyName: Statics.geoStorageOperatorrManagedPolicyName,
@@ -141,6 +141,18 @@ export class StorageStack extends Stack {
             's3:ListAllMyBuckets',
           ],
           resources: ['*'],
+        }),
+        new iam.PolicyStatement({
+          sid: 'AllowKmsKeyForBucket',
+          effect: iam.Effect.ALLOW,
+          actions: [
+            "kms:Encrypt",
+            "kms:Decrypt",
+            "kms:ReEncrypt*",
+            "kms:GenerateDataKey*",
+            "kms:DescribeKey",
+          ],
+          resources: [key.keyArn],
         }),
       ],
     });
