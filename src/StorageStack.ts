@@ -84,6 +84,7 @@ export class StorageStack extends Stack {
         'kms:Decrypt',
         'kms:GenerateDataKey*',
       ],
+      resources: [ '*' ],
       principals: [new iam.AnyPrincipal()],
       conditions: {
         ArnLike: {
