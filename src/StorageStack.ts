@@ -28,6 +28,7 @@ export class StorageStack extends Stack {
 
     const moveToInteligentStorageTier = [
       this.createInteligentTieringLifecycleRule(),
+      this.createRemoveOldVersionLifecycleRule(),
     ];
 
     // User for accessing the bucket
@@ -122,6 +123,11 @@ export class StorageStack extends Stack {
     };
   }
 
+  /**
+   * Create a lifecycle rule that moves objects to the INTELLIGENT_TIERING
+   * storage class after 0 days.
+   * @returns the lifecyle rule
+   */
   createInteligentTieringLifecycleRule(): s3.LifecycleRule {
     return {
       enabled: true,
@@ -129,6 +135,18 @@ export class StorageStack extends Stack {
         storageClass: s3.StorageClass.INTELLIGENT_TIERING,
         transitionAfter: Duration.days(0), // On create
       }],
+    };
+  }
+
+  /**
+   * Create a lifecycle rule that removes non current versions
+   * after 7 days.
+   * @returns the lifecylce rule
+   */
+  createRemoveOldVersionLifecycleRule(): s3.LifecycleRule {
+    return {
+      enabled: true,
+      noncurrentVersionExpiration: Duration.days(7),
     };
   }
 
