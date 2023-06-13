@@ -74,6 +74,8 @@ export class StorageStack extends Stack {
     });
 
     // Allow lz-platform-operator read rights
+    const accountId = Stack.of(this).account;
+    const region = Stack.of(this).region;
     key.addToResourcePolicy(new iam.PolicyStatement({
       sid: 'AllowPlatformOperatorToUseKey',
       effect: iam.Effect.ALLOW,
@@ -81,9 +83,12 @@ export class StorageStack extends Stack {
         'kms:Decrypt',
         'kms:GenerateDataKey*',
       ],
-      principals: [
-        new iam.ArnPrincipal(Statics.landingzonePlatformOperatorRoleArn),
-      ],
+      principals: [new iam.AnyPrincipal()],
+      conditions: {
+        ArnLike: {
+          'aws:PrincipalArn': Statics.landingzonePlatformOperatorRoleArn(accountId, region),
+        },
+      },
     }));
 
     return key;
