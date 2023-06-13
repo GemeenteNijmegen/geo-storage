@@ -26,9 +26,8 @@ export class StorageStack extends Stack {
     const backupRole = iam.Role.fromRoleArn(this, 'backup-role', replicationRoleArn);
     const sseKey = this.setupKmsSseKey();
 
-    const moveToInteligentStorageTier = [
-      this.createInteligentTieringLifecycleRule(),
-      this.createRemoveOldVersionLifecycleRule(),
+    const lifecycleRules = [
+      this.createLifecycleRule(),
     ];
 
     // User for accessing the bucket
@@ -41,7 +40,7 @@ export class StorageStack extends Stack {
 
       const bucket = new s3.Bucket(this, bucketSettings.cdkId, {
         bucketName: bucketSettings.name,
-        lifecycleRules: moveToInteligentStorageTier,
+        lifecycleRules: lifecycleRules,
         encryptionKey: sseKey,
         encryption: s3.BucketEncryption.KMS,
         bucketKeyEnabled: true,
@@ -84,7 +83,7 @@ export class StorageStack extends Stack {
         'kms:Decrypt',
         'kms:GenerateDataKey*',
       ],
-      resources: [ '*' ],
+      resources: ['*'],
       principals: [new iam.AnyPrincipal()],
       conditions: {
         ArnLike: {
@@ -125,28 +124,18 @@ export class StorageStack extends Stack {
   }
 
   /**
-   * Create a lifecycle rule that moves objects to the INTELLIGENT_TIERING
-   * storage class after 0 days.
+   * Create a lifecycle rule that:
+   *  - moves objects to the INTELLIGENT_TIERING storage class after 0 days.
+   *  - removes non current versions after 7 days.
    * @returns the lifecyle rule
    */
-  createInteligentTieringLifecycleRule(): s3.LifecycleRule {
+  createLifecycleRule(): s3.LifecycleRule {
     return {
       enabled: true,
       transitions: [{
         storageClass: s3.StorageClass.INTELLIGENT_TIERING,
         transitionAfter: Duration.days(0), // On create
       }],
-    };
-  }
-
-  /**
-   * Create a lifecycle rule that removes non current versions
-   * after 7 days.
-   * @returns the lifecylce rule
-   */
-  createRemoveOldVersionLifecycleRule(): s3.LifecycleRule {
-    return {
-      enabled: true,
       noncurrentVersionExpiration: Duration.days(7),
     };
   }
