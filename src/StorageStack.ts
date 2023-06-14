@@ -145,7 +145,7 @@ export class StorageStack extends Stack {
         new iam.ServicePrincipal('s3.amazonaws.com'),
       ],
       resources: [
-        inventoryBucket.bucketArn,
+        `${inventoryBucket.bucketArn}/*`,
       ],
       conditions: {
         StringEquals: {
