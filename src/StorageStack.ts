@@ -145,8 +145,13 @@ export class StorageStack extends Stack {
         new iam.ServicePrincipal('s3.amazonaws.com'),
       ],
       resources: [
-        '*'
-      ]
+        inventoryBucket.bucketArn,
+      ],
+      conditions: {
+        StringEquals: {
+          'aws:SourceAccount': Stack.of(this).account,
+        },
+      },
     }));
 
     return inventoryBucket;
