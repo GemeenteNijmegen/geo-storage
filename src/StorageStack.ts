@@ -15,7 +15,7 @@ import { Construct } from 'constructs';
 import { Configurable } from './Configuration';
 import { Statics } from './Statics';
 
-export interface StorageStackProps extends Configurable, StackProps {}
+export interface StorageStackProps extends Configurable, StackProps { }
 
 export class StorageStack extends Stack {
 
@@ -34,6 +34,8 @@ export class StorageStack extends Stack {
     const user = new iam.User(this, 'aanbesteding-user', {
       userName: 'aanbesteding-user',
     });
+
+    const inventoryBucket = this.setupInventoryReportsBucket();
 
     const buckets: s3.Bucket[] = [];
     for (const bucketSettings of props.configuration.buckets) {
@@ -57,6 +59,8 @@ export class StorageStack extends Stack {
         const destinationAccount = props.configuration.backupEnvironment.account;
         this.setupReplication(bucket, destinationBucketName, destinationAccount, replicationRoleArn);
       }
+
+      this.setupBucketInventoryReport(bucket, inventoryBucket, bucketSettings.name);
 
       bucket.grantRead(backupRole);
       buckets.push(bucket);
@@ -121,6 +125,52 @@ export class StorageStack extends Stack {
         },
       ],
     };
+  }
+
+  setupInventoryReportsBucket() {
+    // Bucket for storing CSV inventory reports (for use with s3 batch operations)
+    const inventoryBucket = new s3.Bucket(this, 'inventory-report-bucket', {
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      enforceSSL: true,
+    });
+
+    // Add policy to allow s3 inventory to put reports
+    inventoryBucket.addToResourcePolicy(new iam.PolicyStatement({
+      sid: 'AllowInventoryReports',
+      actions: [
+        's3:PutObject',
+      ],
+      resources: ['*'],
+      effect: iam.Effect.ALLOW,
+      principals: [
+        new iam.ServicePrincipal('s3.amazonaws.com'),
+        new iam.ServicePrincipal('batchoperations.s3.amazonaws.com'),
+      ],
+    }));
+
+    return inventoryBucket;
+  }
+
+  /**
+   * Creates an S3 inventory report for the bucket and stores it
+   * in a different bucket. Report can be used for S3 batch operations.
+   * @param bucket the bucket to setup an inventory report for
+   * @param inventoryBucket the buckets store the reports in
+   */
+  setupBucketInventoryReport(bucket: s3.Bucket, inventoryBucket: s3.Bucket, bucketName: string) {
+    // Do not use bucket.* properties here as it causes jest to crash...
+    const cfnBucket = bucket.node.defaultChild as CfnBucket;
+    cfnBucket.inventoryConfigurations = [{
+      destination: {
+        bucketArn: inventoryBucket.bucketArn,
+        format: 'CSV',
+        prefix: `inventory-${bucketName}/`,
+      },
+      enabled: true,
+      id: 'InventoryForBatchOperations',
+      includedObjectVersions: 'All',
+      scheduleFrequency: 'Daily',
+    }];
   }
 
   /**
