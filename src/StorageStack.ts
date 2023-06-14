@@ -144,6 +144,9 @@ export class StorageStack extends Stack {
       principals: [
         new iam.ServicePrincipal('s3.amazonaws.com'),
       ],
+      resources: [
+        '*'
+      ]
     }));
 
     return inventoryBucket;
