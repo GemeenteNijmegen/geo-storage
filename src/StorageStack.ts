@@ -140,11 +140,9 @@ export class StorageStack extends Stack {
       actions: [
         's3:PutObject',
       ],
-      resources: ['*'],
       effect: iam.Effect.ALLOW,
       principals: [
         new iam.ServicePrincipal('s3.amazonaws.com'),
-        new iam.ServicePrincipal('batchoperations.s3.amazonaws.com'),
       ],
     }));
 
