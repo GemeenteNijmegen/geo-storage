@@ -6,6 +6,7 @@ import {
   aws_iam as iam,
   aws_ssm as ssm,
   aws_cloudwatch as cloudwatch,
+  aws_kms as kms,
   Duration,
   Tags,
 } from 'aws-cdk-lib';
@@ -23,9 +24,10 @@ export class StorageStack extends Stack {
 
     const replicationRoleArn = ssm.StringParameter.valueForStringParameter(this, Statics.ssmBackupRoleArn);
     const backupRole = iam.Role.fromRoleArn(this, 'backup-role', replicationRoleArn);
+    const sseKey = this.setupKmsSseKey();
 
-    const moveToInteligentStorageTier = [
-      this.createInteligentTieringLifecycleRule(),
+    const lifecycleRules = [
+      this.createLifecycleRule(),
     ];
 
     // User for accessing the bucket
@@ -38,7 +40,10 @@ export class StorageStack extends Stack {
 
       const bucket = new s3.Bucket(this, bucketSettings.cdkId, {
         bucketName: bucketSettings.name,
-        lifecycleRules: moveToInteligentStorageTier,
+        lifecycleRules: lifecycleRules,
+        encryptionKey: sseKey,
+        encryption: s3.BucketEncryption.KMS,
+        bucketKeyEnabled: true,
         ...bucketSettings.bucketConfiguration,
       });
       Tags.of(bucket).add('Contents', bucketSettings.description);
@@ -57,9 +62,37 @@ export class StorageStack extends Stack {
       buckets.push(bucket);
     }
 
-    this.createBucketAccessPolicy(buckets);
+    this.createBucketAccessPolicy(buckets, sseKey);
     this.setupDataDownloadAlarms(buckets);
 
+  }
+
+  setupKmsSseKey() {
+    const key = new kms.Key(this, 'bucket-key', {
+      description: 'SSE key for geo storage buckets',
+      alias: 'geo-storage-sse-key',
+    });
+
+    // Allow lz-platform-operator read rights
+    const accountId = Stack.of(this).account;
+    const region = Stack.of(this).region;
+    key.addToResourcePolicy(new iam.PolicyStatement({
+      sid: 'AllowPlatformOperatorToUseKey',
+      effect: iam.Effect.ALLOW,
+      actions: [
+        'kms:Decrypt',
+        'kms:GenerateDataKey*',
+      ],
+      resources: ['*'],
+      principals: [new iam.AnyPrincipal()],
+      conditions: {
+        ArnLike: {
+          'aws:PrincipalArn': Statics.landingzonePlatformOperatorRoleArn(accountId, region),
+        },
+      },
+    }));
+
+    return key;
   }
 
   setupReplication(bucket: s3.IBucket, destinationBucketName: string, destinationAccount: string, backupRoleArn: string) {
@@ -90,17 +123,24 @@ export class StorageStack extends Stack {
     };
   }
 
-  createInteligentTieringLifecycleRule(): s3.LifecycleRule {
+  /**
+   * Create a lifecycle rule that:
+   *  - moves objects to the INTELLIGENT_TIERING storage class after 0 days.
+   *  - removes non current versions after 7 days.
+   * @returns the lifecyle rule
+   */
+  createLifecycleRule(): s3.LifecycleRule {
     return {
       enabled: true,
       transitions: [{
         storageClass: s3.StorageClass.INTELLIGENT_TIERING,
         transitionAfter: Duration.days(0), // On create
       }],
+      noncurrentVersionExpiration: Duration.days(7),
     };
   }
 
-  createBucketAccessPolicy(buckets: s3.IBucket[]) {
+  createBucketAccessPolicy(buckets: s3.IBucket[], key: kms.Key) {
     const policy = new iam.ManagedPolicy(this, 'bucket-access-policy', {
       description: 'Allows read/write access to all GEO storage buckets',
       managedPolicyName: Statics.geoStorageOperatorrManagedPolicyName,
@@ -128,6 +168,18 @@ export class StorageStack extends Stack {
             's3:ListAllMyBuckets',
           ],
           resources: ['*'],
+        }),
+        new iam.PolicyStatement({
+          sid: 'AllowKmsKeyForBucket',
+          effect: iam.Effect.ALLOW,
+          actions: [
+            'kms:Encrypt',
+            'kms:Decrypt',
+            'kms:ReEncrypt*',
+            'kms:GenerateDataKey*',
+            'kms:DescribeKey',
+          ],
+          resources: [key.keyArn],
         }),
       ],
     });

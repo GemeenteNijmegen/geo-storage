@@ -92,6 +92,12 @@ export function getConfiguration(buildBranch: string) {
 }
 
 
+/**
+ * Configuration for buckets
+ * Note encryption is managed in stacks
+ * @param branchName
+ * @returns
+ */
 export function getBucketConfig(branchName: string) {
   return [
     {
@@ -102,7 +108,6 @@ export function getBucketConfig(branchName: string) {
       bucketConfiguration: {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,
-        encryption: s3.BucketEncryption.S3_MANAGED,
         versioned: true,
       },
     },
@@ -114,7 +119,6 @@ export function getBucketConfig(branchName: string) {
       bucketConfiguration: {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,
-        encryption: s3.BucketEncryption.S3_MANAGED,
         versioned: true,
       },
     },
@@ -126,7 +130,6 @@ export function getBucketConfig(branchName: string) {
       bucketConfiguration: {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,
-        encryption: s3.BucketEncryption.S3_MANAGED,
         versioned: true,
       },
     },
@@ -138,7 +141,6 @@ export function getBucketConfig(branchName: string) {
       bucketConfiguration: {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,
-        encryption: s3.BucketEncryption.S3_MANAGED,
         versioned: true,
       },
     },
@@ -150,7 +152,6 @@ export function getBucketConfig(branchName: string) {
       bucketConfiguration: {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,
-        encryption: s3.BucketEncryption.S3_MANAGED,
         versioned: true,
       },
     },
@@ -163,7 +164,6 @@ export function getBucketConfig(branchName: string) {
       bucketConfiguration: {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,
-        encryption: s3.BucketEncryption.S3_MANAGED,
         versioned: true,
       },
     },

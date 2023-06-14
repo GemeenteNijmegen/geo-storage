@@ -36,8 +36,8 @@ export class Statics {
   static readonly ssmBackupRoleArn = '/geo-storage/backup/role-arn';
 
   // Statics
-  static readonly geoStorageOperatorrManagedPolicyName = 'geo-storage-operator-policy';
   static readonly backupRoleName = 'backup-replication-role';
+  static readonly geoStorageOperatorrManagedPolicyName = 'geo-storage-operator-policy';
 
   // Bucket names
   static bucketBackupSuffix = (backup: boolean) => backup ? '-backup' : '';
@@ -48,5 +48,6 @@ export class Statics {
   static lidarTerrestrischBucket = (branch: string, backup: boolean) => `gemeentenijmegen-geo-lidar-terrestrisch-${branch}${Statics.bucketBackupSuffix(backup)}`;
   static aanbestedingBucket = (branch: string, backup: boolean) => `gemeentenijmegen-aanbesteding-${branch}${Statics.bucketBackupSuffix(backup)}`;
 
-
+  // Variable statics (pun intented)
+  static readonly landingzonePlatformOperatorRoleArn = (accountId: string, region: string) => `arn:aws:iam::${accountId}:role/aws-reserved/sso.amazonaws.com/${region}/AWSReservedSSO_lz-platform-operator_*`;
 }
