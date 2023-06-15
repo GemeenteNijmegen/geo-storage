@@ -88,3 +88,6 @@ We'll be going with replication.
 - Batch replication failed due to DstMultipartUploadNotPermitted
   - https://stackoverflow.com/questions/73466230/dstmultipartuploadnotpermitted-during-cross-account-s3-replication
   - https://docs.aws.amazon.com/AmazonS3/latest/userguide/replication-config-for-kms-objects.html#replications
+
+
+  - Moving objects from SSE-S3 to SSE-KMS `aws s3 cp s3://<bucketname>/ s3://<bucketname>/ --recursive --sse-kms-key-id <keyarn> --sse aws:kms`
