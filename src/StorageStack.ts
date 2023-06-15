@@ -170,7 +170,7 @@ export class StorageStack extends Stack {
       destination: {
         bucketArn: inventoryBucket.bucketArn,
         format: 'CSV',
-        prefix: `inventory-${bucketName}/`,
+        prefix: `inventory-${bucketName}`,
       },
       enabled: true,
       id: 'InventoryForBatchOperations',
