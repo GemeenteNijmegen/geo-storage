@@ -24,7 +24,7 @@ export class StorageStack extends Stack {
 
     const replicationRoleArn = ssm.StringParameter.valueForStringParameter(this, Statics.ssmBackupRoleArn);
     const backupRole = iam.Role.fromRoleArn(this, 'backup-role', replicationRoleArn);
-    const sseKey = this.setupKmsSseKey();
+    const sseKey = this.setupKmsSseKey(backupRole);
 
     const lifecycleRules = [
       this.createLifecycleRule(),
@@ -62,7 +62,7 @@ export class StorageStack extends Stack {
 
       this.setupBucketInventoryReport(bucket, inventoryBucket, bucketSettings.name);
 
-      bucket.grantRead(backupRole);
+      bucket.grantReadWrite(backupRole); // Allow to copy resources to same bucket (changing the KMS key used for sse)
       buckets.push(bucket);
     }
 
@@ -71,7 +71,7 @@ export class StorageStack extends Stack {
 
   }
 
-  setupKmsSseKey() {
+  setupKmsSseKey(backupRole: iam.IRole) {
     const key = new kms.Key(this, 'bucket-key', {
       description: 'SSE key for geo storage buckets',
       alias: 'geo-storage-sse-key',
@@ -94,6 +94,17 @@ export class StorageStack extends Stack {
           'aws:PrincipalArn': Statics.landingzonePlatformOperatorRoleArn(accountId, region),
         },
       },
+    }));
+    key.addToResourcePolicy(new iam.PolicyStatement({
+      sid: 'AllowBackupRoleToUseKey',
+      effect: iam.Effect.ALLOW,
+      actions: [
+        'kms:Decrypt',
+        'kms:Encrypt',
+        'kms:GenerateDataKey*',
+      ],
+      resources: ['*'],
+      principals: [new iam.ArnPrincipal(backupRole.roleArn)],
     }));
 
     return key;
