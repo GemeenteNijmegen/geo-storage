@@ -35,7 +35,7 @@ export class StorageStack extends Stack {
       userName: 'aanbesteding-user',
     });
 
-    const inventoryBucket = this.setupInventoryReportsBucket();
+    const inventoryBucket = this.setupInventoryReportsBucket(backupRole);
 
     const buckets: s3.Bucket[] = [];
     for (const bucketSettings of props.configuration.buckets) {
@@ -127,12 +127,15 @@ export class StorageStack extends Stack {
     };
   }
 
-  setupInventoryReportsBucket() {
+  setupInventoryReportsBucket(backupRole: iam.IRole) {
     // Bucket for storing CSV inventory reports (for use with s3 batch operations)
     const inventoryBucket = new s3.Bucket(this, 'inventory-report-bucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       enforceSSL: true,
     });
+
+    // Allow backup role to read manifests
+    inventoryBucket.grantRead(backupRole);
 
     // Add policy to allow s3 inventory to put reports
     inventoryBucket.addToResourcePolicy(new iam.PolicyStatement({
