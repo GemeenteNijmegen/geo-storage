@@ -24,7 +24,7 @@ export class StorageStack extends Stack {
 
     const replicationRoleArn = ssm.StringParameter.valueForStringParameter(this, Statics.ssmBackupRoleArn);
     const backupRole = iam.Role.fromRoleArn(this, 'backup-role', replicationRoleArn);
-    const sseKey = this.setupKmsSseKey();
+    const sseKey = this.setupKmsSseKey(backupRole);
 
     const lifecycleRules = [
       this.createLifecycleRule(),
@@ -35,7 +35,7 @@ export class StorageStack extends Stack {
       userName: 'aanbesteding-user',
     });
 
-    const inventoryBucket = this.setupInventoryReportsBucket();
+    const inventoryBucket = this.setupInventoryReportsBucket(backupRole);
 
     const buckets: s3.Bucket[] = [];
     for (const bucketSettings of props.configuration.buckets) {
@@ -62,7 +62,7 @@ export class StorageStack extends Stack {
 
       this.setupBucketInventoryReport(bucket, inventoryBucket, bucketSettings.name);
 
-      bucket.grantRead(backupRole);
+      bucket.grantReadWrite(backupRole); // Allow to copy resources to same bucket (changing the KMS key used for sse)
       buckets.push(bucket);
     }
 
@@ -71,7 +71,7 @@ export class StorageStack extends Stack {
 
   }
 
-  setupKmsSseKey() {
+  setupKmsSseKey(backupRole: iam.IRole) {
     const key = new kms.Key(this, 'bucket-key', {
       description: 'SSE key for geo storage buckets',
       alias: 'geo-storage-sse-key',
@@ -94,6 +94,17 @@ export class StorageStack extends Stack {
           'aws:PrincipalArn': Statics.landingzonePlatformOperatorRoleArn(accountId, region),
         },
       },
+    }));
+    key.addToResourcePolicy(new iam.PolicyStatement({
+      sid: 'AllowBackupRoleToUseKey',
+      effect: iam.Effect.ALLOW,
+      actions: [
+        'kms:Decrypt',
+        'kms:Encrypt',
+        'kms:GenerateDataKey*',
+      ],
+      resources: ['*'],
+      principals: [new iam.ArnPrincipal(backupRole.roleArn)],
     }));
 
     return key;
@@ -127,12 +138,15 @@ export class StorageStack extends Stack {
     };
   }
 
-  setupInventoryReportsBucket() {
+  setupInventoryReportsBucket(backupRole: iam.IRole) {
     // Bucket for storing CSV inventory reports (for use with s3 batch operations)
     const inventoryBucket = new s3.Bucket(this, 'inventory-report-bucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       enforceSSL: true,
     });
+
+    // Allow backup role to read manifests
+    inventoryBucket.grantRead(backupRole);
 
     // Add policy to allow s3 inventory to put reports
     inventoryBucket.addToResourcePolicy(new iam.PolicyStatement({
