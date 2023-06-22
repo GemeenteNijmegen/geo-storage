@@ -69,7 +69,7 @@ export class BackupStack extends Stack {
         principals: [new iam.ArnPrincipal(`arn:aws:iam::${props.configuration.targetEnvironment.account}:role/${Statics.backupRoleName}`)],
       }),
     );
-   
+
     return key;
   }
 
