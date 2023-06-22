@@ -128,7 +128,12 @@ export class StorageStack extends Stack {
               owner: 'Destination',
             },
             account: destinationAccount,
-            storageClass: 'DEEP_ARCHIVE',
+            storageClass: 'DEEP_ARCHIVE', // Move objects to DEEP_ARCHIVE storage tier
+          },
+          sourceSelectionCriteria: {
+            sseKmsEncryptedObjects: {
+              status: 'Enabled', // Replicate objects that are SSE-KMS encrypted
+            },
           },
           deleteMarkerReplication: {
             status: 'Disabled', // Prevent deletion for now

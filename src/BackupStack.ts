@@ -4,6 +4,7 @@ import {
   aws_s3 as s3,
   aws_iam as iam,
   Tags,
+  Duration,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Configurable } from './Configuration';
@@ -22,6 +23,10 @@ export class BackupStack extends Stack {
     const replicationRoleArn = `arn:aws:iam::${sourceAccount}:role/${Statics.backupRoleName}`;
     const replicationRole = iam.Role.fromRoleArn(this, 'replication-role', replicationRoleArn);
 
+    const lifecycleRules = [
+      this.createLifecycleRule(),
+    ];
+
     for (const bucketSettings of props.configuration.buckets) {
 
       if (!bucketSettings.backupName) {
@@ -31,7 +36,7 @@ export class BackupStack extends Stack {
 
       const bucket = new s3.Bucket(this, bucketSettings.cdkId, {
         bucketName: bucketSettings.backupName,
-        lifecycleRules: undefined, // TODO check if needed or can be done using storage class
+        lifecycleRules: lifecycleRules,
         ...bucketSettings.bucketConfiguration,
         encryption: s3.BucketEncryption.S3_MANAGED,
       });
@@ -43,6 +48,18 @@ export class BackupStack extends Stack {
 
     }
 
+  }
+
+  /**
+   * Create a lifecycle rule that:
+   *  - removes non current versions after 7 days.
+   * @returns the lifecyle rule
+   */
+  createLifecycleRule(): s3.LifecycleRule {
+    return {
+      enabled: true,
+      noncurrentVersionExpiration: Duration.days(7),
+    };
   }
 
   allowReplicationToBucket(bucket: s3.Bucket, replicationRoleArn: string) {
