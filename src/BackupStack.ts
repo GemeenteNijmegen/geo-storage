@@ -59,17 +59,17 @@ export class BackupStack extends Stack {
     const key = new kms.Key(this, 'backup-sse-key', {
       description: 'Key for S3 backup buckets SSE',
       alias: Statics.aliasBackupKmsKey,
-      policy: new iam.PolicyDocument({
-        statements: [
-          new iam.PolicyStatement({
-            effect: iam.Effect.ALLOW,
-            actions: ['kms:Encrypt', 'kms:Decrypt', 'kms:ReEncrypt*', 'kms:GenerateDataKey*'],
-            resources: ['*'],
-            principals: [new iam.ArnPrincipal(`arn:aws:iam::${props.configuration.targetEnvironment.account}:role/${Statics.backupRoleName}`)],
-          }),
-        ],
-      }),
     });
+
+    key.addToResourcePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: ['kms:Encrypt', 'kms:Decrypt', 'kms:ReEncrypt*', 'kms:GenerateDataKey*'],
+        resources: ['*'],
+        principals: [new iam.ArnPrincipal(`arn:aws:iam::${props.configuration.targetEnvironment.account}:role/${Statics.backupRoleName}`)],
+      }),
+    );
+   
     return key;
   }
 
