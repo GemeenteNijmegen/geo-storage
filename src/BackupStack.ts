@@ -2,6 +2,7 @@ import {
   Stack,
   StackProps,
   aws_s3 as s3,
+  aws_kms as kms,
   aws_iam as iam,
   Tags,
   Duration,
@@ -27,6 +28,9 @@ export class BackupStack extends Stack {
       this.createLifecycleRule(),
     ];
 
+
+    const sseKey = this.setupKmsKeyForBackupBuckets(props);
+
     for (const bucketSettings of props.configuration.buckets) {
 
       if (!bucketSettings.backupName) {
@@ -38,7 +42,8 @@ export class BackupStack extends Stack {
         bucketName: bucketSettings.backupName,
         lifecycleRules: lifecycleRules,
         ...bucketSettings.bucketConfiguration,
-        encryption: s3.BucketEncryption.S3_MANAGED,
+        encryption: s3.BucketEncryption.KMS,
+        encryptionKey: sseKey,
       });
       Tags.of(bucket).add('Contents', `${bucketSettings.description} backup`);
 
@@ -48,6 +53,24 @@ export class BackupStack extends Stack {
 
     }
 
+  }
+
+  setupKmsKeyForBackupBuckets(props: BackupStackProps) {
+    const key = new kms.Key(this, 'backup-sse-key', {
+      description: 'Key for S3 backup buckets SSE',
+      alias: Statics.aliasBackupKmsKey,
+      policy: new iam.PolicyDocument({
+        statements: [
+          new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            actions: ['kms:Encrypt', 'kms:Decrypt', 'kms:ReEncrypt*', 'kms:GenerateDataKey*'],
+            resources: ['*'],
+            principals: [new iam.ArnPrincipal(`arn:aws:iam::${props.configuration.targetEnvironment.account}:role/${Statics.backupRoleName}`)],
+          }),
+        ],
+      }),
+    });
+    return key;
   }
 
   /**

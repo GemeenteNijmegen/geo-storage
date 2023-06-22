@@ -12,7 +12,7 @@ import {
 } from 'aws-cdk-lib';
 import { CfnBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
-import { Configurable } from './Configuration';
+import { Configurable, Configuration } from './Configuration';
 import { Statics } from './Statics';
 
 export interface StorageStackProps extends Configurable, StackProps { }
@@ -56,8 +56,12 @@ export class StorageStack extends Stack {
 
       if (bucketSettings.backupName) {
         const destinationBucketName = bucketSettings.backupName;
-        const destinationAccount = props.configuration.backupEnvironment.account;
-        this.setupReplication(bucket, destinationBucketName, destinationAccount, replicationRoleArn);
+        this.setupReplication(
+          bucket,
+          destinationBucketName,
+          replicationRoleArn,
+          props.configuration,
+        );
       }
 
       this.setupBucketInventoryReport(bucket, inventoryBucket, bucketSettings.name);
@@ -110,7 +114,10 @@ export class StorageStack extends Stack {
     return key;
   }
 
-  setupReplication(bucket: s3.IBucket, destinationBucketName: string, destinationAccount: string, backupRoleArn: string) {
+  setupReplication(bucket: s3.IBucket, destinationBucketName: string, backupRoleArn: string, configuration: Configuration) {
+
+    const backupEnvironment = configuration.backupEnvironment;
+
     const cfnBucket = bucket.node.defaultChild as CfnBucket;
     cfnBucket.replicationConfiguration = {
       role: backupRoleArn,
@@ -127,8 +134,11 @@ export class StorageStack extends Stack {
             accessControlTranslation: {
               owner: 'Destination',
             },
-            account: destinationAccount,
+            account: backupEnvironment.account,
             storageClass: 'DEEP_ARCHIVE', // Move objects to DEEP_ARCHIVE storage tier
+            encryptionConfiguration: {
+              replicaKmsKeyId: `arn:aws:kms:${backupEnvironment.region}:${backupEnvironment.account}:${Statics.aliasBackupKmsKey}`,
+            },
           },
           sourceSelectionCriteria: {
             sseKmsEncryptedObjects: {
