@@ -221,7 +221,7 @@ export class StorageStack extends Stack {
         storageClass: s3.StorageClass.INTELLIGENT_TIERING,
         transitionAfter: Duration.days(0), // On create
       }],
-      noncurrentVersionExpiration: Duration.days(7),
+      noncurrentVersionExpiration: Duration.days(1),
     };
   }
 
