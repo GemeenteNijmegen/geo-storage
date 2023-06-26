@@ -101,13 +101,13 @@ export class BackupStack extends Stack {
       }),
     );
 
-     // allow the objects in the bucket to change owner
-     bucket.addToResourcePolicy(
+    // allow the objects in the bucket to change owner
+    bucket.addToResourcePolicy(
       new iam.PolicyStatement({
         sid: 'AllowChangeOwnershipOfAccounts',
         effect: iam.Effect.ALLOW,
         principals: [new iam.AccountPrincipal(props.configuration.targetEnvironment.account)],
-        actions: [ 's3:ObjectOwnerOverrideToBucketOwner' ],
+        actions: ['s3:ObjectOwnerOverrideToBucketOwner'],
         resources: [`${bucket.bucketArn}/*`],
       }),
     );
