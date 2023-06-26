@@ -2,8 +2,10 @@ import {
   Stack,
   StackProps,
   aws_s3 as s3,
+  aws_kms as kms,
   aws_iam as iam,
   Tags,
+  Duration,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Configurable } from './Configuration';
@@ -22,6 +24,13 @@ export class BackupStack extends Stack {
     const replicationRoleArn = `arn:aws:iam::${sourceAccount}:role/${Statics.backupRoleName}`;
     const replicationRole = iam.Role.fromRoleArn(this, 'replication-role', replicationRoleArn);
 
+    const lifecycleRules = [
+      this.createLifecycleRule(),
+    ];
+
+
+    const sseKey = this.setupKmsKeyForBackupBuckets(props);
+
     for (const bucketSettings of props.configuration.buckets) {
 
       if (!bucketSettings.backupName) {
@@ -31,9 +40,10 @@ export class BackupStack extends Stack {
 
       const bucket = new s3.Bucket(this, bucketSettings.cdkId, {
         bucketName: bucketSettings.backupName,
-        lifecycleRules: undefined, // TODO check if needed or can be done using storage class
+        lifecycleRules: lifecycleRules,
         ...bucketSettings.bucketConfiguration,
-        encryption: s3.BucketEncryption.S3_MANAGED,
+        encryption: s3.BucketEncryption.KMS,
+        encryptionKey: sseKey,
       });
       Tags.of(bucket).add('Contents', `${bucketSettings.description} backup`);
 
@@ -43,6 +53,36 @@ export class BackupStack extends Stack {
 
     }
 
+  }
+
+  setupKmsKeyForBackupBuckets(props: BackupStackProps) {
+    const key = new kms.Key(this, 'backup-sse-key', {
+      description: 'Key for S3 backup buckets SSE',
+      alias: Statics.aliasBackupKmsKey,
+    });
+
+    key.addToResourcePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: ['kms:Encrypt', 'kms:Decrypt', 'kms:ReEncrypt*', 'kms:GenerateDataKey*'],
+        resources: ['*'],
+        principals: [new iam.ArnPrincipal(`arn:aws:iam::${props.configuration.targetEnvironment.account}:role/${Statics.backupRoleName}`)],
+      }),
+    );
+
+    return key;
+  }
+
+  /**
+   * Create a lifecycle rule that:
+   *  - removes non current versions after 7 days.
+   * @returns the lifecyle rule
+   */
+  createLifecycleRule(): s3.LifecycleRule {
+    return {
+      enabled: true,
+      noncurrentVersionExpiration: Duration.days(7),
+    };
   }
 
   allowReplicationToBucket(bucket: s3.Bucket, replicationRoleArn: string) {
