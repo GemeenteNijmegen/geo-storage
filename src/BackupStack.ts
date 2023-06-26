@@ -49,7 +49,7 @@ export class BackupStack extends Stack {
 
       bucket.grantReadWrite(replicationRole);
 
-      this.allowReplicationToBucket(bucket, replicationRoleArn);
+      this.allowReplicationToBucket(bucket, replicationRoleArn, props);
 
     }
 
@@ -85,7 +85,7 @@ export class BackupStack extends Stack {
     };
   }
 
-  allowReplicationToBucket(bucket: s3.Bucket, replicationRoleArn: string) {
+  allowReplicationToBucket(bucket: s3.Bucket, replicationRoleArn: string, props: BackupStackProps) {
 
     // allow the objects in the bucket to be replicated or deleted
     bucket.addToResourcePolicy(
@@ -96,8 +96,18 @@ export class BackupStack extends Stack {
         actions: [
           's3:ReplicateObject',
           's3:ReplicateDelete',
-          's3:ObjectOwnerOverrideToBucketOwner',
         ],
+        resources: [`${bucket.bucketArn}/*`],
+      }),
+    );
+
+     // allow the objects in the bucket to change owner
+     bucket.addToResourcePolicy(
+      new iam.PolicyStatement({
+        sid: 'AllowChangeOwnershipOfAccounts',
+        effect: iam.Effect.ALLOW,
+        principals: [new iam.AccountPrincipal(props.configuration.targetEnvironment.account)],
+        actions: [ 's3:ObjectOwnerOverrideToBucketOwner' ],
         resources: [`${bucket.bucketArn}/*`],
       }),
     );
@@ -126,7 +136,6 @@ export class BackupStack extends Stack {
         actions: [
           's3:ReplicateObject',
           's3:ReplicateDelete',
-          's3:ObjectOwnerOverrideToBucketOwner',
           's3:ReplicateTags',
           's3:GetObjectVersionTagging',
         ],
