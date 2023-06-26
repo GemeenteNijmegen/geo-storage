@@ -17,7 +17,7 @@ export class BackupIamStack extends Stack {
     super(scope, id, props);
 
     const sourceBucketArns = props.configuration.buckets.filter(bucket => bucket.backupName).map(bucket => `arn:aws:s3:::${bucket.name}`);
-    const backupBucketArns = props.configuration.buckets.filter(bucket => bucket.backupName).map(bucket => `arn:aws:s3:::${bucket.name}`);
+    const backupBucketArns = props.configuration.buckets.filter(bucket => bucket.backupName).map(bucket => `arn:aws:s3:::${bucket.backupName}`);
     const sourceBucketContents = sourceBucketArns.map(arn => `${arn}/*`);
     const backupBucketContents = backupBucketArns.map(arn => `${arn}/*`);
 

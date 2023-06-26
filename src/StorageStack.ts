@@ -131,9 +131,9 @@ export class StorageStack extends Stack {
           status: 'Enabled',
           destination: {
             bucket: `arn:aws:s3:::${destinationBucketName}`,
-            accessControlTranslation: {
-              owner: 'Destination',
-            },
+            // accessControlTranslation: { // Disabled as the target buckets enforce ownership by default
+            //   owner: 'Destination',
+            // },
             account: backupEnvironment.account,
             storageClass: 'DEEP_ARCHIVE', // Move objects to DEEP_ARCHIVE storage tier
             encryptionConfiguration: {
