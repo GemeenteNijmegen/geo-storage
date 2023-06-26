@@ -93,7 +93,11 @@ export class BackupStack extends Stack {
         sid: 'Set permissions for Objects',
         effect: iam.Effect.ALLOW,
         principals: [new iam.ArnPrincipal(replicationRoleArn)],
-        actions: ['s3:ReplicateObject', 's3:ReplicateDelete'],
+        actions: [
+          's3:ReplicateObject',
+          's3:ReplicateDelete',
+          's3:ObjectOwnerOverrideToBucketOwner',
+        ],
         resources: [`${bucket.bucketArn}/*`],
       }),
     );
