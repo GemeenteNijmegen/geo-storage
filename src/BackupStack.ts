@@ -64,7 +64,7 @@ export class BackupStack extends Stack {
     key.addToResourcePolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        actions: ['kms:Encrypt', 'kms:Decrypt', 'kms:ReEncrypt*', 'kms:GenerateDataKey*'],
+        actions: ['kms:Encrypt', 'kms:Decrypt', 'kms:ReEncrypt*', 'kms:GenerateDataKey', 'kms:GenerateDataKey*'],
         resources: ['*'],
         principals: [new iam.ArnPrincipal(`arn:aws:iam::${props.configuration.targetEnvironment.account}:role/${Statics.backupRoleName}`)],
       }),

@@ -39,46 +39,65 @@ export class BackupIamStack extends Stack {
       actions: ['sts:AssumeRole'],
       principals: [new iam.ServicePrincipal('batchoperations.s3.amazonaws.com')],
     }));
-    console.log(role.assumeRolePolicy?.toJSON());
 
-    const crossAccountReplicationRolePolicy = new iam.PolicyDocument({
-      statements: [
-        new iam.PolicyStatement({
-          sid: 'AllowGetObjectData',
-          effect: iam.Effect.ALLOW,
-          actions: [
-            's3:ListBucket',
-            's3:GetReplicationConfiguration',
-            's3:GetObjectVersionForReplication',
-            's3:GetObjectVersionAcl',
-            's3:GetObjectVersionTagging',
-            's3:GetObjectRetention',
-            's3:GetObjectLegalHold',
-          ],
-          resources: sourceBucketArns.concat(backupBucketArns, sourceBucketContents, backupBucketContents),
-        }),
-        new iam.PolicyStatement({
-          sid: 'AllowReplicateObjects',
-          effect: iam.Effect.ALLOW,
-          actions: [
-            's3:ReplicateObject',
-            's3:ReplicateDelete',
-            's3:ReplicateTags',
-            's3:ObjectOwnerOverrideToBucketOwner',
-          ],
-          resources: sourceBucketContents.concat(backupBucketContents),
-        }),
-        new iam.PolicyStatement({
-          sid: 'AllowBatchReplication',
-          effect: iam.Effect.ALLOW,
-          actions: [
-            's3:InitiateReplication',
-            's3:PutInventoryConfiguration',
-          ],
-          resources: sourceBucketArns.concat(backupBucketArns, sourceBucketContents, backupBucketContents),
-        }),
-      ],
-    });
+    const statements: iam.PolicyStatement[] = [
+      new iam.PolicyStatement({
+        sid: 'AllowAccessToBucket',
+        effect: iam.Effect.ALLOW,
+        actions: [
+          's3:ListBucket',
+          's3:GetReplicationConfiguration',
+        ],
+        resources: sourceBucketArns,
+      }),
+      new iam.PolicyStatement({
+        sid: 'AllowAccessToObjectMetadata',
+        effect: iam.Effect.ALLOW,
+        actions: [
+          's3:GetObjectVersionForReplication',
+          's3:GetObjectVersionAcl',
+          's3:GetObjectVersionTagging',
+          's3:GetObjectRetention',
+          's3:GetObjectLegalHold',
+        ],
+        resources: sourceBucketContents,
+      }),
+      new iam.PolicyStatement({
+        sid: 'AllowReplicateObjects',
+        effect: iam.Effect.ALLOW,
+        actions: [
+          's3:ReplicateObject',
+          's3:ReplicateDelete',
+          's3:ReplicateTags',
+          's3:ObjectOwnerOverrideToBucketOwner',
+        ],
+        resources: backupBucketContents,
+      }),
+      new iam.PolicyStatement({
+        sid: 'AllowBatchReplication',
+        effect: iam.Effect.ALLOW,
+        actions: [
+          's3:InitiateReplication',
+          's3:PutInventoryConfiguration',
+        ],
+        resources: sourceBucketArns.concat(sourceBucketContents),
+      }),
+    ];
+
+    if (props.configuration.allowedToUseKmsKeyArns) {
+      statements.push(new iam.PolicyStatement({
+        sid: 'AllowToUseBackupKmsKey', // Cross account so we'll define it here
+        effect: iam.Effect.ALLOW,
+        actions: [
+          'kms:Encrypt',
+          'kms:GenerateDataKey',
+        ],
+        resources: props.configuration.allowedToUseKmsKeyArns,
+      }));
+    }
+
+    // Create the policy document
+    const crossAccountReplicationRolePolicy = new iam.PolicyDocument({ statements });
 
     // Attatch the policy to the role
     const policy = new iam.Policy(this, 'policy', {
