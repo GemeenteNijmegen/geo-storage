@@ -89,7 +89,7 @@ export class StorageStack extends Stack {
       effect: iam.Effect.ALLOW,
       actions: [
         'kms:Decrypt',
-        'kms:GenerateDataKey*',
+        'kms:GenerateDataKey',
       ],
       resources: ['*'],
       principals: [new iam.AnyPrincipal()],
@@ -104,8 +104,7 @@ export class StorageStack extends Stack {
       effect: iam.Effect.ALLOW,
       actions: [
         'kms:Decrypt',
-        'kms:Encrypt',
-        'kms:GenerateDataKey*',
+        'kms:GenerateDataKey',
       ],
       resources: ['*'],
       principals: [new iam.ArnPrincipal(backupRole.roleArn)],
@@ -261,6 +260,7 @@ export class StorageStack extends Stack {
             'kms:Encrypt',
             'kms:Decrypt',
             'kms:ReEncrypt*',
+            'kms:GenerateDataKey',
             'kms:GenerateDataKey*',
             'kms:DescribeKey',
           ],

@@ -45,6 +45,13 @@ export interface Configuration {
    */
   buckets: GeoBucketConfig[];
 
+  /**
+   * A list of KMS Key ARNs that the backup role
+   * is allowed to user (in different AWS accounts).
+   * @default no allow statment for kms keys is added
+   */
+  allowedToUseKmsKeyArns?: string[];
+
 }
 
 export interface GeoBucketConfig {
@@ -80,6 +87,9 @@ export const configurations: { [key: string]: Configuration } = {
     targetEnvironment: Statics.productionEnvironment,
     backupEnvironment: Statics.backupEnvironment,
     buckets: getBucketConfig('main'),
+    allowedToUseKmsKeyArns: [
+      'arn:aws:kms:eu-west-1:751076321715:key/0e9efe8a-71b6-4218-b94d-8f9df0262674',
+    ],
   },
 };
 
