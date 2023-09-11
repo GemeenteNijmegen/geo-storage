@@ -31,12 +31,7 @@ export class StorageStack extends Stack {
       this.createLifecycleRule(),
     ];
 
-    // User for accessing the bucket
-    const user = new iam.User(this, 'aanbesteding-user', {
-      userName: 'aanbesteding-user',
-    });
-
-    const thirdPartyUser = this.setupThridPartyAccessUser();
+    const thirdPartyUser = this.setupThirdPartyAccessUser();
 
     this.setupInventoryReportsBucket(backupRole);
 
@@ -53,8 +48,8 @@ export class StorageStack extends Stack {
       });
       Tags.of(bucket).add('Contents', bucketSettings.description);
 
-      if (bucketSettings.setupAccessForIamUser) {
-        bucket.grantRead(user);
+      if (bucketSettings.allowReadForThirdPartyIamUser) {
+        bucket.grantRead(thirdPartyUser);
       }
 
       // Allow read access to all buckets
@@ -316,7 +311,7 @@ export class StorageStack extends Stack {
   }
 
 
-  setupThridPartyAccessUser(){
+  setupThirdPartyAccessUser(){
     const user = new iam.User(this, 'third-party-user');
     const key = new iam.AccessKey(this, 'third-part-user-key', {
       user: user,
