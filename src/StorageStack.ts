@@ -11,10 +11,10 @@ import {
   Tags,
 } from 'aws-cdk-lib';
 import { CfnBucket } from 'aws-cdk-lib/aws-s3';
+import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import { Configurable, Configuration } from './Configuration';
 import { Statics } from './Statics';
-import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 
 export interface StorageStackProps extends Configurable, StackProps { }
 
@@ -311,7 +311,7 @@ export class StorageStack extends Stack {
   }
 
 
-  setupThirdPartyAccessUser(){
+  setupThirdPartyAccessUser() {
     const user = new iam.User(this, 'third-party-user');
     const key = new iam.AccessKey(this, 'third-part-user-key', {
       user: user,
@@ -323,7 +323,8 @@ export class StorageStack extends Stack {
     user.addToPolicy(new iam.PolicyStatement({
       sid: 'Allow to list the buckets in the account',
       effect: iam.Effect.ALLOW,
-      actions: [ 's3:ListAllMyBuckets' ],
+      actions: ['s3:ListAllMyBuckets'],
+      resources: ['*'],
     }));
 
     return user;
