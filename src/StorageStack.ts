@@ -38,7 +38,7 @@ export class StorageStack extends Stack {
 
     const thirdPartyUser = this.setupThridPartyAccessUser();
 
-    const inventoryBucket = this.setupInventoryReportsBucket(backupRole);
+    this.setupInventoryReportsBucket(backupRole);
 
     const buckets: s3.Bucket[] = [];
     for (const bucketSettings of props.configuration.buckets) {
@@ -71,7 +71,7 @@ export class StorageStack extends Stack {
       }
 
       // Stoped inventory reports as we do not need them currently (inventory bucket still exists)
-      this.setupBucketInventoryReport(bucket, inventoryBucket, bucketSettings.name);
+      // this.setupBucketInventoryReport(bucket, inventoryBucket, bucketSettings.name);
 
       bucket.grantReadWrite(backupRole); // Allow to copy resources to same bucket (changing the KMS key used for sse)
       buckets.push(bucket);
