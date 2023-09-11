@@ -321,7 +321,7 @@ export class StorageStack extends Stack {
     });
 
     user.addToPolicy(new iam.PolicyStatement({
-      sid: 'Allow to list the buckets in the account',
+      sid: 'AllowToListTheBucketsInTheAccount',
       effect: iam.Effect.ALLOW,
       actions: ['s3:ListAllMyBuckets'],
       resources: ['*'],
