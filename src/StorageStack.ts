@@ -14,6 +14,7 @@ import { CfnBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { Configurable, Configuration } from './Configuration';
 import { Statics } from './Statics';
+import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 
 export interface StorageStackProps extends Configurable, StackProps { }
 
@@ -35,6 +36,8 @@ export class StorageStack extends Stack {
       userName: 'aanbesteding-user',
     });
 
+    const thirdPartyUser = this.setupThridPartyAccessUser();
+
     const inventoryBucket = this.setupInventoryReportsBucket(backupRole);
 
     const buckets: s3.Bucket[] = [];
@@ -54,6 +57,9 @@ export class StorageStack extends Stack {
         bucket.grantRead(user);
       }
 
+      // Allow read access to all buckets
+      bucket.grantRead(thirdPartyUser);
+
       if (bucketSettings.backupName) {
         const destinationBucketName = bucketSettings.backupName;
         this.setupReplication(
@@ -64,6 +70,7 @@ export class StorageStack extends Stack {
         );
       }
 
+      // Stoped inventory reports as we do not need them currently (inventory bucket still exists)
       this.setupBucketInventoryReport(bucket, inventoryBucket, bucketSettings.name);
 
       bucket.grantReadWrite(backupRole); // Allow to copy resources to same bucket (changing the KMS key used for sse)
@@ -306,6 +313,25 @@ export class StorageStack extends Stack {
         treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
       });
     });
+  }
+
+
+  setupThridPartyAccessUser(){
+    const user = new iam.User(this, 'third-party-user');
+    const key = new iam.AccessKey(this, 'third-part-user-key', {
+      user: user,
+    });
+    new Secret(this, 'third-party-user-secret', {
+      secretStringValue: key.secretAccessKey,
+    });
+
+    user.addToPolicy(new iam.PolicyStatement({
+      sid: 'Allow to list the buckets in the account',
+      effect: iam.Effect.ALLOW,
+      actions: [ 's3:ListAllMyBuckets' ],
+    }));
+
+    return user;
   }
 
 }
