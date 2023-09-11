@@ -171,17 +171,5 @@ export function getBucketConfig(branchName: string) {
         versioned: true,
       },
     },
-    {
-      cdkId: 'aanbesteding-bucket',
-      name: Statics.aanbestedingBucket(branchName, false),
-      backupName: undefined, // NO BACKUP!
-      description: 'Bucket voor aanbesteding beeldmateriaalviewer',
-      allowReadForThirdPartyIamUser: true,
-      bucketConfiguration: {
-        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-        enforceSSL: true,
-        versioned: true,
-      },
-    },
   ];
 }
