@@ -11,6 +11,7 @@ import {
   Tags,
 } from 'aws-cdk-lib';
 import { CfnBucket } from 'aws-cdk-lib/aws-s3';
+import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import { Configurable, Configuration } from './Configuration';
 import { Statics } from './Statics';
@@ -30,12 +31,9 @@ export class StorageStack extends Stack {
       this.createLifecycleRule(),
     ];
 
-    // User for accessing the bucket
-    const user = new iam.User(this, 'aanbesteding-user', {
-      userName: 'aanbesteding-user',
-    });
+    const thirdPartyUser = this.setupThirdPartyAccessUser();
 
-    const inventoryBucket = this.setupInventoryReportsBucket(backupRole);
+    this.setupInventoryReportsBucket(backupRole);
 
     const buckets: s3.Bucket[] = [];
     for (const bucketSettings of props.configuration.buckets) {
@@ -50,9 +48,12 @@ export class StorageStack extends Stack {
       });
       Tags.of(bucket).add('Contents', bucketSettings.description);
 
-      if (bucketSettings.setupAccessForIamUser) {
-        bucket.grantRead(user);
+      if (bucketSettings.allowReadForThirdPartyIamUser) {
+        bucket.grantRead(thirdPartyUser);
       }
+
+      // Allow read access to all buckets
+      bucket.grantRead(thirdPartyUser);
 
       if (bucketSettings.backupName) {
         const destinationBucketName = bucketSettings.backupName;
@@ -64,7 +65,8 @@ export class StorageStack extends Stack {
         );
       }
 
-      this.setupBucketInventoryReport(bucket, inventoryBucket, bucketSettings.name);
+      // Stoped inventory reports as we do not need them currently (inventory bucket still exists)
+      // this.setupBucketInventoryReport(bucket, inventoryBucket, bucketSettings.name);
 
       bucket.grantReadWrite(backupRole); // Allow to copy resources to same bucket (changing the KMS key used for sse)
       buckets.push(bucket);
@@ -306,6 +308,26 @@ export class StorageStack extends Stack {
         treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
       });
     });
+  }
+
+
+  setupThirdPartyAccessUser() {
+    const user = new iam.User(this, 'third-party-user');
+    const key = new iam.AccessKey(this, 'third-part-user-key', {
+      user: user,
+    });
+    new Secret(this, 'third-party-user-secret', {
+      secretStringValue: key.secretAccessKey,
+    });
+
+    user.addToPolicy(new iam.PolicyStatement({
+      sid: 'AllowToListTheBucketsInTheAccount',
+      effect: iam.Effect.ALLOW,
+      actions: ['s3:ListAllMyBuckets'],
+      resources: ['*'],
+    }));
+
+    return user;
   }
 
 }
