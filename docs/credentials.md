@@ -7,6 +7,8 @@ Voor sommige applicaties (koppeling naar ander partijen of met applicaties) word
 We kunnen in CDK een nieuwe IAM user aanmaken en hier credentials voor aanmaken.
 Zie het voorbeeld hieronder. De access key kan in de IAM console worden gevonden, de secret key wordt in een new secretsmanager secret opgeslagen.
 
+Note: buckets waar toegang toe gegeven moeten worden zijn te vinden in de StorageStack. Hier kan je ook de user en credentials aanmaken.
+
 ```js
 function setupThirdPartyAccessUser() {
   const user = new iam.User(this, 'third-party-user');
