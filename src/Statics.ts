@@ -43,6 +43,7 @@ export class Statics {
   // Bucket names
   static bucketBackupSuffix = (backup: boolean) => backup ? '-backup' : '';
   static cycloramaBucket = (branch: string, backup: boolean) => `gemeentenijmegen-geo-cyclorama-${branch}${Statics.bucketBackupSuffix(backup)}`;
+  static meshBucket = (branch: string, backup: boolean) => `gemeentenijmegen-geo-mesh-${branch}${Statics.bucketBackupSuffix(backup)}`;
   static obliekBucket = (branch: string, backup: boolean) => `gemeentenijmegen-geo-obliek-${branch}${Statics.bucketBackupSuffix(backup)}`;
   static orthoBucket = (branch: string, backup: boolean) => `gemeentenijmegen-geo-ortho-${branch}${Statics.bucketBackupSuffix(backup)}`;
   static lidarAirborneBucket = (branch: string, backup: boolean) => `gemeentenijmegen-geo-lidar-airborne-${branch}${Statics.bucketBackupSuffix(backup)}`;

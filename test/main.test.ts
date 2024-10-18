@@ -23,12 +23,13 @@ test('StackHasBuckets', () => {
   });
 
   const template = Template.fromStack(stack);
-  template.resourceCountIs('AWS::S3::Bucket', 6);
+  template.resourceCountIs('AWS::S3::Bucket', 7);
 });
 
 
 test('Bucket names (without backup)', () => {
   expect(Statics.cycloramaBucket('test', false)).toBe('gemeentenijmegen-geo-cyclorama-test');
+  expect(Statics.meshBucket('test', false)).toBe('gemeentenijmegen-geo-mesh-test');
   expect(Statics.obliekBucket('test', false)).toBe('gemeentenijmegen-geo-obliek-test');
   expect(Statics.orthoBucket('test', false)).toBe('gemeentenijmegen-geo-ortho-test');
   expect(Statics.lidarAirborneBucket('test', false)).toBe('gemeentenijmegen-geo-lidar-airborne-test');
@@ -38,6 +39,7 @@ test('Bucket names (without backup)', () => {
 
 test('Bucket names (with backup)', () => {
   expect(Statics.cycloramaBucket('test', true)).toBe('gemeentenijmegen-geo-cyclorama-test-backup');
+  expect(Statics.meshBucket('test', true)).toBe('gemeentenijmegen-geo-mesh-test-backup');
   expect(Statics.obliekBucket('test', true)).toBe('gemeentenijmegen-geo-obliek-test-backup');
   expect(Statics.orthoBucket('test', true)).toBe('gemeentenijmegen-geo-ortho-test-backup');
   expect(Statics.lidarAirborneBucket('test', true)).toBe('gemeentenijmegen-geo-lidar-airborne-test-backup');

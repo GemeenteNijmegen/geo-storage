@@ -171,5 +171,17 @@ export function getBucketConfig(branchName: string) {
         versioned: true,
       },
     },
+    {
+      cdkId: 'mesh-bucket',
+      name: Statics.meshBucket(branchName, false),
+      backupName: Statics.meshBucket(branchName, true),
+      description: 'Mesh data',
+      allowReadForThirdPartyIamUser: true,
+      bucketConfiguration: {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        enforceSSL: true,
+        versioned: true,
+      },
+    },
   ];
 }
