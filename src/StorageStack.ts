@@ -32,6 +32,7 @@ export class StorageStack extends Stack {
     ];
 
     const thirdPartyUser = this.setupThirdPartyAccessUser();
+    const iamManagementUser = this.setupManagementUser();
 
     this.setupInventoryReportsBucket(backupRole);
 
@@ -48,12 +49,12 @@ export class StorageStack extends Stack {
       });
       Tags.of(bucket).add('Contents', bucketSettings.description);
 
-      if (bucketSettings.allowReadForThirdPartyIamUser) {
-        bucket.grantRead(thirdPartyUser);
-      }
-
       // Allow read access to all buckets
       bucket.grantRead(thirdPartyUser);
+
+      // Allow the managment user to read and put (not delete)
+      bucket.grantRead(iamManagementUser);
+      bucket.grantPut(iamManagementUser);
 
       if (bucketSettings.backupName) {
         const destinationBucketName = bucketSettings.backupName;
@@ -327,6 +328,23 @@ export class StorageStack extends Stack {
       resources: ['*'],
     }));
 
+    return user;
+  }
+
+  setupManagementUser() {
+    const user = new iam.User(this, 'management-user');
+    const key = new iam.AccessKey(this, 'management-user-key', {
+      user: user,
+    });
+    new Secret(this, 'management-user-secret', {
+      secretStringValue: key.secretAccessKey,
+    });
+    user.addToPolicy(new iam.PolicyStatement({
+      sid: 'AllowToListTheBucketsInTheAccount',
+      effect: iam.Effect.ALLOW,
+      actions: ['s3:ListAllMyBuckets'],
+      resources: ['*'],
+    }));
     return user;
   }
 
