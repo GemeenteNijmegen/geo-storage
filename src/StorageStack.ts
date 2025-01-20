@@ -373,7 +373,7 @@ export class StorageStack extends Stack {
       effect: iam.Effect.ALLOW,
       resources: [
         ...bucketArns,
-        ...bucketArns.map(arn => `${arn}/*`)
+        ...bucketArns.map(arn => `${arn}/*`),
       ],
     }));
     return user;
