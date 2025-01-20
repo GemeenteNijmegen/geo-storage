@@ -10,7 +10,7 @@ import {
   Duration,
   Tags,
 } from 'aws-cdk-lib';
-import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { CfnBucket } from 'aws-cdk-lib/aws-s3';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
@@ -353,9 +353,8 @@ export class StorageStack extends Stack {
         'kms:Encrypt',
         'kms:ReEncrypt*',
         'kms:GenerateDataKey*',
-        'kms:Decrypt',
       ],
-      effect: Effect.ALLOW,
+      effect: iam.Effect.ALLOW,
       resources: [sseKeyArn],
     }));
 
@@ -371,7 +370,7 @@ export class StorageStack extends Stack {
         's3:GetBucket*',
         's3:List*',
       ],
-      effect: Effect.ALLOW,
+      effect: iam.Effect.ALLOW,
       resources: bucketArns,
     }));
     return user;
