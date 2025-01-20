@@ -10,12 +10,12 @@ import {
   Duration,
   Tags,
 } from 'aws-cdk-lib';
+import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { CfnBucket } from 'aws-cdk-lib/aws-s3';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import { Configurable, Configuration } from './Configuration';
 import { Statics } from './Statics';
-import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 
 export interface StorageStackProps extends Configurable, StackProps { }
 
@@ -348,31 +348,31 @@ export class StorageStack extends Stack {
     }));
     user.addToPolicy(new PolicyStatement({
       actions: [
-        "kms:Decrypt",
-        "kms:DescribeKey",
-        "kms:Encrypt",
-        "kms:ReEncrypt*",
-        "kms:GenerateDataKey*",
-        "kms:Decrypt"
+        'kms:Decrypt',
+        'kms:DescribeKey',
+        'kms:Encrypt',
+        'kms:ReEncrypt*',
+        'kms:GenerateDataKey*',
+        'kms:Decrypt',
       ],
       effect: Effect.ALLOW,
-      resources: [sseKeyArn]
+      resources: [sseKeyArn],
     }));
 
     user.addToPolicy(new PolicyStatement({
       actions: [
-        "s3:PutObject",
-        "s3:PutObjectLegalHold",
-        "s3:PutObjectRetention",
-        "s3:PutObjectTagging",
-        "s3:PutObjectVersionTagging",
-        "s3:Abort*",
-        "s3:GetObject*",
-        "s3:GetBucket*",
-        "s3:List*"
+        's3:PutObject',
+        's3:PutObjectLegalHold',
+        's3:PutObjectRetention',
+        's3:PutObjectTagging',
+        's3:PutObjectVersionTagging',
+        's3:Abort*',
+        's3:GetObject*',
+        's3:GetBucket*',
+        's3:List*',
       ],
       effect: Effect.ALLOW,
-      resources: bucketArns
+      resources: bucketArns,
     }));
     return user;
   }
