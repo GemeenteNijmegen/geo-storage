@@ -371,7 +371,10 @@ export class StorageStack extends Stack {
         's3:List*',
       ],
       effect: iam.Effect.ALLOW,
-      resources: bucketArns,
+      resources: [
+        ...bucketArns,
+        ...bucketArns.map(arn => `${arn}/*`),
+      ],
     }));
     return user;
   }
