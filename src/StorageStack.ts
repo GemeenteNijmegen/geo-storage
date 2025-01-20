@@ -10,6 +10,7 @@ import {
   Duration,
   Tags,
 } from 'aws-cdk-lib';
+import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { CfnBucket } from 'aws-cdk-lib/aws-s3';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
@@ -48,12 +49,9 @@ export class StorageStack extends Stack {
       });
       Tags.of(bucket).add('Contents', bucketSettings.description);
 
-      if (bucketSettings.allowReadForThirdPartyIamUser) {
-        bucket.grantRead(thirdPartyUser);
-      }
-
       // Allow read access to all buckets
       bucket.grantRead(thirdPartyUser);
+
 
       if (bucketSettings.backupName) {
         const destinationBucketName = bucketSettings.backupName;
@@ -71,6 +69,10 @@ export class StorageStack extends Stack {
       bucket.grantReadWrite(backupRole); // Allow to copy resources to same bucket (changing the KMS key used for sse)
       buckets.push(bucket);
     }
+
+    // If we use grantRead and grantPut methods the policy will be too big
+    const bucketArns = buckets.map(bucket => bucket.bucketArn);
+    this.setupManagementUser(bucketArns, sseKey.keyArn);
 
     this.createBucketAccessPolicy(buckets, sseKey);
     this.setupDataDownloadAlarms(buckets);
@@ -327,6 +329,50 @@ export class StorageStack extends Stack {
       resources: ['*'],
     }));
 
+    return user;
+  }
+
+  setupManagementUser(bucketArns: string[], sseKeyArn: string) {
+    const user = new iam.User(this, 'management-user');
+    const key = new iam.AccessKey(this, 'management-user-key', {
+      user: user,
+    });
+    new Secret(this, 'management-user-secret', {
+      secretStringValue: key.secretAccessKey,
+    });
+    user.addToPolicy(new iam.PolicyStatement({
+      sid: 'AllowToListTheBucketsInTheAccount',
+      effect: iam.Effect.ALLOW,
+      actions: ['s3:ListAllMyBuckets'],
+      resources: ['*'],
+    }));
+    user.addToPolicy(new PolicyStatement({
+      actions: [
+        'kms:Decrypt',
+        'kms:DescribeKey',
+        'kms:Encrypt',
+        'kms:ReEncrypt*',
+        'kms:GenerateDataKey*',
+      ],
+      effect: iam.Effect.ALLOW,
+      resources: [sseKeyArn],
+    }));
+
+    user.addToPolicy(new PolicyStatement({
+      actions: [
+        's3:PutObject',
+        's3:PutObjectLegalHold',
+        's3:PutObjectRetention',
+        's3:PutObjectTagging',
+        's3:PutObjectVersionTagging',
+        's3:Abort*',
+        's3:GetObject*',
+        's3:GetBucket*',
+        's3:List*',
+      ],
+      effect: iam.Effect.ALLOW,
+      resources: bucketArns,
+    }));
     return user;
   }
 

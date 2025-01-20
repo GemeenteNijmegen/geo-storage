@@ -63,12 +63,6 @@ export interface GeoBucketConfig {
   backupName?: string;
   description: string;
   bucketConfiguration: s3.BucketProps;
-
-  /**
-   * Allows the third party iam user read access to a bucket
-   * @default false
-   */
-  allowReadForThirdPartyIamUser?: boolean;
 }
 
 
@@ -116,7 +110,6 @@ export function getBucketConfig(branchName: string) {
       name: Statics.cycloramaBucket(branchName, false),
       backupName: Statics.cycloramaBucket(branchName, true),
       description: 'Cyclorama data',
-      allowReadForThirdPartyIamUser: true,
       bucketConfiguration: {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,
@@ -128,7 +121,6 @@ export function getBucketConfig(branchName: string) {
       name: Statics.obliekBucket(branchName, false),
       backupName: Statics.obliekBucket(branchName, true),
       description: 'Obliek data',
-      allowReadForThirdPartyIamUser: true,
       bucketConfiguration: {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,
@@ -140,7 +132,6 @@ export function getBucketConfig(branchName: string) {
       name: Statics.orthoBucket(branchName, false),
       backupName: Statics.orthoBucket(branchName, true),
       description: 'Ortho data',
-      allowReadForThirdPartyIamUser: true,
       bucketConfiguration: {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,
@@ -152,7 +143,6 @@ export function getBucketConfig(branchName: string) {
       name: Statics.lidarAirborneBucket(branchName, false),
       backupName: Statics.lidarAirborneBucket(branchName, true),
       description: 'LiDAR airborne data',
-      allowReadForThirdPartyIamUser: true,
       bucketConfiguration: {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,
@@ -164,7 +154,6 @@ export function getBucketConfig(branchName: string) {
       name: Statics.lidarTerrestrischBucket(branchName, false),
       backupName: Statics.lidarTerrestrischBucket(branchName, true),
       description: 'LiDAR terrestrisch data',
-      allowReadForThirdPartyIamUser: true,
       bucketConfiguration: {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,
@@ -176,7 +165,6 @@ export function getBucketConfig(branchName: string) {
       name: Statics.meshBucket(branchName, false),
       backupName: Statics.meshBucket(branchName, true),
       description: 'Mesh data',
-      allowReadForThirdPartyIamUser: true,
       bucketConfiguration: {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,
