@@ -52,6 +52,14 @@ export interface Configuration {
    */
   allowedToUseKmsKeyArns?: string[];
 
+  /**
+   * If set a certificate for <value>.nijmegen.nl will be
+   * generated in acm. This domain is also used in the
+   * cloudfront domain names.
+   * Note: enabling required adding cname records to nijmegen.nl
+   */
+  readonly nijmegenSubdomain?: string;
+
 }
 
 export interface GeoBucketConfig {
@@ -165,6 +173,28 @@ export function getBucketConfig(branchName: string) {
       name: Statics.meshBucket(branchName, false),
       backupName: Statics.meshBucket(branchName, true),
       description: 'Mesh data',
+      bucketConfiguration: {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        enforceSSL: true,
+        versioned: true,
+      },
+    },
+    {
+      cdkId: 'three-d-mesh-bucket',
+      name: Statics.threedMeshBucket(branchName, false),
+      backupName: Statics.threedMeshBucket(branchName, true),
+      description: '3D Mesh data',
+      bucketConfiguration: {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        enforceSSL: true,
+        versioned: true,
+      },
+    },
+    {
+      cdkId: 'kaartviewer-docs-bucket',
+      name: Statics.kaartViewerDocsBucket(branchName, false),
+      backupName: Statics.kaartViewerDocsBucket(branchName, true),
+      description: '3D Mesh data',
       bucketConfiguration: {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,

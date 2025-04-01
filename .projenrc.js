@@ -6,6 +6,11 @@ const project = new GemeenteNijmegenCdkApp({
   name: 'geo-storage',
   deps: [
     '@gemeentenijmegen/aws-constructs',
+    'cdk-remote-stack',
+    '@gemeentenijmegen/dnssec-record',
   ],
+  scripts: {
+    lint: 'cfn-lint cdk.out/**/*.template.json -i W3005 W2001 W3045', // W3045: zie CloudFront logs bucket
+  },
 });
 project.synth();

@@ -1,0 +1,7 @@
+Contact: https://www.nijmegen.nl/diensten/privacy/beveiligings-of-datalek-melden/
+Expires: 2025-12-31T22:59:00.000Z
+Encryption: https://app4.nijmegen.nl/pgp-key.txt
+Acknowledgments: https://www.nijmegen.nl/diensten/privacy/beveiligings-of-datalek-melden/
+Preferred-Languages: NL
+Canonical: https://yivi.nijmegen.nl/.well-known/security.txt
+Policy: https://www.nijmegen.nl/diensten/privacy/beveiligings-of-datalek-melden/

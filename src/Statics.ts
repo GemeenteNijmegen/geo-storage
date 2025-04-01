@@ -1,5 +1,19 @@
 export class Statics {
 
+  //Cloudfront
+  static readonly certificatePath: string = '/cdk/yivi-issue-app/certificates';
+  static readonly certificateArn: string = '/cdk/yivi-issue-app/certificates/certificate-arn';
+  static readonly wafPath: string = '/cdk/yivi-issue-app/waf';
+  static readonly ssmWafAclArn: string = '/cdk/yivi-issue-app/waf/acl-arn';
+  static readonly ssmGeoPublicBucketsHost: string = '/cdk/yivi-issue-app/yivi-api-host';
+  /**
+     * Route53 Zone ID and name for the zone for geo public buckets. decouples stacks to not pass
+     * the actual zone between stacks. This param is set by DNSStack and should not be modified after.
+     */
+  static readonly ssmZonePath: string = '/cdk/yivi-issue-app/zone';
+  static readonly ssmZoneId: string = '/cdk/yivi-issue-app/zone/id';
+  static readonly ssmZoneName: string = '/cdk/yivi-issue-app/zone/name';
+
   static readonly projectName = 'geo-storage';
 
   static readonly gnBuildCodeStarConnectionArn = 'arn:aws:codestar-connections:eu-central-1:836443378780:connection/9d20671d-91bc-49e2-8680-59ff96e2ab11';
@@ -49,7 +63,11 @@ export class Statics {
   static lidarAirborneBucket = (branch: string, backup: boolean) => `gemeentenijmegen-geo-lidar-airborne-${branch}${Statics.bucketBackupSuffix(backup)}`;
   static lidarTerrestrischBucket = (branch: string, backup: boolean) => `gemeentenijmegen-geo-lidar-terrestrisch-${branch}${Statics.bucketBackupSuffix(backup)}`;
   static aanbestedingBucket = (branch: string, backup: boolean) => `gemeentenijmegen-aanbesteding-${branch}${Statics.bucketBackupSuffix(backup)}`;
+  static threedMeshBucket = (branch: string, backup: boolean) => `gemeentenijmegen-3d-mesh-${branch}${Statics.bucketBackupSuffix(backup)}`; //#909
+  static kaartViewerDocsBucket = (branch: string, backup: boolean) => `gemeentenijmegen-kaartviewer-docs-${branch}${Statics.bucketBackupSuffix(backup)}`; //#909
 
   // Variable statics (pun intented)
   static readonly landingzonePlatformOperatorRoleArn = (accountId: string, region: string) => `arn:aws:iam::${accountId}:role/aws-reserved/sso.amazonaws.com/${region}/AWSReservedSSO_lz-platform-operator_*`;
+
+
 }
