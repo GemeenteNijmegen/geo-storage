@@ -53,12 +53,15 @@ export interface Configuration {
   allowedToUseKmsKeyArns?: string[];
 
   /**
-   * If set a certificate for <value>.nijmegen.nl will be
-   * generated in acm. This domain is also used in the
-   * cloudfront domain names.
-   * Note: enabling required adding cname records to nijmegen.nl
+   * Cloudfront and certificate stuff
    */
-  readonly nijmegenSubdomain?: string;
+  domainNamesCloudFront?: string[];
+  domainNamesCertificate?: {
+    domainName: string;
+    alternativeNames: string[];
+  };
+  cnames?: { [key: string]: string };
+
 
 }
 
@@ -82,6 +85,13 @@ export const configurations: { [key: string]: Configuration } = {
     targetEnvironment: Statics.acceptanceEnvironment,
     backupEnvironment: Statics.backupEnvironmentAcceptance,
     buckets: getBucketConfig('acceptance'),
+    domainNamesCloudFront: ['geodata-accp.csp-nijmegen.nl', 'www.geodata-accp.csp-nijmegen.nl'],
+    domainNamesCertificate: {
+      domainName: 'geodata-accp.csp-nijmegen.nl',
+      alternativeNames: [
+        'www.geodata-accp.csp-nijmegen.nl.nl',
+      ],
+    },
   },
   main: {
     branchName: 'main',

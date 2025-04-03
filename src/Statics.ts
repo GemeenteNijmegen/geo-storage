@@ -7,6 +7,7 @@ export class Statics {
   //static readonly certificateParameter: string = '/cdk/yivi-issue-app/zone';
   static readonly projectHostedZoneId: string = '/gemeente-nijmegen/account/hostedzone/id';
   static readonly projectHostedZoneName: string = '/gemeente-nijmegen/account/hostedzone/name';
+  static readonly certificateParameter: string = '';
 
   static readonly projectName = 'geo-storage';
 

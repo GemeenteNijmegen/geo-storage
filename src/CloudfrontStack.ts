@@ -1,24 +1,26 @@
-import path from 'path';
-import { StringParameter } from '@pepperize/cdk-ssm-parameters-cross-region';
-import { Duration, Environment, aws_ssm } from 'aws-cdk-lib';
-import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { Distribution, Function, FunctionCode, FunctionEventType, PriceClass, S3OriginConfig, SecurityPolicyProtocol, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
-import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
+//import path from 'path';
+//import { StringParameter } from '@pepperize/cdk-ssm-parameters-cross-region';
+import { Duration, RemovalPolicy, Stack, aws_ssm } from 'aws-cdk-lib';
+//import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
+import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel } from 'aws-cdk-lib/aws-cloudfront';
+import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { AaaaRecord, ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
-import { BlockPublicAccess, Bucket, BucketEncryption, IBucket, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
+import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
+import { BlockPublicAccess, Bucket, BucketEncryption, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { Statics } from './Statics';
 
-interface CloudfrontDistributionProps {
-  bucket: IBucket;
-  originConfig: S3OriginConfig;
-  env?: Environment;
-  domainNames?: string[];
-}
+// interface CloudfrontDistributionProps {
+//   bucket: IBucket;
+//   originConfig: S3OriginConfig;
+//   env?: Environment;
+//   domainNames?: string[];
+// }
 
-export class CloudfrontDistribution extends Construct {
-  constructor(scope: Construct, id: string, props: CloudfrontDistributionProps) {
+export class CloudfrontStack extends Stack {
+  //constructor(scope: Construct, id: string, props: CloudfrontDistributionProps) {
+  constructor(scope: Construct, id: string) {
     super(scope, id);
 
 
@@ -27,21 +29,36 @@ export class CloudfrontDistribution extends Construct {
     const projectHostedZoneId = aws_ssm.StringParameter.valueForStringParameter(this, Statics.projectHostedZoneId);
 
     // Get the certificate
+    /**
     let certificate = undefined;
     if (props.domainNames) {
       const certificateArn = StringParameter.fromStringParameterName(this, 'certparam', 'us-east-1', Statics.certificateParameter).stringValue;
       certificate = Certificate.fromCertificateArn(this, 'certificate', certificateArn);
     }
+    */
+
+    //bucket for the security.txt file, also the default behaviour
+    const defaultBucket = new Bucket(this, 'securityTxtBucket', {
+      removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+    });
+    const s3Origin = S3BucketOrigin.withOriginAccessControl(defaultBucket, {
+      originAccessLevels: [AccessLevel.READ, AccessLevel.LIST],
+    });
+    new BucketDeployment(this, 'Deployment', {
+      sources: [Source.asset('./src/app/static-resources/')],
+      destinationBucket: defaultBucket,
+      retainOnDelete: false,
+    });
+
 
     // Setup the distribution
     const distribution = new Distribution(this, 'cf-distribution', {
       priceClass: PriceClass.PRICE_CLASS_100,
-      certificate,
-      domainNames: props.domainNames,
+      //certificate,
+      //domainNames: props.domainNames,
       defaultBehavior: {
-        origin: new S3Origin(props.bucket, { originAccessIdentity: props.originConfig.originAccessIdentity }),
-        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        functionAssociations: [{ eventType: FunctionEventType.VIEWER_REQUEST, function: this.indexRewriteFunction() }],
+        origin: s3Origin,
       },
       errorResponses: this.errorResponses(),
       logBucket: this.logBucket(),
@@ -52,12 +69,6 @@ export class CloudfrontDistribution extends Construct {
 
     this.addDnsRecords(distribution, projectHostedZoneId, projectHostedZoneName);
 
-  }
-
-  private indexRewriteFunction() {
-    return new Function(this, 'rewrite-index', {
-      code: FunctionCode.fromFile({ filePath: path.join(__dirname, 'rewriteIndexFunction.js') }),
-    });
   }
 
   private errorResponses() {

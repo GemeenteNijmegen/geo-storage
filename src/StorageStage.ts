@@ -5,6 +5,7 @@ import { BackupIamStack } from './BackupIamStack';
 import { BackupStack } from './BackupStack';
 import { Configurable } from './Configuration';
 import { StorageStack } from './StorageStack';
+import { CloudfrontStack } from './CloudfrontStack';
 
 
 export interface StorageStageProps extends StageProps, Configurable {}
@@ -20,6 +21,12 @@ export class StorageStage extends Stage {
       env: props.configuration.targetEnvironment,
       configuration: props.configuration,
     });
+
+    //todo
+    //add dns stack
+    //add cert stack
+
+    new CloudfrontStack(this, 'cloudfront-stack')
 
     const storageStack = new StorageStack(this, 'data-stack', {
       env: props.configuration.targetEnvironment,
