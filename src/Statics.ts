@@ -1,18 +1,12 @@
 export class Statics {
 
-  //Cloudfront
-  static readonly certificatePath: string = '/cdk/yivi-issue-app/certificates';
-  static readonly certificateArn: string = '/cdk/yivi-issue-app/certificates/certificate-arn';
-  static readonly wafPath: string = '/cdk/yivi-issue-app/waf';
-  static readonly ssmWafAclArn: string = '/cdk/yivi-issue-app/waf/acl-arn';
-  static readonly ssmGeoPublicBucketsHost: string = '/cdk/yivi-issue-app/yivi-api-host';
   /**
-     * Route53 Zone ID and name for the zone for geo public buckets. decouples stacks to not pass
+     * Cloudfront and Route53 Zone ID and name for the zone for geo public buckets. decouples stacks to not pass
      * the actual zone between stacks. This param is set by DNSStack and should not be modified after.
      */
-  static readonly ssmZonePath: string = '/cdk/yivi-issue-app/zone';
-  static readonly ssmZoneId: string = '/cdk/yivi-issue-app/zone/id';
-  static readonly ssmZoneName: string = '/cdk/yivi-issue-app/zone/name';
+  //static readonly certificateParameter: string = '/cdk/yivi-issue-app/zone';
+  static readonly projectHostedZoneId: string = '/gemeente-nijmegen/account/hostedzone/id';
+  static readonly projectHostedZoneName: string = '/gemeente-nijmegen/account/hostedzone/name';
 
   static readonly projectName = 'geo-storage';
 

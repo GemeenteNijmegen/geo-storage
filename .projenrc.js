@@ -5,6 +5,7 @@ const project = new GemeenteNijmegenCdkApp({
   devDeps: ['@gemeentenijmegen/projen-project-type'],
   name: 'geo-storage',
   deps: [
+    '@pepperize/cdk-ssm-parameters-cross-region',
     '@gemeentenijmegen/aws-constructs',
     'cdk-remote-stack',
     '@gemeentenijmegen/dnssec-record',
