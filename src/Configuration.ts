@@ -52,6 +52,17 @@ export interface Configuration {
    */
   allowedToUseKmsKeyArns?: string[];
 
+  /**
+   * Cloudfront and certificate stuff
+   */
+  domainNamesCloudFront?: string[];
+  domainNamesCertificate?: {
+    domainName: string;
+    alternativeNames: string[];
+  };
+  cnames?: { [key: string]: string };
+
+
 }
 
 export interface GeoBucketConfig {
@@ -74,6 +85,13 @@ export const configurations: { [key: string]: Configuration } = {
     targetEnvironment: Statics.acceptanceEnvironment,
     backupEnvironment: Statics.backupEnvironmentAcceptance,
     buckets: getBucketConfig('acceptance'),
+    domainNamesCloudFront: ['geodata-accp.csp-nijmegen.nl', 'www.geodata-accp.csp-nijmegen.nl'],
+    domainNamesCertificate: {
+      domainName: 'geodata-accp.csp-nijmegen.nl',
+      alternativeNames: [
+        'www.geodata-accp.csp-nijmegen.nl.nl',
+      ],
+    },
   },
   main: {
     branchName: 'main',
@@ -165,6 +183,28 @@ export function getBucketConfig(branchName: string) {
       name: Statics.meshBucket(branchName, false),
       backupName: Statics.meshBucket(branchName, true),
       description: 'Mesh data',
+      bucketConfiguration: {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        enforceSSL: true,
+        versioned: true,
+      },
+    },
+    {
+      cdkId: 'three-d-mesh-bucket',
+      name: Statics.threedMeshBucket(branchName, false),
+      backupName: Statics.threedMeshBucket(branchName, true),
+      description: '3D Mesh data',
+      bucketConfiguration: {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        enforceSSL: true,
+        versioned: true,
+      },
+    },
+    {
+      cdkId: 'kaartviewer-docs-bucket',
+      name: Statics.kaartViewerDocsBucket(branchName, false),
+      backupName: Statics.kaartViewerDocsBucket(branchName, true),
+      description: '3D Mesh data',
       bucketConfiguration: {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,

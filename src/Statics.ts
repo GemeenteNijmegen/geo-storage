@@ -1,5 +1,14 @@
 export class Statics {
 
+  /**
+     * Cloudfront and Route53 Zone ID and name for the zone for geo public buckets. decouples stacks to not pass
+     * the actual zone between stacks. This param is set by DNSStack and should not be modified after.
+     */
+  //static readonly certificateParameter: string = '/cdk/yivi-issue-app/zone';
+  static readonly projectHostedZoneId: string = '/gemeente-nijmegen/account/hostedzone/id';
+  static readonly projectHostedZoneName: string = '/gemeente-nijmegen/account/hostedzone/name';
+  static readonly certificateParameter: string = '';
+
   static readonly projectName = 'geo-storage';
 
   static readonly gnBuildCodeStarConnectionArn = 'arn:aws:codestar-connections:eu-central-1:836443378780:connection/9d20671d-91bc-49e2-8680-59ff96e2ab11';
@@ -49,7 +58,11 @@ export class Statics {
   static lidarAirborneBucket = (branch: string, backup: boolean) => `gemeentenijmegen-geo-lidar-airborne-${branch}${Statics.bucketBackupSuffix(backup)}`;
   static lidarTerrestrischBucket = (branch: string, backup: boolean) => `gemeentenijmegen-geo-lidar-terrestrisch-${branch}${Statics.bucketBackupSuffix(backup)}`;
   static aanbestedingBucket = (branch: string, backup: boolean) => `gemeentenijmegen-aanbesteding-${branch}${Statics.bucketBackupSuffix(backup)}`;
+  static threedMeshBucket = (branch: string, backup: boolean) => `gemeentenijmegen-3d-mesh-${branch}${Statics.bucketBackupSuffix(backup)}`; //#909
+  static kaartViewerDocsBucket = (branch: string, backup: boolean) => `gemeentenijmegen-kaartviewer-docs-${branch}${Statics.bucketBackupSuffix(backup)}`; //#909
 
   // Variable statics (pun intented)
   static readonly landingzonePlatformOperatorRoleArn = (accountId: string, region: string) => `arn:aws:iam::${accountId}:role/aws-reserved/sso.amazonaws.com/${region}/AWSReservedSSO_lz-platform-operator_*`;
+
+
 }
