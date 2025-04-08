@@ -2,7 +2,7 @@
 //import { StringParameter } from '@pepperize/cdk-ssm-parameters-cross-region';
 import { Duration, RemovalPolicy, Stack, aws_ssm } from 'aws-cdk-lib';
 //import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel } from 'aws-cdk-lib/aws-cloudfront';
+import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { AaaaRecord, ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
@@ -44,9 +44,10 @@ export class CloudfrontStack extends Stack {
     });
     const s3Origin = S3BucketOrigin.withOriginAccessControl(defaultBucket, {
       originAccessLevels: [AccessLevel.READ, AccessLevel.LIST],
+
     });
     new BucketDeployment(this, 'Deployment', {
-      sources: [Source.asset('./src/static-resources/.well-known/')],
+      sources: [Source.asset('./src/static-resources/')],
       destinationBucket: defaultBucket,
       retainOnDelete: false,
     });
@@ -59,6 +60,7 @@ export class CloudfrontStack extends Stack {
       //domainNames: props.domainNames,
       defaultBehavior: {
         origin: s3Origin,
+        viewerProtocolPolicy: ViewerProtocolPolicy.HTTPS_ONLY
       },
       errorResponses: this.errorResponses(),
       logBucket: this.logBucket(),
