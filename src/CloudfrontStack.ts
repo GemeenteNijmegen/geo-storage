@@ -6,8 +6,8 @@ import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel } from 'a
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { AaaaRecord, ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
-import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { BlockPublicAccess, Bucket, BucketEncryption, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
+import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { Construct } from 'constructs';
 import { Statics } from './Statics';
 
@@ -46,7 +46,7 @@ export class CloudfrontStack extends Stack {
       originAccessLevels: [AccessLevel.READ, AccessLevel.LIST],
     });
     new BucketDeployment(this, 'Deployment', {
-      sources: [Source.asset('./src/app/static-resources/')],
+      sources: [Source.asset('./src/static-resources/.well-known/')],
       destinationBucket: defaultBucket,
       retainOnDelete: false,
     });

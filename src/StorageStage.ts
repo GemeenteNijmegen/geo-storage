@@ -3,9 +3,9 @@ import { Aspects, Stage, StageProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { BackupIamStack } from './BackupIamStack';
 import { BackupStack } from './BackupStack';
+import { CloudfrontStack } from './CloudfrontStack';
 import { Configurable } from './Configuration';
 import { StorageStack } from './StorageStack';
-import { CloudfrontStack } from './CloudfrontStack';
 
 
 export interface StorageStageProps extends StageProps, Configurable {}
@@ -26,7 +26,7 @@ export class StorageStage extends Stage {
     //add dns stack
     //add cert stack
 
-    new CloudfrontStack(this, 'cloudfront-stack')
+    new CloudfrontStack(this, 'cloudfront-stack');
 
     const storageStack = new StorageStack(this, 'data-stack', {
       env: props.configuration.targetEnvironment,
