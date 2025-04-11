@@ -10,7 +10,7 @@ export interface Environment {
 }
 
 export interface Configurable {
-  configuration : Configuration;
+  configuration: Configuration;
 }
 
 export interface Configuration {
@@ -62,9 +62,13 @@ export interface Configuration {
   };
   cnames?: { [key: string]: string };
 
-
 }
 
+
+export interface CloudFrontBucketConfig {
+  exposeTroughCloudfront: boolean; //default false
+  cloudfrontBasePath: string; //base path for the url of the bucket-contents
+}
 export interface GeoBucketConfig {
   cdkId: string;
   name: string;
@@ -74,6 +78,7 @@ export interface GeoBucketConfig {
   backupName?: string;
   description: string;
   bucketConfiguration: s3.BucketProps;
+  cloudfrontBucketConfig?: CloudFrontBucketConfig;
 }
 
 
@@ -198,6 +203,10 @@ export function getBucketConfig(branchName: string) {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,
         versioned: true,
+      },
+      cloudfrontBucketConfig: {
+        exposeTroughCloudfront: true,
+        cloudfrontBasePath: '3dmesh/',
       },
     },
     {

@@ -1,14 +1,15 @@
 //import path from 'path';
 //import { StringParameter } from '@pepperize/cdk-ssm-parameters-cross-region';
-import { Duration, RemovalPolicy, Stack, aws_ssm } from 'aws-cdk-lib';
+import { aws_s3 as s3, Duration, RemovalPolicy, Stack, aws_ssm, StackProps } from 'aws-cdk-lib';
 //import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
+import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods } from 'aws-cdk-lib/aws-cloudfront';
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { AaaaRecord, ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { BlockPublicAccess, Bucket, BucketEncryption, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { Construct } from 'constructs';
+import { Configurable, Configuration } from './Configuration';
 import { Statics } from './Statics';
 
 // interface CloudfrontDistributionProps {
@@ -18,10 +19,12 @@ import { Statics } from './Statics';
 //   domainNames?: string[];
 // }
 
+export interface CloudfrontStackProps extends Configurable, StackProps { }
 export class CloudfrontStack extends Stack {
+
   //constructor(scope: Construct, id: string, props: CloudfrontDistributionProps) {
-  constructor(scope: Construct, id: string) {
-    super(scope, id);
+  constructor(scope: Construct, id: string, props: CloudfrontStackProps) {
+    super(scope, id, props);
 
 
     // Get the hosted zone
@@ -38,6 +41,7 @@ export class CloudfrontStack extends Stack {
     */
 
     //bucket for the security.txt file, also the default behaviour
+    //TODO redirect naar de default op nijmegen.nl
     const defaultBucket = new Bucket(this, 'securityTxtBucket', {
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
@@ -60,7 +64,7 @@ export class CloudfrontStack extends Stack {
       //domainNames: props.domainNames,
       defaultBehavior: {
         origin: s3Origin,
-        viewerProtocolPolicy: ViewerProtocolPolicy.HTTPS_ONLY
+        viewerProtocolPolicy: ViewerProtocolPolicy.HTTPS_ONLY,
       },
       errorResponses: this.errorResponses(),
       logBucket: this.logBucket(),
@@ -70,6 +74,8 @@ export class CloudfrontStack extends Stack {
 
 
     this.addDnsRecords(distribution, projectHostedZoneId, projectHostedZoneName);
+
+    this.addPublicBuckets(props.configuration, distribution);
 
   }
 
@@ -84,6 +90,36 @@ export class CloudfrontStack extends Stack {
     });
   }
 
+  private addPublicBuckets(configuration: Configuration, distribution: Distribution) {
+    const customCachePolicy = new CachePolicy(this, 'ThreeMonthCachePolicy', {
+      cachePolicyName: 'ThreeMonthCachePolicy',
+      defaultTtl: Duration.seconds(60 * 60 * 24 * 90), // 3 months
+      minTtl: Duration.days(1),
+      maxTtl: Duration.days(365),
+      enableAcceptEncodingGzip: true,
+      enableAcceptEncodingBrotli: true,
+    });
+
+
+    for (const bucketSettings of configuration.buckets) {
+      if (bucketSettings.cloudfrontBucketConfig && bucketSettings.cloudfrontBucketConfig.exposeTroughCloudfront) {
+        const bucket = s3.Bucket.fromBucketName(this, 'cfBucket', bucketSettings.name);
+        const s3Origin = S3BucketOrigin.withOriginAccessControl(bucket, {
+          originAccessLevels: [AccessLevel.READ, AccessLevel.LIST],
+        });
+
+        distribution.addBehavior(bucketSettings.cloudfrontBucketConfig.cloudfrontBasePath, s3Origin, {
+          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          cachePolicy: customCachePolicy,
+          compress: true,
+          allowedMethods: AllowedMethods.ALLOW_GET_HEAD,
+        });
+      }
+
+    }
+  }
+
+
   /**
    * Create a bucket to hold cloudfront logs
    * @returns s3.Bucket
@@ -94,7 +130,7 @@ export class CloudfrontStack extends Stack {
       eventBridgeEnabled: true,
       enforceSSL: true,
       encryption: BucketEncryption.S3_MANAGED,
-      objectOwnership: ObjectOwnership.OBJECT_WRITER, // Neede for Cloudfront to write to the bucket
+      objectOwnership: ObjectOwnership.OBJECT_WRITER, // Needed for Cloudfront to write to the bucket
       lifecycleRules: [
         {
           id: 'delete objects after 180 days',
