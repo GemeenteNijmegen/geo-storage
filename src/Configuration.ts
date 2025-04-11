@@ -199,7 +199,7 @@ export function getBucketConfig(branchName: string) {
       },
       cloudfrontBucketConfig: {
         exposeTroughCloudfront: true,
-        cloudfrontBasePath: '3dmesh/',
+        cloudfrontBasePath: '3dmesh/*',
       },
     },
     {
