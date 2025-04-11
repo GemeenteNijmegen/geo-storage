@@ -68,6 +68,7 @@ export class StorageStack extends Stack {
 
       bucket.grantReadWrite(backupRole); // Allow to copy resources to same bucket (changing the KMS key used for sse)
       buckets.push(bucket);
+
     }
 
     // If we use grantRead and grantPut methods the policy will be too big
@@ -78,6 +79,7 @@ export class StorageStack extends Stack {
     this.setupDataDownloadAlarms(buckets);
 
   }
+
 
   setupKmsSseKey(backupRole: iam.IRole) {
     const key = new kms.Key(this, 'bucket-key', {

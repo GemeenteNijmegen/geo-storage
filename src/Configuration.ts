@@ -10,9 +10,20 @@ export interface Environment {
 }
 
 export interface Configurable {
-  configuration : Configuration;
+  configuration: Configuration;
 }
+export interface cloudfrontConfig {
+  /**
+   * Cloudfront and certificate stuff
+   */
+  domainNamesCloudFront: string[];
+  domainNamesCertificate: {
+    domainName: string;
+    alternativeNames: string[];
+  };
+  cnames: { [key: string]: string };
 
+}
 export interface Configuration {
   /**
    * The git branch name to which this configuration applies.
@@ -51,20 +62,13 @@ export interface Configuration {
    * @default no allow statment for kms keys is added
    */
   allowedToUseKmsKeyArns?: string[];
-
-  /**
-   * Cloudfront and certificate stuff
-   */
-  domainNamesCloudFront?: string[];
-  domainNamesCertificate?: {
-    domainName: string;
-    alternativeNames: string[];
-  };
-  cnames?: { [key: string]: string };
-
-
 }
 
+
+export interface CloudFrontBucketConfig {
+  exposeTroughCloudfront: boolean; //default false
+  cloudfrontBasePath: string; //base path for the url of the bucket-contents
+}
 export interface GeoBucketConfig {
   cdkId: string;
   name: string;
@@ -74,6 +78,7 @@ export interface GeoBucketConfig {
   backupName?: string;
   description: string;
   bucketConfiguration: s3.BucketProps;
+  cloudfrontBucketConfig?: CloudFrontBucketConfig;
 }
 
 
@@ -85,13 +90,6 @@ export const configurations: { [key: string]: Configuration } = {
     targetEnvironment: Statics.acceptanceEnvironment,
     backupEnvironment: Statics.backupEnvironmentAcceptance,
     buckets: getBucketConfig('acceptance'),
-    domainNamesCloudFront: ['geodata-accp.csp-nijmegen.nl', 'www.geodata-accp.csp-nijmegen.nl'],
-    domainNamesCertificate: {
-      domainName: 'geodata-accp.csp-nijmegen.nl',
-      alternativeNames: [
-        'www.geodata-accp.csp-nijmegen.nl.nl',
-      ],
-    },
   },
   main: {
     branchName: 'main',
@@ -198,6 +196,10 @@ export function getBucketConfig(branchName: string) {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,
         versioned: true,
+      },
+      cloudfrontBucketConfig: {
+        exposeTroughCloudfront: true,
+        cloudfrontBasePath: '3dmesh/',
       },
     },
     {
