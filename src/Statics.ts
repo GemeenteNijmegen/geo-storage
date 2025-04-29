@@ -9,7 +9,7 @@ export class Statics {
   static readonly accountHostedZoneName: string = '/gemeente-nijmegen/account/hostedzone/name';
   static readonly accountRootHostedZonePath: string = '/gemeente-nijmegen/account/hostedzone';
   static readonly certificateArn: string = '/geo-storage/cloudfront/certificate/arn';
-  static readonly certificatePath: string = '/geo-storage/cloudront/certificate';
+  static readonly certificatePath: string = '/geo-storage/cloudfront/certificate';
 
   static readonly projectName = 'geo-storage';
 
