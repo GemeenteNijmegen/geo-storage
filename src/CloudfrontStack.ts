@@ -1,10 +1,11 @@
 import { aws_s3 as s3, Duration, RemovalPolicy, Stack, aws_ssm, StackProps } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods } from 'aws-cdk-lib/aws-cloudfront';
+import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods, OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
+import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { AaaaRecord, ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
-import { BlockPublicAccess, Bucket, BucketEncryption, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
+import { BlockPublicAccess, Bucket, BucketEncryption, BucketPolicy, IBucket, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { RemoteParameters } from 'cdk-remote-stack';
 import { Construct } from 'constructs';
@@ -106,14 +107,38 @@ export class CloudfrontStack extends Stack {
           originAccessLevels: [AccessLevel.READ, AccessLevel.LIST],
         });
 
+        this.addBucketPolicyForCloudfront(bucket);
+
         distribution.addBehavior(bucketSettings.cloudfrontBucketConfig.cloudfrontBasePath, s3Origin, {
           viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
           cachePolicy: customCachePolicy,
           compress: true,
           allowedMethods: AllowedMethods.ALLOW_GET_HEAD,
+
         });
       }
 
+    }
+  }
+
+  private addBucketPolicyForCloudfront(bucket: IBucket) {
+    // Create Origin Access Identity to be use Canonical User Id in S3 bucket policy
+    const originAccessIdentity = new OriginAccessIdentity(this, 'OAI', {
+      comment: 'explicit created',
+    });
+    // Explicitly add Bucket Policy
+    const policyStatement = new PolicyStatement();
+    //policyStatement.addActions('s3:GetBucket*');
+    policyStatement.addActions('s3:GetObject');
+    policyStatement.addActions('s3:ListBucket');
+    policyStatement.addResources(bucket.bucketArn);
+    policyStatement.addResources(`${bucket.bucketArn}/*`);
+    policyStatement.addCanonicalUserPrincipal(originAccessIdentity.cloudFrontOriginAccessIdentityS3CanonicalUserId);
+
+    if ( !bucket.policy ) {
+      new BucketPolicy(this, 'Policy', { bucket: bucket }).document.addStatements(policyStatement);
+    } else {
+      bucket.policy.document.addStatements(policyStatement);
     }
   }
 
