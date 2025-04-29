@@ -122,10 +122,6 @@ export class CloudfrontStack extends Stack {
   }
 
   private addBucketPolicyForCloudfront(bucket: IBucket) {
-    // Create Origin Access Identity to be use Canonical User Id in S3 bucket policy
-    const originAccessIdentity = new OriginAccessIdentity(this, 'OAI', {
-      comment: 'explicit created',
-    });
     // Explicitly add Bucket Policy
     const policyStatement = new PolicyStatement();
     //policyStatement.addActions('s3:GetBucket*');
@@ -133,7 +129,9 @@ export class CloudfrontStack extends Stack {
     policyStatement.addActions('s3:ListBucket');
     policyStatement.addResources(bucket.bucketArn);
     policyStatement.addResources(`${bucket.bucketArn}/*`);
-    policyStatement.addCanonicalUserPrincipal(originAccessIdentity.cloudFrontOriginAccessIdentityS3CanonicalUserId);
+    policyStatement.addServicePrincipal("cloudfront.amazonaws.com")
+    policyStatement.addCondition('StringEquals', {'AWS:SourceArn':'arn:aws:cloudfront::766983128454:distribution/E2TPB5GUJ7UGKA'})
+
 
     if ( !bucket.policy ) {
       new BucketPolicy(this, 'Policy', { bucket: bucket }).document.addStatements(policyStatement);
