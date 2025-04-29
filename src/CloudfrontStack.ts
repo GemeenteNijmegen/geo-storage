@@ -1,13 +1,12 @@
-//import path from 'path';
-//import { StringParameter } from '@pepperize/cdk-ssm-parameters-cross-region';
 import { aws_s3 as s3, Duration, RemovalPolicy, Stack, aws_ssm, StackProps } from 'aws-cdk-lib';
-//import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
+import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods } from 'aws-cdk-lib/aws-cloudfront';
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { AaaaRecord, ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { BlockPublicAccess, Bucket, BucketEncryption, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
+import { RemoteParameters } from 'cdk-remote-stack';
 import { Construct } from 'constructs';
 import { Configurable, Configuration } from './Configuration';
 import { Statics } from './Statics';
@@ -28,17 +27,16 @@ export class CloudfrontStack extends Stack {
 
 
     // Get the hosted zone
-    const projectHostedZoneName = aws_ssm.StringParameter.valueForStringParameter(this, Statics.projectHostedZoneName);
-    const projectHostedZoneId = aws_ssm.StringParameter.valueForStringParameter(this, Statics.projectHostedZoneId);
+    const projectHostedZoneName = aws_ssm.StringParameter.valueForStringParameter(this, Statics.accountHostedZoneName);
+    const projectHostedZoneId = aws_ssm.StringParameter.valueForStringParameter(this, Statics.accountHostedZoneId);
 
     // Get the certificate
-    /**
-    let certificate = undefined;
-    if (props.domainNames) {
-      const certificateArn = StringParameter.fromStringParameterName(this, 'certparam', 'us-east-1', Statics.certificateParameter).stringValue;
-      certificate = Certificate.fromCertificateArn(this, 'certificate', certificateArn);
-    }
-    */
+    const remoteCertificateArn = new RemoteParameters(this, 'remote-certificate-arn', {
+      path: Statics.certificatePath,
+      region: 'us-east-1',
+    });
+    const certificate = Certificate.fromCertificateArn(this, 'certificate', remoteCertificateArn.get(Statics.certificateArn));
+
 
     //bucket for the security.txt file, also the default behaviour
     //TODO redirect naar de default op nijmegen.nl
@@ -60,8 +58,8 @@ export class CloudfrontStack extends Stack {
     // Setup the distribution
     const distribution = new Distribution(this, 'cf-distribution', {
       priceClass: PriceClass.PRICE_CLASS_100,
-      //certificate,
-      //domainNames: props.domainNames,
+      certificate,
+      domainNames: [projectHostedZoneName],
       defaultBehavior: {
         origin: s3Origin,
         viewerProtocolPolicy: ViewerProtocolPolicy.HTTPS_ONLY,

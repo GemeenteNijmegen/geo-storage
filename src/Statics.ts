@@ -5,9 +5,11 @@ export class Statics {
      * the actual zone between stacks. This param is set by DNSStack and should not be modified after.
      */
   //static readonly certificateParameter: string = '/cdk/yivi-issue-app/zone';
-  static readonly projectHostedZoneId: string = '/gemeente-nijmegen/account/hostedzone/id';
-  static readonly projectHostedZoneName: string = '/gemeente-nijmegen/account/hostedzone/name';
-  static readonly certificateParameter: string = '';
+  static readonly accountHostedZoneId: string = '/gemeente-nijmegen/account/hostedzone/id';
+  static readonly accountHostedZoneName: string = '/gemeente-nijmegen/account/hostedzone/name';
+  static readonly accountRootHostedZonePath: string = '/gemeente-nijmegen/account/hostedzone';
+  static readonly certificateArn: string = '/geo-storage/cloudfront/certificate/arn';
+  static readonly certificatePath: string = '/geo-storage/cloudront/certificate';
 
   static readonly projectName = 'geo-storage';
 
