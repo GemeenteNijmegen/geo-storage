@@ -6,6 +6,7 @@ import { BackupStack } from './BackupStack';
 import { CloudfrontStack } from './CloudfrontStack';
 import { Configurable } from './Configuration';
 import { StorageStack } from './StorageStack';
+import { UsEastStack } from './UsEastStack';
 
 
 export interface StorageStageProps extends StageProps, Configurable { }
@@ -31,6 +32,12 @@ export class StorageStage extends Stage {
       configuration: props.configuration,
     });
 
+    // Deploy resources that must exist in us-east-1
+    const usEastStack = new UsEastStack(this, 'us-east-stack', {
+      env: { region: 'us-east-1' },
+      accountHostedZoneRegion: 'eu-central-1',
+    });
+
     const cloudFrontStack = new CloudfrontStack(this, 'cloudfront-stack', {
       configuration: props.configuration,
     });
@@ -43,6 +50,7 @@ export class StorageStage extends Stage {
     storageStack.addDependency(backupIamStack);
     storageStack.addDependency(backupStack);
     cloudFrontStack.addDependency(storageStack);
+    cloudFrontStack.addDependency(usEastStack);
 
   }
 
