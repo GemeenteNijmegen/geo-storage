@@ -129,8 +129,8 @@ export class CloudfrontStack extends Stack {
     policyStatement.addActions('s3:ListBucket');
     policyStatement.addResources(bucket.bucketArn);
     policyStatement.addResources(`${bucket.bucketArn}/*`);
-    policyStatement.addServicePrincipal("cloudfront.amazonaws.com")
-    policyStatement.addCondition('StringEquals', {'AWS:SourceArn':'arn:aws:cloudfront::766983128454:distribution/E2TPB5GUJ7UGKA'})
+    policyStatement.addServicePrincipal('cloudfront.amazonaws.com');
+    policyStatement.addCondition('StringEquals', { 'AWS:SourceArn': 'arn:aws:cloudfront::766983128454:distribution/E2TPB5GUJ7UGKA' });
 
 
     if ( !bucket.policy ) {
