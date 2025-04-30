@@ -45,6 +45,8 @@ export class Statics {
   static readonly ssmGeoBucketsManagedPolicyArn = '/geo-storage/policies/geo-buckets-managment';
   static readonly ssmBackupPath = '/geo-storage/backup';
   static readonly ssmBackupRoleArn = '/geo-storage/backup/role-arn';
+  static readonly ssmCloudfrontdomainName = '/geo-storage/cloudfront/domainName';
+  static readonly ssmCloudfrontDistributionId = '/geo-storage/cloudfront/distributionId';
 
   // Statics
   static readonly backupRoleName = 'backup-replication-role';

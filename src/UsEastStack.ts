@@ -1,4 +1,4 @@
-import { Stack, StackProps, Tags } from 'aws-cdk-lib';
+import { Duration, Stack, StackProps, Tags } from 'aws-cdk-lib';
 import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager';
 import { HostedZone, HostedZoneAttributes, IHostedZone } from 'aws-cdk-lib/aws-route53';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
@@ -55,6 +55,7 @@ export class UsEastStack extends Stack {
     const parameters = new RemoteParameters(this, 'parameters', {
       path: Statics.accountRootHostedZonePath,
       region: props.accountHostedZoneRegion,
+      timeout: Duration.seconds(10),
     });
     const zoneId = parameters.get(Statics.accountHostedZoneId);
     const zoneName = parameters.get(Statics.accountHostedZoneName);

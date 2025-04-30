@@ -1,12 +1,13 @@
-import { aws_s3 as s3, Duration, RemovalPolicy, Stack, aws_ssm, StackProps } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy, Stack, aws_ssm, StackProps } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods } from 'aws-cdk-lib/aws-cloudfront';
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
-import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { AaaaRecord, ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
-import { BlockPublicAccess, Bucket, BucketEncryption, BucketPolicy, IBucket, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
+import { BlockPublicAccess, Bucket, BucketEncryption, IBucket, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { RemoteParameters } from 'cdk-remote-stack';
 import { Construct } from 'constructs';
 import { Configurable, Configuration } from './Configuration';
@@ -35,6 +36,7 @@ export class CloudfrontStack extends Stack {
     const remoteCertificateArn = new RemoteParameters(this, 'remote-certificate-arn', {
       path: Statics.certificatePath,
       region: 'us-east-1',
+      timeout: Duration.seconds(10),
     });
     const certificate = Certificate.fromCertificateArn(this, 'certificate', remoteCertificateArn.get(Statics.certificateArn));
 
@@ -76,6 +78,16 @@ export class CloudfrontStack extends Stack {
 
     this.addPublicBuckets(props.configuration, distribution);
 
+    //export for importing the distribution in the storageStack
+    new StringParameter(this, 'cf-domain', {
+      stringValue: distribution.distributionDomainName,
+      parameterName: Statics.ssmCloudfrontdomainName,
+    });
+    new StringParameter(this, 'cf-id', {
+      stringValue: distribution.distributionId,
+      parameterName: Statics.ssmCloudfrontDistributionId,
+    });
+
   }
 
   private errorResponses() {
@@ -88,6 +100,7 @@ export class CloudfrontStack extends Stack {
       };
     });
   }
+
 
   private addPublicBuckets(configuration: Configuration, distribution: Distribution) {
     const customCachePolicy = new CachePolicy(this, 'ThreeMonthCachePolicy', {
@@ -102,7 +115,7 @@ export class CloudfrontStack extends Stack {
 
     for (const bucketSettings of configuration.buckets) {
       if (bucketSettings.cloudfrontBucketConfig && bucketSettings.cloudfrontBucketConfig.exposeTroughCloudfront) {
-        const bucket = s3.Bucket.fromBucketName(this, 'cfBucket', bucketSettings.name);
+        const bucket = Bucket.fromBucketName(this, 'cfBucket', bucketSettings.name);
         const s3Origin = S3BucketOrigin.withOriginAccessControl(bucket, {
           originAccessLevels: [AccessLevel.READ, AccessLevel.LIST],
         });
@@ -121,6 +134,26 @@ export class CloudfrontStack extends Stack {
     }
   }
 
+
+  private addBucketPolicyForCloudfront(bucket: IBucket) {
+
+    bucket.addToResourcePolicy(new PolicyStatement({
+      resources: [
+        '${bucket.bucketArn}',
+        '${bucket.bucketArn}/*',
+      ],
+      actions: [
+        's3:GetObject',
+        's3:ListBucket',
+      ],
+      effect: Effect.ALLOW,
+      conditions: { StringEquals: { 'AWS:SourceArn': 'arn:aws:cloudfront::766983128454:distribution/E2TPB5GUJ7UGKA' } },
+      //principals: [originAccessIdentity.grantPrincipal],
+    }),
+    );
+  }
+
+  /**
   private addBucketPolicyForCloudfront(bucket: IBucket) {
     // Explicitly add Bucket Policy
     const policyStatement = new PolicyStatement();
@@ -129,8 +162,8 @@ export class CloudfrontStack extends Stack {
     policyStatement.addActions('s3:ListBucket');
     policyStatement.addResources(bucket.bucketArn);
     policyStatement.addResources(`${bucket.bucketArn}/*`);
-    policyStatement.addServicePrincipal("cloudfront.amazonaws.com")
-    policyStatement.addCondition('StringEquals', {'AWS:SourceArn':'arn:aws:cloudfront::766983128454:distribution/E2TPB5GUJ7UGKA'})
+    policyStatement.addServicePrincipal('cloudfront.amazonaws.com');
+    policyStatement.addCondition('StringEquals', { 'AWS:SourceArn': 'arn:aws:cloudfront::766983128454:distribution/E2TPB5GUJ7UGKA' });
 
 
     if ( !bucket.policy ) {
@@ -139,6 +172,7 @@ export class CloudfrontStack extends Stack {
       bucket.policy.document.addStatements(policyStatement);
     }
   }
+     */
 
 
   /**
