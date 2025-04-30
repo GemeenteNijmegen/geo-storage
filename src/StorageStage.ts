@@ -23,12 +23,12 @@ export class StorageStage extends Stage {
       configuration: props.configuration,
     });
 
-    //todo
-    //add dns stack
-    //add cert stack
-
     const storageStack = new StorageStack(this, 'data-stack', {
       env: props.configuration.targetEnvironment,
+      configuration: props.configuration,
+    });
+
+    const cloudFrontStack = new CloudfrontStack(this, 'cloudfront-stack', {
       configuration: props.configuration,
     });
 
@@ -38,9 +38,6 @@ export class StorageStage extends Stage {
       accountHostedZoneRegion: 'eu-central-1',
     });
 
-    const cloudFrontStack = new CloudfrontStack(this, 'cloudfront-stack', {
-      configuration: props.configuration,
-    });
 
     const backupStack = new BackupStack(this, `${props.configuration.branchName}-backup`, {
       env: props.configuration.backupEnvironment,

@@ -63,6 +63,17 @@ export class StorageStack extends Stack {
         );
       }
 
+      /**
+      const distribution = Distribution.fromDistributionAttributes(this, 'ImportedDist', {
+        domainName: ssm.StringParameter.valueForStringParameter(this, Statics.ssmCloudfrontdomainName),
+        distributionId: ssm.StringParameter.valueForStringParameter(this, Statics.ssmCloudfrontDistributionId),
+      });
+
+      if (bucketSettings.cloudfrontBucketConfig && bucketSettings.cloudfrontBucketConfig.exposeTroughCloudfront) {
+        this.addCloudfrontForBucket(distribution, bucket, bucketSettings);
+      }
+*/
+
       // Stoped inventory reports as we do not need them currently (inventory bucket still exists)
       // this.setupBucketInventoryReport(bucket, inventoryBucket, bucketSettings.name);
 
@@ -79,7 +90,36 @@ export class StorageStack extends Stack {
     this.setupDataDownloadAlarms(buckets);
 
   }
+  /**
+    addCloudfrontForBucket(distribution: IDistribution, bucket: s3.Bucket, bucketSettings: GeoBucketConfig) {
+      //bucket.grantRead()
+      //behaviours toevoegen
+      //grantread op de bucket
 
+      const s3Origin = S3BucketOrigin.withOriginAccessControl(bucket, {
+        originAccessLevels: [AccessLevel.READ, AccessLevel.LIST],
+      });
+
+      const customCachePolicy = new CachePolicy(this, 'ThreeMonthCachePolicy', {
+        cachePolicyName: 'ThreeMonthCachePolicy',
+        defaultTtl: Duration.seconds(60 * 60 * 24 * 90), // 3 months
+        minTtl: Duration.days(1),
+        maxTtl: Duration.days(365),
+        enableAcceptEncodingGzip: true,
+        enableAcceptEncodingBrotli: true,
+      });
+
+      if (bucketSettings.cloudfrontBucketConfig) {
+        distribution.addBehavior(bucketSettings.cloudfrontBucketConfig.cloudfrontBasePath, s3Origin, {
+          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          cachePolicy: customCachePolicy,
+          compress: true,
+          allowedMethods: AllowedMethods.ALLOW_GET_HEAD,
+
+        });
+      }
+    }
+   */
 
   setupKmsSseKey(backupRole: iam.IRole) {
     const key = new kms.Key(this, 'bucket-key', {
