@@ -96,6 +96,10 @@ export class StorageStack extends Stack {
       description: 'SSE key for geo storage buckets',
       alias: 'geo-storage-sse-key',
     });
+    new ssm.StringParameter(this, 'ssm-kmskey-arn', {
+      stringValue: key.keyArn,
+      parameterName: Statics.ssmGeoStorageKmsKeyArn,
+    });
 
     // Allow lz-platform-operator read rights
     const accountId = Stack.of(this).account;

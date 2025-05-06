@@ -1,8 +1,9 @@
-import { Duration, RemovalPolicy, Stack, aws_ssm, StackProps, aws_iam as iam } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy, Stack, aws_ssm, StackProps, aws_iam as iam, aws_ssm as ssm } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods } from 'aws-cdk-lib/aws-cloudfront';
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Key } from 'aws-cdk-lib/aws-kms';
 import { AaaaRecord, ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { BlockPublicAccess, Bucket, BucketEncryption, IBucket, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
@@ -132,25 +133,22 @@ export class CloudfrontStack extends Stack {
 
         //retrieve KMS key
         //add cloudfront to key
-        if ( bucket.encryptionKey) {
-
-          bucket.encryptionKey.addToResourcePolicy(new iam.PolicyStatement({
-            sid: 'AllowCloudfrontToDecryptWithKey',
-            effect: iam.Effect.ALLOW,
-            actions: [
-              'kms:Decrypt',
-              'kms:DescribeKey',
-            ],
-            resources: ['*'],
-            principals: [new iam.ServicePrincipal('cloudfront.amazonaws.com')],
-            conditions: {
-              StringEquals: {
-                'AWS:SourceArn': distribution.distributionArn,
-              },
+        const key = Key.fromKeyArn(this, 'ImportedKey', ssm.StringParameter.valueForStringParameter(this, Statics.ssmGeoStorageKmsKeyArn));
+        key.addToResourcePolicy(new iam.PolicyStatement({
+          sid: 'AllowCloudfrontToDecryptWithKey',
+          effect: iam.Effect.ALLOW,
+          actions: [
+            'kms:Decrypt',
+            'kms:DescribeKey',
+          ],
+          resources: ['*'],
+          principals: [new iam.ServicePrincipal('cloudfront.amazonaws.com')],
+          conditions: {
+            StringEquals: {
+              'AWS:SourceArn': distribution.distributionArn,
             },
-          }));
-        }
-
+          },
+        }));
       }
     }
   }

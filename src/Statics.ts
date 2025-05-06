@@ -47,6 +47,7 @@ export class Statics {
   static readonly ssmBackupRoleArn = '/geo-storage/backup/role-arn';
   static readonly ssmCloudfrontdomainName = '/geo-storage/cloudfront/domainName';
   static readonly ssmCloudfrontDistributionId = '/geo-storage/cloudfront/distributionId';
+  static readonly ssmGeoStorageKmsKeyArn = '/geo-storage/kmskey/arn';
 
   // Statics
   static readonly backupRoleName = 'backup-replication-role';
