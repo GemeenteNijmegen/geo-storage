@@ -117,6 +117,7 @@ export class CloudfrontStack extends Stack {
     for (const bucketSettings of configuration.buckets) {
       if (bucketSettings.cloudfrontBucketConfig && bucketSettings.cloudfrontBucketConfig.exposeTroughCloudfront) {
         const bucket = Bucket.fromBucketName(this, 'cfBucket', bucketSettings.name);
+        //fromBucketAttributes
         const s3Origin = S3BucketOrigin.withOriginAccessControl(bucket, {
           originAccessLevels: [AccessLevel.READ, AccessLevel.LIST],
         });
@@ -134,6 +135,9 @@ export class CloudfrontStack extends Stack {
         //retrieve KMS key
         //add cloudfront to key
         const key = Key.fromKeyArn(this, 'ImportedKey', ssm.StringParameter.valueForStringParameter(this, Statics.ssmGeoStorageKmsKeyArn));
+        key.grantDecrypt(new iam.ServicePrincipal('cloudfront.amazonaws.com'));
+
+        /**
         key.addToResourcePolicy(new iam.PolicyStatement({
           sid: 'AllowCloudfrontToDecryptWithKey',
           effect: iam.Effect.ALLOW,
@@ -149,6 +153,7 @@ export class CloudfrontStack extends Stack {
             },
           },
         }));
+        */
       }
     }
   }
