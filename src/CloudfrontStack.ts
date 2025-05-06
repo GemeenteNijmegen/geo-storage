@@ -1,4 +1,4 @@
-import { Duration, RemovalPolicy, Stack, aws_ssm, StackProps, aws_iam as iam } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy, Stack, aws_ssm, StackProps, aws_iam as iam, aws_ssm as ssm } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods } from 'aws-cdk-lib/aws-cloudfront';
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
@@ -12,6 +12,7 @@ import { RemoteParameters } from 'cdk-remote-stack';
 import { Construct } from 'constructs';
 import { Configurable, Configuration } from './Configuration';
 import { Statics } from './Statics';
+import { Key } from 'aws-cdk-lib/aws-kms';
 
 // interface CloudfrontDistributionProps {
 //   bucket: IBucket;
@@ -132,25 +133,22 @@ export class CloudfrontStack extends Stack {
 
         //retrieve KMS key
         //add cloudfront to key
-        if ( bucket.encryptionKey) {
-
-          bucket.encryptionKey.addToResourcePolicy(new iam.PolicyStatement({
-            sid: 'AllowCloudfrontToDecryptWithKey',
-            effect: iam.Effect.ALLOW,
-            actions: [
-              'kms:Decrypt',
-              'kms:DescribeKey',
-            ],
-            resources: ['*'],
-            principals: [new iam.ServicePrincipal('cloudfront.amazonaws.com')],
-            conditions: {
-              StringEquals: {
-                'AWS:SourceArn': distribution.distributionArn,
-              },
+        const key = Key.fromKeyArn(this, 'ImportedKey', ssm.StringParameter.valueForStringParameter(this, Statics.ssmGeoStorageKmsKeyArn));
+        key.addToResourcePolicy(new iam.PolicyStatement({
+          sid: 'AllowCloudfrontToDecryptWithKey',
+          effect: iam.Effect.ALLOW,
+          actions: [
+            'kms:Decrypt',
+            'kms:DescribeKey',
+          ],
+          resources: ['*'],
+          principals: [new iam.ServicePrincipal('cloudfront.amazonaws.com')],
+          conditions: {
+            StringEquals: {
+              'AWS:SourceArn': distribution.distributionArn,
             },
-          }));
-        }
-
+          },
+        }));
       }
     }
   }
