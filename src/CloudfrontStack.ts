@@ -1,4 +1,4 @@
-import { Duration, RemovalPolicy, Stack, aws_ssm, StackProps } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy, Stack, aws_ssm, StackProps, aws_iam as iam } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods } from 'aws-cdk-lib/aws-cloudfront';
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
@@ -127,10 +127,31 @@ export class CloudfrontStack extends Stack {
           cachePolicy: customCachePolicy,
           compress: true,
           allowedMethods: AllowedMethods.ALLOW_GET_HEAD,
-
         });
-      }
 
+
+        //retrieve KMS key
+        //add cloudfront to key
+        if ( bucket.encryptionKey) {
+
+          bucket.encryptionKey.addToResourcePolicy(new iam.PolicyStatement({
+            sid: 'AllowCloudfrontToDecryptWithKey',
+            effect: iam.Effect.ALLOW,
+            actions: [
+              'kms:Decrypt',
+              'kms:DescribeKey',
+            ],
+            resources: ['*'],
+            principals: [new iam.ServicePrincipal('cloudfront.amazonaws.com')],
+            conditions: {
+              StringEquals: {
+                'AWS:SourceArn': distribution.distributionArn,
+              },
+            },
+          }));
+        }
+
+      }
     }
   }
 
