@@ -11,6 +11,7 @@ import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { RemoteParameters } from 'cdk-remote-stack';
 import { Construct } from 'constructs';
+import { CloudfrontKmsPolicy } from './CloudfrontKmsPolicy';
 import { Configurable, Configuration } from './Configuration';
 import { Statics } from './Statics';
 
@@ -114,6 +115,16 @@ export class CloudfrontStack extends Stack {
     });
 
 
+    // Retrieve KMS key and add CloudFront access policy
+    const key = Key.fromKeyArn(this, 'EncryptionKey',
+      ssm.StringParameter.valueForStringParameter(this, Statics.ssmGeoStorageKmsKeyArn));
+
+    // Create custom resource to add policy to KMS key allowing CloudFront to decrypt
+    new CloudfrontKmsPolicy(this, 'KmsPolicy', {
+      kmsKey: key,
+      cloudfrontDistributionArn: distribution.distributionArn,
+    });
+
     for (const bucketSettings of configuration.buckets) {
       if (bucketSettings.cloudfrontBucketConfig && bucketSettings.cloudfrontBucketConfig.exposeTroughCloudfront) {
         //const bucket = Bucket.fromBucketName(this, 'cfBucket', bucketSettings.name);
@@ -136,28 +147,6 @@ export class CloudfrontStack extends Stack {
         });
 
 
-        //retrieve KMS key
-        //add cloudfront to key
-        //const key = Key.fromKeyArn(this, 'ImportedKey', ssm.StringParameter.valueForStringParameter(this, Statics.ssmGeoStorageKmsKeyArn));
-        //key.grantDecrypt(new iam.ServicePrincipal('cloudfront.amazonaws.com'));
-
-        /**
-        key.addToResourcePolicy(new iam.PolicyStatement({
-          sid: 'AllowCloudfrontToDecryptWithKey',
-          effect: iam.Effect.ALLOW,
-          actions: [
-            'kms:Decrypt',
-            'kms:DescribeKey',
-          ],
-          resources: ['*'],
-          principals: [new iam.ServicePrincipal('cloudfront.amazonaws.com')],
-          conditions: {
-            StringEquals: {
-              'AWS:SourceArn': distribution.distributionArn,
-            },
-          },
-        }));
-        */
       }
     }
   }
