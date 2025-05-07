@@ -2,7 +2,6 @@ import { Duration, RemovalPolicy, Stack, aws_ssm, StackProps, aws_ssm as ssm } f
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods } from 'aws-cdk-lib/aws-cloudfront';
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
-import { Effect, PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Key } from 'aws-cdk-lib/aws-kms';
 import { AaaaRecord, ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
@@ -13,14 +12,8 @@ import { RemoteParameters } from 'cdk-remote-stack';
 import { Construct } from 'constructs';
 import { CloudfrontKmsPolicy } from './CloudfrontKmsPolicy';
 import { Configurable, Configuration } from './Configuration';
+import { S3BucketPolicyUpdater } from './S3BucketPolicyUpdater';
 import { Statics } from './Statics';
-
-// interface CloudfrontDistributionProps {
-//   bucket: IBucket;
-//   originConfig: S3OriginConfig;
-//   env?: Environment;
-//   domainNames?: string[];
-// }
 
 export interface CloudfrontStackProps extends Configurable, StackProps { }
 export class CloudfrontStack extends Stack {
@@ -127,10 +120,11 @@ export class CloudfrontStack extends Stack {
 
     for (const bucketSettings of configuration.buckets) {
       if (bucketSettings.cloudfrontBucketConfig && bucketSettings.cloudfrontBucketConfig.exposeTroughCloudfront) {
-        //const bucket = Bucket.fromBucketName(this, 'cfBucket', bucketSettings.name);
-        const bucket = Bucket.fromBucketAttributes(this, bucketSettings.cdkId, {
+        // Use a unique ID for each bucket to avoid conflicts
+        const uniqueId = `${bucketSettings.cdkId}-cf`;
+        const bucket = Bucket.fromBucketAttributes(this, uniqueId, {
           bucketName: bucketSettings.name,
-          encryptionKey: Key.fromKeyArn(this, 'cfBucketEncryptionKey', ssm.StringParameter.valueForStringParameter(this, Statics.ssmGeoStorageKmsKeyArn)),
+          encryptionKey: Key.fromKeyArn(this, `${uniqueId}-key`, ssm.StringParameter.valueForStringParameter(this, Statics.ssmGeoStorageKmsKeyArn)),
         });
         //fromBucketAttributes
         const s3Origin = S3BucketOrigin.withOriginAccessControl(bucket, {
@@ -153,42 +147,13 @@ export class CloudfrontStack extends Stack {
 
 
   private addBucketPolicyForCloudfront(bucket: IBucket, distribution: Distribution) {
-
-    bucket.addToResourcePolicy(new PolicyStatement({
-      resources: [
-        bucket.bucketArn,
-        `${bucket.bucketArn}/*`,
-      ],
-      actions: [
-        's3:GetObject',
-        's3:ListBucket',
-      ],
-      effect: Effect.ALLOW,
-      conditions: { StringEquals: { 'AWS:SourceArn': distribution.distributionArn } },
-      principals: [new ServicePrincipal('cloudfront.amazonaws.com')],
-    }));
+    // Instead of directly modifying the bucket policy, use our custom resource
+    // that safely adds the CloudFront policy without overwriting existing policies
+    new S3BucketPolicyUpdater(this, `S3PolicyUpdater-${bucket.node.id}`, {
+      bucketName: bucket.bucketName,
+      cloudfrontDistributionArn: distribution.distributionArn,
+    });
   }
-
-  /**
-  private addBucketPolicyForCloudfront(bucket: IBucket) {
-    // Explicitly add Bucket Policy
-    const policyStatement = new PolicyStatement();
-    //policyStatement.addActions('s3:GetBucket*');
-    policyStatement.addActions('s3:GetObject');
-    policyStatement.addActions('s3:ListBucket');
-    policyStatement.addResources(bucket.bucketArn);
-    policyStatement.addResources(`${bucket.bucketArn}/*`);
-    policyStatement.addServicePrincipal('cloudfront.amazonaws.com');
-    policyStatement.addCondition('StringEquals', { 'AWS:SourceArn': 'arn:aws:cloudfront::766983128454:distribution/E2TPB5GUJ7UGKA' });
-
-
-    if ( !bucket.policy ) {
-      new BucketPolicy(this, 'Policy', { bucket: bucket }).document.addStatements(policyStatement);
-    } else {
-      bucket.policy.document.addStatements(policyStatement);
-    }
-  }
-     */
 
 
   /**
