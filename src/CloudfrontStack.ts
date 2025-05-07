@@ -1,4 +1,4 @@
-import { Duration, RemovalPolicy, Stack, aws_ssm, StackProps, aws_iam as iam, aws_ssm as ssm } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy, Stack, aws_ssm, StackProps, aws_ssm as ssm } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods } from 'aws-cdk-lib/aws-cloudfront';
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
@@ -138,8 +138,8 @@ export class CloudfrontStack extends Stack {
 
         //retrieve KMS key
         //add cloudfront to key
-        const key = Key.fromKeyArn(this, 'ImportedKey', ssm.StringParameter.valueForStringParameter(this, Statics.ssmGeoStorageKmsKeyArn));
-        key.grantDecrypt(new iam.ServicePrincipal('cloudfront.amazonaws.com'));
+        //const key = Key.fromKeyArn(this, 'ImportedKey', ssm.StringParameter.valueForStringParameter(this, Statics.ssmGeoStorageKmsKeyArn));
+        //key.grantDecrypt(new iam.ServicePrincipal('cloudfront.amazonaws.com'));
 
         /**
         key.addToResourcePolicy(new iam.PolicyStatement({
