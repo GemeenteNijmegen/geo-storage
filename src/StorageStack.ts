@@ -104,7 +104,7 @@ export class StorageStack extends Stack {
     // Allow lz-platform-operator read rights
     const accountId = Stack.of(this).account;
     const region = Stack.of(this).region;
-    key.grantDecrypt(new iam.ServicePrincipal('cloudfront.amazonaws.com'));
+
     key.addToResourcePolicy(new iam.PolicyStatement({
       sid: 'AllowPlatformOperatorToUseKey',
       effect: iam.Effect.ALLOW,
