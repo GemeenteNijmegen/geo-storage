@@ -116,7 +116,11 @@ export class CloudfrontStack extends Stack {
 
     for (const bucketSettings of configuration.buckets) {
       if (bucketSettings.cloudfrontBucketConfig && bucketSettings.cloudfrontBucketConfig.exposeTroughCloudfront) {
-        const bucket = Bucket.fromBucketName(this, 'cfBucket', bucketSettings.name);
+        //const bucket = Bucket.fromBucketName(this, 'cfBucket', bucketSettings.name);
+        const bucket = Bucket.fromBucketAttributes(this, bucketSettings.cdkId, {
+          bucketName: bucketSettings.name,
+          encryptionKey: Key.fromKeyArn(this, 'cfBucketEncryptionKey', ssm.StringParameter.valueForStringParameter(this, Statics.ssmGeoStorageKmsKeyArn)),
+        });
         //fromBucketAttributes
         const s3Origin = S3BucketOrigin.withOriginAccessControl(bucket, {
           originAccessLevels: [AccessLevel.READ, AccessLevel.LIST],
