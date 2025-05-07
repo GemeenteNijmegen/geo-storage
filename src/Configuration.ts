@@ -187,7 +187,7 @@ export function getBucketConfig(branchName: string) {
         versioned: true,
       },
     },
-    {
+    /* {
       cdkId: 'three-d-mesh-bucket',
       name: Statics.threedMeshBucket(branchName, false),
       backupName: Statics.threedMeshBucket(branchName, true),
@@ -201,7 +201,7 @@ export function getBucketConfig(branchName: string) {
         exposeTroughCloudfront: true,
         cloudfrontBasePath: '3dmesh/*',
       },
-    },
+    }, */
     {
       cdkId: 'kaartviewer-docs-bucket',
       name: Statics.kaartViewerDocsBucket(branchName, false),
