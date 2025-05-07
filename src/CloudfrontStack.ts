@@ -126,7 +126,7 @@ export class CloudfrontStack extends Stack {
           bucketName: bucketSettings.name,
           encryptionKey: Key.fromKeyArn(this, `${uniqueId}-key`, ssm.StringParameter.valueForStringParameter(this, Statics.ssmGeoStorageKmsKeyArn)),
         });
-        //fromBucketAttributes
+
         const s3Origin = S3BucketOrigin.withOriginAccessControl(bucket, {
           originAccessLevels: [AccessLevel.READ, AccessLevel.LIST],
         });
