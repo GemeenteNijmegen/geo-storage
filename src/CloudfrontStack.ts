@@ -2,7 +2,7 @@ import { Duration, RemovalPolicy, Stack, aws_ssm, StackProps, aws_ssm as ssm } f
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods } from 'aws-cdk-lib/aws-cloudfront';
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
-import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Effect, PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Key } from 'aws-cdk-lib/aws-kms';
 import { AaaaRecord, ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
@@ -137,7 +137,7 @@ export class CloudfrontStack extends Stack {
           originAccessLevels: [AccessLevel.READ, AccessLevel.LIST],
         });
 
-        this.addBucketPolicyForCloudfront(bucket);
+        this.addBucketPolicyForCloudfront(bucket, distribution);
 
         distribution.addBehavior(bucketSettings.cloudfrontBucketConfig.cloudfrontBasePath, s3Origin, {
           viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
@@ -152,22 +152,21 @@ export class CloudfrontStack extends Stack {
   }
 
 
-  private addBucketPolicyForCloudfront(bucket: IBucket) {
+  private addBucketPolicyForCloudfront(bucket: IBucket, distribution: Distribution) {
 
     bucket.addToResourcePolicy(new PolicyStatement({
       resources: [
-        '${bucket.bucketArn}',
-        '${bucket.bucketArn}/*',
+        bucket.bucketArn,
+        `${bucket.bucketArn}/*`,
       ],
       actions: [
         's3:GetObject',
         's3:ListBucket',
       ],
       effect: Effect.ALLOW,
-      conditions: { StringEquals: { 'AWS:SourceArn': 'arn:aws:cloudfront::766983128454:distribution/E2TPB5GUJ7UGKA' } },
-      //principals: [originAccessIdentity.grantPrincipal],
-    }),
-    );
+      conditions: { StringEquals: { 'AWS:SourceArn': distribution.distributionArn } },
+      principals: [new ServicePrincipal('cloudfront.amazonaws.com')],
+    }));
   }
 
   /**
