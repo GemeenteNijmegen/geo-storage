@@ -245,6 +245,7 @@ export class CloudfrontStack extends Stack {
     const parameters = new RemoteParameters(this, 'waf-params', {
       path: `${Statics.wafPath}/`,
       region: 'us-east-1',
+      timeout: Duration.seconds(30),
     });
     const wafAclId = parameters.get(Statics.ssmWafAclArn);
     return wafAclId;
