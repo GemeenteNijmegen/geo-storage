@@ -69,10 +69,12 @@ export class CloudfrontStack extends Stack {
     });
 
 
+    const webAclId = this.wafAclId();
     // Setup the distribution with redirect to nijmegen.nl security.txt as default behavior
     const distribution = new Distribution(this, 'cf-distribution', {
       priceClass: PriceClass.PRICE_CLASS_100,
       certificate,
+      webAclId,
       domainNames: [projectHostedZoneName],
       defaultBehavior: {
         origin: s3Origin,
@@ -233,5 +235,18 @@ export class CloudfrontStack extends Stack {
       target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
       recordName: `www.${zone.zoneName}`,
     });
+  }
+
+  /**
+   * Get the certificate ARN from parameter store in us-east-1
+   * @returns string Certificate ARN
+   */
+  private wafAclId() {
+    const parameters = new RemoteParameters(this, 'waf-params', {
+      path: `${Statics.wafPath}/`,
+      region: 'us-east-1',
+    });
+    const wafAclId = parameters.get(Statics.ssmWafAclArn);
+    return wafAclId;
   }
 }

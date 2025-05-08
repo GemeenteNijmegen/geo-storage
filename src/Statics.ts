@@ -10,6 +10,9 @@ export class Statics {
   static readonly certificateArn: string = '/geo-storage/cloudfront/certificate/arn';
   static readonly certificatePath: string = '/geo-storage/cloudfront/certificate';
 
+  static readonly wafPath: string = '/cdk/geo-storage/waf';
+  static readonly ssmWafAclArn: string = '/cdk/geo-storage/waf/acl-arn';
+
   static readonly projectName = 'geo-storage';
 
   static readonly gnBuildCodeStarConnectionArn = 'arn:aws:codestar-connections:eu-central-1:836443378780:connection/9d20671d-91bc-49e2-8680-59ff96e2ab11';
