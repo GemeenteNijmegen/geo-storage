@@ -50,8 +50,8 @@
   "dependencies": {
     "@gemeentenijmegen/aws-constructs": "^0.0.35",
     "@gemeentenijmegen/dnssec-record": "^0.0.31",
-    "@pepperize/cdk-ssm-parameters-cross-region": "^0.0.522",
-    "aws-cdk-lib": "^2.195.0",
+    "@pepperize/cdk-ssm-parameters-cross-region": "^0.0.520",
+    "aws-cdk-lib": "^2.187.0",
     "cdk-remote-stack": "^2.1.0",
     "constructs": "^10.0.5"
   },
