@@ -212,6 +212,10 @@ export function getBucketConfig(branchName: string) {
         enforceSSL: true,
         versioned: true,
       },
+      cloudfrontBucketConfig: {
+        exposeTroughCloudfront: true,
+        cloudfrontBasePath: 'kvdocs/*',
+      },
     },
   ];
 }
