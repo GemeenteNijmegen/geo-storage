@@ -1,6 +1,6 @@
 import { Duration, RemovalPolicy, Stack, aws_ssm, StackProps, aws_ssm as ssm } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods } from 'aws-cdk-lib/aws-cloudfront';
+import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods, Function as CloudFrontFunction, FunctionCode, FunctionEventType } from 'aws-cdk-lib/aws-cloudfront';
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Key } from 'aws-cdk-lib/aws-kms';
 import { AaaaRecord, ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
@@ -36,36 +36,59 @@ export class CloudfrontStack extends Stack {
     const certificate = Certificate.fromCertificateArn(this, 'certificate', remoteCertificateArn.get(Statics.certificateArn));
 
 
-    //bucket for the security.txt file, also the default behaviour
-    //TODO redirect naar de default op nijmegen.nl
-    const defaultBucket = new Bucket(this, 'securityTxtBucket', {
+    // Create an S3 bucket for error pages and other static content
+    const staticContentBucket = new Bucket(this, 'staticContentBucket', {
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
     });
-    const s3Origin = S3BucketOrigin.withOriginAccessControl(defaultBucket, {
-      originAccessLevels: [AccessLevel.READ, AccessLevel.LIST],
 
-    });
-    new BucketDeployment(this, 'Deployment', {
+    // Deploy static content to the bucket
+    new BucketDeployment(this, 'StaticContentDeployment', {
       sources: [Source.asset('./src/static-resources/')],
-      destinationBucket: defaultBucket,
+      destinationBucket: staticContentBucket,
       retainOnDelete: false,
     });
 
+    const s3Origin = S3BucketOrigin.withOriginAccessControl(staticContentBucket, {
+      originAccessLevels: [AccessLevel.READ, AccessLevel.LIST],
+    });
 
-    // Setup the distribution
+    // Create a CloudFront function to handle the redirect to security.txt
+    const redirectFunction = new CloudFrontFunction(this, 'RedirectFunction', {
+      code: FunctionCode.fromInline(`
+        function handler(event) {
+          return {
+            statusCode: 302,
+            statusDescription: 'Found',
+            headers: {
+              'location': { value: 'https://www.nijmegen.nl/.well-known/security.txt' }
+            }
+          };
+        }
+      `),
+    });
+
+
+    const webAclId = this.wafAclId();
+    // Setup the distribution with redirect to nijmegen.nl security.txt as default behavior
     const distribution = new Distribution(this, 'cf-distribution', {
       priceClass: PriceClass.PRICE_CLASS_100,
       certificate,
+      webAclId,
       domainNames: [projectHostedZoneName],
       defaultBehavior: {
         origin: s3Origin,
         viewerProtocolPolicy: ViewerProtocolPolicy.HTTPS_ONLY,
+        functionAssociations: [
+          {
+            function: redirectFunction,
+            eventType: FunctionEventType.VIEWER_REQUEST,
+          },
+        ],
       },
       errorResponses: this.errorResponses(),
       logBucket: this.logBucket(),
       minimumProtocolVersion: SecurityPolicyProtocol.TLS_V1_2_2021,
-      defaultRootObject: 'index.html',
     });
 
 
@@ -212,5 +235,18 @@ export class CloudfrontStack extends Stack {
       target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
       recordName: `www.${zone.zoneName}`,
     });
+  }
+
+  /**
+   * Get the certificate ARN from parameter store in us-east-1
+   * @returns string Certificate ARN
+   */
+  private wafAclId() {
+    const parameters = new RemoteParameters(this, 'waf-params', {
+      path: `${Statics.wafPath}/`,
+      region: 'us-east-1',
+    });
+    const wafAclId = parameters.get(Statics.ssmWafAclArn);
+    return wafAclId;
   }
 }
