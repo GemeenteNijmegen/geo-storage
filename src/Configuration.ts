@@ -186,20 +186,9 @@ export function getBucketConfig(branchName: string) {
         enforceSSL: true,
         versioned: true,
       },
-    },
-    {
-      cdkId: 'three-d-mesh-bucket',
-      name: Statics.threedMeshBucket(branchName, false),
-      backupName: Statics.threedMeshBucket(branchName, true),
-      description: '3D Mesh data',
-      bucketConfiguration: {
-        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-        enforceSSL: true,
-        versioned: true,
-      },
       cloudfrontBucketConfig: {
         exposeTroughCloudfront: true,
-        cloudfrontBasePath: '3dmesh/*',
+        cloudfrontBasePath: 'mesh/*',
       },
     },
     {
