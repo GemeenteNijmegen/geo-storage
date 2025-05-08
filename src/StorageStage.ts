@@ -7,6 +7,7 @@ import { CloudfrontStack } from './CloudfrontStack';
 import { Configurable } from './Configuration';
 import { StorageStack } from './StorageStack';
 import { UsEastStack } from './UsEastStack';
+import { WafStack } from './WafStack';
 
 
 export interface StorageStageProps extends StageProps, Configurable { }
@@ -26,6 +27,11 @@ export class StorageStage extends Stage {
     const storageStack = new StorageStack(this, 'data-stack', {
       env: props.configuration.targetEnvironment,
       configuration: props.configuration,
+    });
+
+    const wafStack = new WafStack(this, 'waf-stack', {
+      env: { region: 'us-east-1' },
+      branch: props.configuration.branchName,
     });
 
     const cloudFrontStack = new CloudfrontStack(this, 'cloudfront-stack', {
@@ -48,6 +54,7 @@ export class StorageStage extends Stage {
     storageStack.addDependency(backupStack);
     cloudFrontStack.addDependency(storageStack);
     cloudFrontStack.addDependency(usEastStack);
+    cloudFrontStack.addDependency(wafStack);
 
   }
 
