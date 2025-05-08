@@ -4,7 +4,6 @@ export class Statics {
      * Cloudfront and Route53 Zone ID and name for the zone for geo public buckets. decouples stacks to not pass
      * the actual zone between stacks. This param is set by DNSStack and should not be modified after.
      */
-  //static readonly certificateParameter: string = '/cdk/yivi-issue-app/zone';
   static readonly accountHostedZoneId: string = '/gemeente-nijmegen/account/hostedzone/id';
   static readonly accountHostedZoneName: string = '/gemeente-nijmegen/account/hostedzone/name';
   static readonly accountRootHostedZonePath: string = '/gemeente-nijmegen/account/hostedzone';
@@ -43,7 +42,6 @@ export class Statics {
 
   // SSM parameters
   static readonly ssmGeoBucketsManagedPolicyArn = '/geo-storage/policies/geo-buckets-managment';
-  static readonly ssmBackupPath = '/geo-storage/backup';
   static readonly ssmBackupRoleArn = '/geo-storage/backup/role-arn';
   static readonly ssmCloudfrontdomainName = '/geo-storage/cloudfront/domainName';
   static readonly ssmCloudfrontDistributionId = '/geo-storage/cloudfront/distributionId';
@@ -62,8 +60,6 @@ export class Statics {
   static orthoBucket = (branch: string, backup: boolean) => `gemeentenijmegen-geo-ortho-${branch}${Statics.bucketBackupSuffix(backup)}`;
   static lidarAirborneBucket = (branch: string, backup: boolean) => `gemeentenijmegen-geo-lidar-airborne-${branch}${Statics.bucketBackupSuffix(backup)}`;
   static lidarTerrestrischBucket = (branch: string, backup: boolean) => `gemeentenijmegen-geo-lidar-terrestrisch-${branch}${Statics.bucketBackupSuffix(backup)}`;
-  static aanbestedingBucket = (branch: string, backup: boolean) => `gemeentenijmegen-aanbesteding-${branch}${Statics.bucketBackupSuffix(backup)}`;
-  static threedMeshBucket = (branch: string, backup: boolean) => `gemeentenijmegen-3d-mesh-${branch}${Statics.bucketBackupSuffix(backup)}`; //#909
   static kaartViewerDocsBucket = (branch: string, backup: boolean) => `gemeentenijmegen-kaartviewer-docs-${branch}${Statics.bucketBackupSuffix(backup)}`; //#909
 
   // Variable statics (pun intented)

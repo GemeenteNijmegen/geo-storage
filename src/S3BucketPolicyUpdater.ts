@@ -28,7 +28,7 @@ export class S3BucketPolicyUpdater extends Construct {
 
     // Create a Lambda function that will update the S3 bucket policy
     const updatePolicyFunction = new lambda.Function(this, 'UpdatePolicyFunction', {
-      runtime: lambda.Runtime.NODEJS_20_X,
+      runtime: lambda.Runtime.NODEJS_22_X,
       handler: 'index.handler',
       code: lambda.Code.fromInline(`
         const { S3Client, GetBucketPolicyCommand, PutBucketPolicyCommand } = require('@aws-sdk/client-s3');

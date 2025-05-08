@@ -20,6 +20,7 @@ export interface CloudfrontKmsPolicyProps {
 
 /**
  * Custom resource that adds a policy to a KMS key allowing CloudFront to decrypt with it
+ * Importing the key in another stack and changing the policy doesn't work
  */
 export class CloudfrontKmsPolicy extends Construct {
   constructor(scope: Construct, id: string, props: CloudfrontKmsPolicyProps) {
@@ -27,7 +28,7 @@ export class CloudfrontKmsPolicy extends Construct {
 
     // Create a Lambda function that will update the KMS key policy
     const updatePolicyFunction = new lambda.Function(this, 'UpdatePolicyFunction', {
-      runtime: lambda.Runtime.NODEJS_20_X,
+      runtime: lambda.Runtime.NODEJS_22_X,
       handler: 'index.handler',
       code: lambda.Code.fromInline(`
         const { KMSClient, GetKeyPolicyCommand, PutKeyPolicyCommand } = require('@aws-sdk/client-kms');
