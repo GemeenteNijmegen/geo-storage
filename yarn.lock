@@ -1407,10 +1407,17 @@
   resolved "https://registry.yarnpkg.com/@oozcitak/util/-/util-8.3.8.tgz#10f65fe1891fd8cde4957360835e78fd1936bfdd"
   integrity sha512-T8TbSnGsxo6TDBJx/Sgv/BlVJL3tshxZP7Aq5R1mSnM5OcHY2dQaxLMu2+E8u3gN0MLOzdjurqN4ZRVuzQycOQ==
 
+<<<<<<< HEAD
+"@pepperize/cdk-ssm-parameters-cross-region@^0.0.522":
+  version "0.0.522"
+  resolved "https://registry.yarnpkg.com/@pepperize/cdk-ssm-parameters-cross-region/-/cdk-ssm-parameters-cross-region-0.0.522.tgz#6b5297ccbb4c8e301b6a92d61000b51b54d0a577"
+  integrity sha512-nc0gn6h596q/W+3sTgK3OYM4gjLWDjdSMSvsc2qgPvPHP2ZoVnUO14TYW6Fr25QLQsdLGUxZokmAQ6UAfI5nlg==
+=======
 "@pepperize/cdk-ssm-parameters-cross-region@^0.0.520":
   version "0.0.520"
   resolved "https://registry.yarnpkg.com/@pepperize/cdk-ssm-parameters-cross-region/-/cdk-ssm-parameters-cross-region-0.0.520.tgz#923c13078090c4b81a9372e2971f29408b8c934b"
   integrity sha512-BrizLVWwU4BAloLaVD1Dg5g6WvUNDXfzKsGhKteRZt91EDzL+nMLyhWvHkvbpEpKzJCcH0rUxxhaP1hG1fSa4g==
+>>>>>>> 53136ec016369b9dcc01eb57cb8fc4eb6d34d85f
 
 "@rtsao/scc@^1.1.0":
   version "1.1.0"
@@ -1969,16 +1976,28 @@
   integrity sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag==
 
 "@types/node@*":
+<<<<<<< HEAD
+  version "22.15.16"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.16.tgz#685cf0338ad9f5b14860f50a6ac2c3ebd58582cd"
+  integrity sha512-3pr+KjwpVujqWqOKT8mNR+rd09FqhBLwg+5L/4t0cNYBzm/yEiYGCxWttjaPBsLtAo+WFNoXzGJfolM1JuRXoA==
+=======
   version "22.15.15"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.15.tgz#8877c05c18e552e738438e477d7ba22c5d73a57c"
   integrity sha512-R5muMcZob3/Jjchn5LcO8jdKwSCbzqmPB6ruBxMcf9kbxtniZHP327s6C37iOfuw8mbKK3cAQa7sEl7afLrQ8A==
+>>>>>>> 53136ec016369b9dcc01eb57cb8fc4eb6d34d85f
   dependencies:
     undici-types "~6.21.0"
 
 "@types/node@^18":
+<<<<<<< HEAD
+  version "18.19.99"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.99.tgz#0061a7987ea648d0f35ca4ac91fef766d0d26d23"
+  integrity sha512-tNGqoGjjI4vY5jfm3lnqgR6yS8wyT76SfsWefLWRyh/cEK4UHmPVyqHZdafI/SNu1PQzfo2JLBWfG8eMmD7KrQ==
+=======
   version "18.19.98"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.98.tgz#2a8a9b24fb7ee9f55e4c19ae719060810831b927"
   integrity sha512-+bP9tunb6pQbV5cV4z9EwCD/811rXGwXXI/cNK+8MIcm7Ufe9GWGoz91ERuC4MAn5Yp/SEWNYulaQdRHFG67iw==
+>>>>>>> 53136ec016369b9dcc01eb57cb8fc4eb6d34d85f
   dependencies:
     undici-types "~5.26.4"
 
@@ -2399,7 +2418,11 @@ available-typed-arrays@^1.0.7:
   dependencies:
     possible-typed-array-names "^1.0.0"
 
+<<<<<<< HEAD
+aws-cdk-lib@^2.195.0:
+=======
 aws-cdk-lib@^2.187.0:
+>>>>>>> 53136ec016369b9dcc01eb57cb8fc4eb6d34d85f
   version "2.195.0"
   resolved "https://registry.yarnpkg.com/aws-cdk-lib/-/aws-cdk-lib-2.195.0.tgz#0d4881f1aadcf4bc5da4a51bc2c20a1fd7e8bdde"
   integrity sha512-AYLysgSjSnSjkal/AmR86DqvOVqy0VjeWmXR+ucIIGSOzJsevsYuNWCeVnf4v9x+vd2ysVcO8fXndG426vGZ/w==
@@ -2420,9 +2443,15 @@ aws-cdk-lib@^2.187.0:
     yaml "1.10.2"
 
 aws-cdk@^2:
+<<<<<<< HEAD
+  version "2.1014.0"
+  resolved "https://registry.yarnpkg.com/aws-cdk/-/aws-cdk-2.1014.0.tgz#bd27af4060df15a05836a7ed3d19861e10740fd7"
+  integrity sha512-es101rtRAClix9BncNL54iW90MiOyRv4iCC5tv/firGDnidS6pPinuK0IIFt0RO6w0+3heRxWBXg8HY+f9877w==
+=======
   version "2.1013.0"
   resolved "https://registry.yarnpkg.com/aws-cdk/-/aws-cdk-2.1013.0.tgz#14663ede2456b53dc26024ce29b8cc599803138e"
   integrity sha512-cbq4cOoEIZueMWenGgfI4RujS+AQ9GaMCTlW/3CnvEIhMD8j/tgZx7PTtgMuvwYrRoEeb/wTxgLPgUd5FhsoHA==
+>>>>>>> 53136ec016369b9dcc01eb57cb8fc4eb6d34d85f
   optionalDependencies:
     fsevents "2.3.2"
 
@@ -3196,9 +3225,15 @@ ejs@^3.1.10:
     jake "^10.8.5"
 
 electron-to-chromium@^1.5.149:
+<<<<<<< HEAD
+  version "1.5.151"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.151.tgz#5edd6c17e1b2f14b4662c41b9379f96cc8c2bb7c"
+  integrity sha512-Rl6uugut2l9sLojjS4H4SAr3A4IgACMLgpuEMPYCVcKydzfyPrn5absNRju38IhQOf/NwjJY8OGWjlteqYeBCA==
+=======
   version "1.5.150"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.150.tgz#3120bf34453a7a82cb4d9335df20680b2bb40649"
   integrity sha512-rOOkP2ZUMx1yL4fCxXQKDHQ8ZXwisb2OycOQVKHgvB3ZI4CvehOd4y2tfnnLDieJ3Zs1RL1Dlp3cMkyIn7nnXA==
+>>>>>>> 53136ec016369b9dcc01eb57cb8fc4eb6d34d85f
 
 emittery@^0.13.1:
   version "0.13.1"
