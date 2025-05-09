@@ -16,6 +16,8 @@
     ".projen/tasks.json",
     "cdk.json",
     "LICENSE",
+    "src/lambda/kms-policy-updater-function.ts",
+    "src/lambda/s3-bucket-policy-updater-function.ts",
     "tsconfig.dev.json",
     "tsconfig.json"
   ],

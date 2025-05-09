@@ -4,6 +4,10 @@
     "build": "npx projen build",
     "bump": "npx projen bump",
     "bundle": "npx projen bundle",
+    "bundle:lambda/kms-policy-updater.lambda": "npx projen bundle:lambda/kms-policy-updater.lambda",
+    "bundle:lambda/kms-policy-updater.lambda:watch": "npx projen bundle:lambda/kms-policy-updater.lambda:watch",
+    "bundle:lambda/s3-bucket-policy-updater.lambda": "npx projen bundle:lambda/s3-bucket-policy-updater.lambda",
+    "bundle:lambda/s3-bucket-policy-updater.lambda:watch": "npx projen bundle:lambda/s3-bucket-policy-updater.lambda:watch",
     "clobber": "npx projen clobber",
     "compile": "npx projen compile",
     "default": "npx projen default",
@@ -48,6 +52,8 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "@aws-sdk/client-kms": "^3.806.0",
+    "@aws-sdk/client-s3": "^3.806.0",
     "@gemeentenijmegen/aws-constructs": "^0.0.35",
     "@gemeentenijmegen/dnssec-record": "^0.0.31",
     "@pepperize/cdk-ssm-parameters-cross-region": "^0.0.522",

@@ -9,6 +9,8 @@ const project = new GemeenteNijmegenCdkApp({
     '@gemeentenijmegen/aws-constructs',
     'cdk-remote-stack',
     '@gemeentenijmegen/dnssec-record',
+    '@aws-sdk/client-kms',
+    '@aws-sdk/client-s3',
   ],
   scripts: {
     lint: 'cfn-lint cdk.out/**/*.template.json -i W3005 W2001 W3045', // W3045: zie CloudFront logs bucket
