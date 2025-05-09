@@ -1643,11 +1643,6 @@
   resolved "https://registry.yarnpkg.com/@oozcitak/util/-/util-8.3.8.tgz#10f65fe1891fd8cde4957360835e78fd1936bfdd"
   integrity sha512-T8TbSnGsxo6TDBJx/Sgv/BlVJL3tshxZP7Aq5R1mSnM5OcHY2dQaxLMu2+E8u3gN0MLOzdjurqN4ZRVuzQycOQ==
 
-"@pepperize/cdk-ssm-parameters-cross-region@^0.0.522":
-  version "0.0.522"
-  resolved "https://registry.yarnpkg.com/@pepperize/cdk-ssm-parameters-cross-region/-/cdk-ssm-parameters-cross-region-0.0.522.tgz#6b5297ccbb4c8e301b6a92d61000b51b54d0a577"
-  integrity sha512-nc0gn6h596q/W+3sTgK3OYM4gjLWDjdSMSvsc2qgPvPHP2ZoVnUO14TYW6Fr25QLQsdLGUxZokmAQ6UAfI5nlg==
-
 "@rtsao/scc@^1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@rtsao/scc/-/scc-1.1.0.tgz#927dd2fae9bc3361403ac2c7a00c32ddce9ad7e8"
