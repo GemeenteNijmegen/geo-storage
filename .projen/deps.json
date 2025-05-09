@@ -96,10 +96,6 @@
       "type": "runtime"
     },
     {
-      "name": "@pepperize/cdk-ssm-parameters-cross-region",
-      "type": "runtime"
-    },
-    {
       "name": "aws-cdk-lib",
       "version": "^2.195.0",
       "type": "runtime"

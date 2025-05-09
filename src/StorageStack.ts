@@ -63,17 +63,6 @@ export class StorageStack extends Stack {
         );
       }
 
-      /**
-      const distribution = Distribution.fromDistributionAttributes(this, 'ImportedDist', {
-        domainName: ssm.StringParameter.valueForStringParameter(this, Statics.ssmCloudfrontdomainName),
-        distributionId: ssm.StringParameter.valueForStringParameter(this, Statics.ssmCloudfrontDistributionId),
-      });
-
-      if (bucketSettings.cloudfrontBucketConfig && bucketSettings.cloudfrontBucketConfig.exposeTroughCloudfront) {
-        this.addCloudfrontForBucket(distribution, bucket, bucketSettings);
-      }
-*/
-
       // Stoped inventory reports as we do not need them currently (inventory bucket still exists)
       // this.setupBucketInventoryReport(bucket, inventoryBucket, bucketSettings.name);
 

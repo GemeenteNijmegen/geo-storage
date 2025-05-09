@@ -12,18 +12,6 @@ export interface Environment {
 export interface Configurable {
   configuration: Configuration;
 }
-export interface cloudfrontConfig {
-  /**
-   * Cloudfront and certificate stuff
-   */
-  domainNamesCloudFront: string[];
-  domainNamesCertificate: {
-    domainName: string;
-    alternativeNames: string[];
-  };
-  cnames: { [key: string]: string };
-
-}
 export interface Configuration {
   /**
    * The git branch name to which this configuration applies.
