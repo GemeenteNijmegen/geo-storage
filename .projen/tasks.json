@@ -44,7 +44,51 @@
     },
     "bundle": {
       "name": "bundle",
-      "description": "Prepare assets"
+      "description": "Prepare assets",
+      "steps": [
+        {
+          "spawn": "bundle:lambda/kms-policy-updater.lambda"
+        },
+        {
+          "spawn": "bundle:lambda/s3-bucket-policy-updater.lambda"
+        }
+      ]
+    },
+    "bundle:lambda/kms-policy-updater.lambda": {
+      "name": "bundle:lambda/kms-policy-updater.lambda",
+      "description": "Create a JavaScript bundle from src/lambda/kms-policy-updater.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambda/kms-policy-updater.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/lambda/kms-policy-updater.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+        }
+      ]
+    },
+    "bundle:lambda/kms-policy-updater.lambda:watch": {
+      "name": "bundle:lambda/kms-policy-updater.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/lambda/kms-policy-updater.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambda/kms-policy-updater.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/lambda/kms-policy-updater.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+        }
+      ]
+    },
+    "bundle:lambda/s3-bucket-policy-updater.lambda": {
+      "name": "bundle:lambda/s3-bucket-policy-updater.lambda",
+      "description": "Create a JavaScript bundle from src/lambda/s3-bucket-policy-updater.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambda/s3-bucket-policy-updater.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/lambda/s3-bucket-policy-updater.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+        }
+      ]
+    },
+    "bundle:lambda/s3-bucket-policy-updater.lambda:watch": {
+      "name": "bundle:lambda/s3-bucket-policy-updater.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/lambda/s3-bucket-policy-updater.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambda/s3-bucket-policy-updater.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/lambda/s3-bucket-policy-updater.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+        }
+      ]
     },
     "clobber": {
       "name": "clobber",
@@ -167,7 +211,7 @@
       "name": "lint",
       "steps": [
         {
-          "exec": "cfn-lint cdk.out/**/*.template.json -i W3005 W2001"
+          "exec": "cfn-lint cdk.out/**/*.template.json -i W3005 W2001 W3045"
         }
       ]
     },
@@ -290,13 +334,13 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@gemeentenijmegen/projen-project-type,@types/jest,@types/node,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,projen,ts-jest,ts-node,typescript,@gemeentenijmegen/aws-constructs"
+          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@gemeentenijmegen/projen-project-type,@types/jest,@types/node,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,projen,ts-jest,ts-node,typescript,@aws-sdk/client-kms,@aws-sdk/client-s3,@gemeentenijmegen/aws-constructs,@gemeentenijmegen/dnssec-record,cdk-remote-stack"
         },
         {
           "exec": "yarn install --check-files"
         },
         {
-          "exec": "yarn upgrade @gemeentenijmegen/projen-project-type @stylistic/eslint-plugin @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk commit-and-tag-version esbuild eslint-import-resolver-typescript eslint-plugin-import eslint jest jest-junit projen ts-jest ts-node typescript @gemeentenijmegen/aws-constructs aws-cdk-lib constructs"
+          "exec": "yarn upgrade @gemeentenijmegen/projen-project-type @stylistic/eslint-plugin @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk commit-and-tag-version esbuild eslint-import-resolver-typescript eslint-plugin-import eslint jest jest-junit projen ts-jest ts-node typescript @aws-sdk/client-kms @aws-sdk/client-s3 @gemeentenijmegen/aws-constructs @gemeentenijmegen/dnssec-record aws-cdk-lib cdk-remote-stack constructs"
         },
         {
           "exec": "npx projen"

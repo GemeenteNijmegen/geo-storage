@@ -68,6 +68,7 @@ export class StorageStack extends Stack {
 
       bucket.grantReadWrite(backupRole); // Allow to copy resources to same bucket (changing the KMS key used for sse)
       buckets.push(bucket);
+
     }
 
     // If we use grantRead and grantPut methods the policy will be too big
@@ -84,10 +85,15 @@ export class StorageStack extends Stack {
       description: 'SSE key for geo storage buckets',
       alias: 'geo-storage-sse-key',
     });
+    new ssm.StringParameter(this, 'ssm-kmskey-arn', {
+      stringValue: key.keyArn,
+      parameterName: Statics.ssmGeoStorageKmsKeyArn,
+    });
 
     // Allow lz-platform-operator read rights
     const accountId = Stack.of(this).account;
     const region = Stack.of(this).region;
+
     key.addToResourcePolicy(new iam.PolicyStatement({
       sid: 'AllowPlatformOperatorToUseKey',
       effect: iam.Effect.ALLOW,

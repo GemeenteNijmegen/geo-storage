@@ -10,9 +10,8 @@ export interface Environment {
 }
 
 export interface Configurable {
-  configuration : Configuration;
+  configuration: Configuration;
 }
-
 export interface Configuration {
   /**
    * The git branch name to which this configuration applies.
@@ -51,9 +50,13 @@ export interface Configuration {
    * @default no allow statment for kms keys is added
    */
   allowedToUseKmsKeyArns?: string[];
-
 }
 
+
+export interface CloudFrontBucketConfig {
+  exposeTroughCloudfront: boolean; //default false
+  cloudfrontBasePath: string; //base path for the url of the bucket-contents
+}
 export interface GeoBucketConfig {
   cdkId: string;
   name: string;
@@ -63,6 +66,7 @@ export interface GeoBucketConfig {
   backupName?: string;
   description: string;
   bucketConfiguration: s3.BucketProps;
+  cloudfrontBucketConfig?: CloudFrontBucketConfig;
 }
 
 
@@ -169,6 +173,25 @@ export function getBucketConfig(branchName: string) {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,
         versioned: true,
+      },
+      cloudfrontBucketConfig: {
+        exposeTroughCloudfront: true,
+        cloudfrontBasePath: 'mesh/*',
+      },
+    },
+    {
+      cdkId: 'kaartviewer-docs-bucket',
+      name: Statics.kaartViewerDocsBucket(branchName, false),
+      backupName: Statics.kaartViewerDocsBucket(branchName, true),
+      description: '3D Mesh data',
+      bucketConfiguration: {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        enforceSSL: true,
+        versioned: true,
+      },
+      cloudfrontBucketConfig: {
+        exposeTroughCloudfront: true,
+        cloudfrontBasePath: 'kvdocs/*',
       },
     },
   ];
