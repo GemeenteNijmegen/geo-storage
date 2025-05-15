@@ -1,7 +1,7 @@
 import { Duration, RemovalPolicy, Stack, aws_ssm, StackProps, aws_ssm as ssm } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods, Function as CloudFrontFunction, FunctionCode, FunctionEventType } from 'aws-cdk-lib/aws-cloudfront';
-import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
+import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods } from 'aws-cdk-lib/aws-cloudfront';
+import { HttpOrigin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Key } from 'aws-cdk-lib/aws-kms';
 import { AaaaRecord, ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
@@ -53,22 +53,6 @@ export class CloudfrontStack extends Stack {
       originAccessLevels: [AccessLevel.READ, AccessLevel.LIST],
     });
 
-    // Create a CloudFront function to handle the redirect to security.txt
-    const redirectFunction = new CloudFrontFunction(this, 'RedirectFunction', {
-      code: FunctionCode.fromInline(`
-        function handler(event) {
-          return {
-            statusCode: 302,
-            statusDescription: 'Found',
-            headers: {
-              'location': { value: 'https://www.nijmegen.nl/.well-known/security.txt' }
-            }
-          };
-        }
-      `),
-    });
-
-
     const webAclId = this.wafAclId();
     // Setup the distribution with redirect to nijmegen.nl security.txt as default behavior
     const distribution = new Distribution(this, 'cf-distribution', {
@@ -79,17 +63,21 @@ export class CloudfrontStack extends Stack {
       defaultBehavior: {
         origin: s3Origin,
         viewerProtocolPolicy: ViewerProtocolPolicy.HTTPS_ONLY,
-        functionAssociations: [
-          {
-            function: redirectFunction,
-            eventType: FunctionEventType.VIEWER_REQUEST,
-          },
-        ],
       },
       errorResponses: this.errorResponses(),
       logBucket: this.logBucket(),
       minimumProtocolVersion: SecurityPolicyProtocol.TLS_V1_2_2021,
     });
+
+    //redirect as default behaviour isn't possible, no cache to ensure the latest version is served
+    distribution.addBehavior(
+      '/.well-known/security.txt',
+      new HttpOrigin('nijmegen.nl'),
+      {
+        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        cachePolicy: CachePolicy.CACHING_DISABLED,
+      },
+    );
 
 
     this.addDnsRecords(distribution, projectHostedZoneId, projectHostedZoneName);
