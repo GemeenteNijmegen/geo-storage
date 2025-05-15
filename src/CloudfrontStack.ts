@@ -70,20 +70,12 @@ export class CloudfrontStack extends Stack {
     });
 
     //redirect as default behaviour isn't possible, no cache to ensure the latest version is served
-    const noCachePolicy = new CachePolicy(this, 'noCachePolicy', {
-      cachePolicyName: 'noCachePolicy',
-      defaultTtl: Duration.seconds(60 * 60 * 24 * 90), // 3 months
-      minTtl: Duration.days(0),
-      maxTtl: Duration.days(0),
-      enableAcceptEncodingGzip: true,
-      enableAcceptEncodingBrotli: true,
-    });
     distribution.addBehavior(
       '/.well-known/security.txt',
       new HttpOrigin('nijmegen.nl'),
       {
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        cachePolicy: noCachePolicy,
+        cachePolicy: CachePolicy.CACHING_DISABLED,
       },
     );
 
