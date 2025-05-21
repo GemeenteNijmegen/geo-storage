@@ -1,6 +1,6 @@
 import { Duration, RemovalPolicy, Stack, aws_ssm, StackProps, aws_ssm as ssm } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods } from 'aws-cdk-lib/aws-cloudfront';
+import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods, ResponseHeadersPolicy, HeadersFrameOption, HeadersReferrerPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { HttpOrigin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Key } from 'aws-cdk-lib/aws-kms';
 import { AaaaRecord, ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
@@ -17,10 +17,44 @@ import { Statics } from './Statics';
 
 export interface CloudfrontStackProps extends Configurable, StackProps { }
 export class CloudfrontStack extends Stack {
+  private corsHeadersPolicy: ResponseHeadersPolicy;
 
   //constructor(scope: Construct, id: string, props: CloudfrontDistributionProps) {
   constructor(scope: Construct, id: string, props: CloudfrontStackProps) {
     super(scope, id, props);
+
+    // Create CORS headers policy for allowed domains
+    this.corsHeadersPolicy = new ResponseHeadersPolicy(this, 'CorsHeadersPolicy', {
+      responseHeadersPolicyName: 'GeoStorageCorsPolicy',
+      corsBehavior: {
+        accessControlAllowOrigins: [
+          '*.nijmegen.nl',
+          '*.kaartviewer.nl',
+          '*.karelstad.nl',
+        ],
+        accessControlAllowMethods: ['GET', 'HEAD', 'OPTIONS'],
+        accessControlAllowHeaders: ['*'],
+        accessControlMaxAge: Duration.seconds(600),
+        originOverride: true,
+        accessControlAllowCredentials: false,
+      },
+      securityHeadersBehavior: {
+        contentTypeOptions: { override: true },
+        frameOptions: {
+          frameOption: HeadersFrameOption.DENY,
+          override: true,
+        },
+        referrerPolicy: {
+          referrerPolicy: HeadersReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN,
+          override: true,
+        },
+        strictTransportSecurity: {
+          accessControlMaxAge: Duration.seconds(31536000),
+          includeSubdomains: true,
+          override: true,
+        },
+      },
+    });
 
 
     // Get the hosted zone
@@ -63,6 +97,7 @@ export class CloudfrontStack extends Stack {
       defaultBehavior: {
         origin: s3Origin,
         viewerProtocolPolicy: ViewerProtocolPolicy.HTTPS_ONLY,
+        responseHeadersPolicy: this.corsHeadersPolicy,
       },
       errorResponses: this.errorResponses(),
       logBucket: this.logBucket(),
@@ -76,6 +111,7 @@ export class CloudfrontStack extends Stack {
       {
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         cachePolicy: CachePolicy.CACHING_DISABLED,
+        //responseHeadersPolicy: this.corsHeadersPolicy,
       },
     );
 
@@ -149,6 +185,7 @@ export class CloudfrontStack extends Stack {
           cachePolicy: customCachePolicy,
           compress: true,
           allowedMethods: AllowedMethods.ALLOW_GET_HEAD,
+          responseHeadersPolicy: this.corsHeadersPolicy,
         });
 
 
