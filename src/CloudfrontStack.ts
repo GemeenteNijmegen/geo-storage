@@ -1,6 +1,6 @@
 import { Duration, RemovalPolicy, Stack, aws_ssm, StackProps, aws_ssm as ssm } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods, ResponseHeadersPolicy, HeadersFrameOption, HeadersReferrerPolicy } from 'aws-cdk-lib/aws-cloudfront';
+import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods, ResponseHeadersPolicy, HeadersFrameOption, HeadersReferrerPolicy, OriginRequestPolicy, OriginRequestHeaderBehavior, OriginRequestCookieBehavior, OriginRequestQueryStringBehavior } from 'aws-cdk-lib/aws-cloudfront';
 import { HttpOrigin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Key } from 'aws-cdk-lib/aws-kms';
 import { AaaaRecord, ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
@@ -18,6 +18,7 @@ import { Statics } from './Statics';
 export interface CloudfrontStackProps extends Configurable, StackProps { }
 export class CloudfrontStack extends Stack {
   private corsHeadersPolicy: ResponseHeadersPolicy;
+  private noAmzHeadersPolicy: OriginRequestPolicy;
 
   //constructor(scope: Construct, id: string, props: CloudfrontDistributionProps) {
   constructor(scope: Construct, id: string, props: CloudfrontStackProps) {
@@ -54,6 +55,15 @@ export class CloudfrontStack extends Stack {
           override: true,
         },
       },
+    });
+
+    // Create Origin Request Policy that excludes all headers to prevent leaking of S3 bucket info
+    this.noAmzHeadersPolicy = new OriginRequestPolicy(this, 'NoXAmzHeadersPolicy', {
+      originRequestPolicyName: 'NoXAmzHeadersPolicy',
+      comment: 'Do not forward any headers, cookies or query strings',
+      headerBehavior: OriginRequestHeaderBehavior.none(), // Exclude all headers
+      cookieBehavior: OriginRequestCookieBehavior.none(),
+      queryStringBehavior: OriginRequestQueryStringBehavior.none(),
     });
 
 
@@ -200,6 +210,7 @@ export class CloudfrontStack extends Stack {
           compress: true,
           allowedMethods: AllowedMethods.ALLOW_GET_HEAD,
           responseHeadersPolicy: responseHeadersPolicy,
+          originRequestPolicy: this.noAmzHeadersPolicy,
         });
 
 
