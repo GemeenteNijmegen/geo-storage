@@ -144,7 +144,7 @@ export class CloudfrontStack extends Stack {
   //cache objects for one year, they're immutable
   private addPublicBuckets(configuration: Configuration, distribution: Distribution) {
     const customCachePolicy = new CachePolicy(this, 'OneYearCachePolicy', {
-      cachePolicyName: 'OneYearCachePolicyy',
+      cachePolicyName: 'OneYearCachePolicy',
       defaultTtl: Duration.days(365),
       minTtl: Duration.days(365),
       maxTtl: Duration.days(365),
