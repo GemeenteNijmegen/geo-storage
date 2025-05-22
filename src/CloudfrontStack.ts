@@ -146,8 +146,8 @@ export class CloudfrontStack extends Stack {
   private addPublicBuckets(configuration: Configuration, distribution: Distribution) {
     const customCachePolicy = new CachePolicy(this, 'ThreeMonthCachePolicy', {
       cachePolicyName: 'ThreeMonthCachePolicy',
-      defaultTtl: Duration.seconds(60 * 60 * 24 * 90), // 3 months
-      minTtl: Duration.days(1),
+      defaultTtl: Duration.days(365),
+      minTtl: Duration.days(365),
       maxTtl: Duration.days(365),
       enableAcceptEncodingGzip: true,
       enableAcceptEncodingBrotli: true,
@@ -179,12 +179,27 @@ export class CloudfrontStack extends Stack {
 
         this.addBucketPolicyForCloudfront(bucket, distribution);
 
+        // Create a custom response headers policy with Cache-Control header
+        //instructs the browser to cache the download for max 1 year.
+        const responseHeadersPolicy = new ResponseHeadersPolicy(this, `CacheControlPolicy-${uniqueId}`, {
+          responseHeadersPolicyName: `GeoStorageCacheControlPolicy-${bucketSettings.name}`,
+          customHeadersBehavior: {
+            customHeaders: [
+              {
+                header: 'Cache-Control',
+                value: 'public, max-age=31536000, immutable',
+                override: true,
+              },
+            ],
+          },
+        });
+
         distribution.addBehavior(bucketSettings.cloudfrontBucketConfig.cloudfrontBasePath, s3Origin, {
           viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
           cachePolicy: customCachePolicy,
           compress: true,
           allowedMethods: AllowedMethods.ALLOW_GET_HEAD,
-          responseHeadersPolicy: this.corsHeadersPolicy,
+          responseHeadersPolicy: responseHeadersPolicy,
         });
 
 
