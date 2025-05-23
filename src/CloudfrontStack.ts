@@ -17,14 +17,15 @@ import { Statics } from './Statics';
 
 export interface CloudfrontStackProps extends Configurable, StackProps { }
 export class CloudfrontStack extends Stack {
-  private corsHeadersPolicy: ResponseHeadersPolicy;
+  private responseHeadersPolicy: ResponseHeadersPolicy;
 
   //constructor(scope: Construct, id: string, props: CloudfrontDistributionProps) {
   constructor(scope: Construct, id: string, props: CloudfrontStackProps) {
     super(scope, id, props);
 
     // Create CORS headers policy for allowed domains
-    this.corsHeadersPolicy = new ResponseHeadersPolicy(this, 'CorsHeadersPolicy', {
+    // AND a custom response headers policy with Cache-Control header
+    this.responseHeadersPolicy = new ResponseHeadersPolicy(this, 'CorsHeadersPolicy', {
       responseHeadersPolicyName: 'GeoStorageCorsPolicy',
       corsBehavior: {
         accessControlAllowOrigins: [
@@ -53,6 +54,15 @@ export class CloudfrontStack extends Stack {
           includeSubdomains: true,
           override: true,
         },
+      },
+      customHeadersBehavior: {
+        customHeaders: [
+          {
+            header: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable', //instructs the browser to cache the download for max 1 year.
+            override: true,
+          },
+        ],
       },
     });
 
@@ -96,7 +106,6 @@ export class CloudfrontStack extends Stack {
       defaultBehavior: {
         origin: s3Origin,
         viewerProtocolPolicy: ViewerProtocolPolicy.HTTPS_ONLY,
-        responseHeadersPolicy: this.corsHeadersPolicy,
       },
       errorResponses: this.errorResponses(),
       logBucket: this.logBucket(),
@@ -178,27 +187,12 @@ export class CloudfrontStack extends Stack {
 
         this.addBucketPolicyForCloudfront(bucket, distribution);
 
-        // Create a custom response headers policy with Cache-Control header
-        //instructs the browser to cache the download for max 1 year.
-        const responseHeadersPolicy = new ResponseHeadersPolicy(this, `CacheControlPolicy-${uniqueId}`, {
-          responseHeadersPolicyName: `GeoStorageCacheControlPolicy-${bucketSettings.name}`,
-          customHeadersBehavior: {
-            customHeaders: [
-              {
-                header: 'Cache-Control',
-                value: 'public, max-age=31536000, immutable',
-                override: true,
-              },
-            ],
-          },
-        });
-
         distribution.addBehavior(bucketSettings.cloudfrontBucketConfig.cloudfrontBasePath, s3Origin, {
           viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
           cachePolicy: customCachePolicy,
           compress: true,
           allowedMethods: AllowedMethods.ALLOW_GET_HEAD,
-          responseHeadersPolicy: responseHeadersPolicy,
+          responseHeadersPolicy: this.responseHeadersPolicy,
           originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN, //excludes most headers to prevent leaking of S3 bucket info
         });
 
