@@ -1,6 +1,6 @@
 import { Duration, RemovalPolicy, Stack, aws_ssm, StackProps, aws_ssm as ssm } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods, ResponseHeadersPolicy, HeadersFrameOption, HeadersReferrerPolicy } from 'aws-cdk-lib/aws-cloudfront';
+import { Distribution, PriceClass, SecurityPolicyProtocol, AccessLevel, ViewerProtocolPolicy, CachePolicy, AllowedMethods, ResponseHeadersPolicy, HeadersFrameOption, HeadersReferrerPolicy, OriginRequestPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { HttpOrigin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Key } from 'aws-cdk-lib/aws-kms';
 import { AaaaRecord, ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
@@ -17,14 +17,15 @@ import { Statics } from './Statics';
 
 export interface CloudfrontStackProps extends Configurable, StackProps { }
 export class CloudfrontStack extends Stack {
-  private corsHeadersPolicy: ResponseHeadersPolicy;
+  private responseHeadersPolicy: ResponseHeadersPolicy;
 
   //constructor(scope: Construct, id: string, props: CloudfrontDistributionProps) {
   constructor(scope: Construct, id: string, props: CloudfrontStackProps) {
     super(scope, id, props);
 
     // Create CORS headers policy for allowed domains
-    this.corsHeadersPolicy = new ResponseHeadersPolicy(this, 'CorsHeadersPolicy', {
+    // AND a custom response headers policy with Cache-Control header
+    this.responseHeadersPolicy = new ResponseHeadersPolicy(this, 'CorsHeadersPolicy', {
       responseHeadersPolicyName: 'GeoStorageCorsPolicy',
       corsBehavior: {
         accessControlAllowOrigins: [
@@ -54,8 +55,16 @@ export class CloudfrontStack extends Stack {
           override: true,
         },
       },
+      customHeadersBehavior: {
+        customHeaders: [
+          {
+            header: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable', //instructs the browser to cache the download for max 1 year.
+            override: true,
+          },
+        ],
+      },
     });
-
 
     // Get the hosted zone
     const projectHostedZoneName = aws_ssm.StringParameter.valueForStringParameter(this, Statics.accountHostedZoneName);
@@ -97,7 +106,6 @@ export class CloudfrontStack extends Stack {
       defaultBehavior: {
         origin: s3Origin,
         viewerProtocolPolicy: ViewerProtocolPolicy.HTTPS_ONLY,
-        responseHeadersPolicy: this.corsHeadersPolicy,
       },
       errorResponses: this.errorResponses(),
       logBucket: this.logBucket(),
@@ -142,12 +150,12 @@ export class CloudfrontStack extends Stack {
     });
   }
 
-
+  //cache objects for one year, they're immutable
   private addPublicBuckets(configuration: Configuration, distribution: Distribution) {
-    const customCachePolicy = new CachePolicy(this, 'ThreeMonthCachePolicy', {
-      cachePolicyName: 'ThreeMonthCachePolicy',
-      defaultTtl: Duration.seconds(60 * 60 * 24 * 90), // 3 months
-      minTtl: Duration.days(1),
+    const customCachePolicy = new CachePolicy(this, 'OneYearCachePolicy', {
+      cachePolicyName: 'OneYearCachePolicy',
+      defaultTtl: Duration.days(365),
+      minTtl: Duration.days(365),
       maxTtl: Duration.days(365),
       enableAcceptEncodingGzip: true,
       enableAcceptEncodingBrotli: true,
@@ -184,7 +192,8 @@ export class CloudfrontStack extends Stack {
           cachePolicy: customCachePolicy,
           compress: true,
           allowedMethods: AllowedMethods.ALLOW_GET_HEAD,
-          responseHeadersPolicy: this.corsHeadersPolicy,
+          responseHeadersPolicy: this.responseHeadersPolicy,
+          originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN, //excludes most headers to prevent leaking of S3 bucket info
         });
 
 
