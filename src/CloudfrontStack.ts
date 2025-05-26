@@ -7,7 +7,6 @@ import { AaaaRecord, ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-r
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { BlockPublicAccess, Bucket, BucketEncryption, IBucket, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
-import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { RemoteParameters } from 'cdk-remote-stack';
 import { Construct } from 'constructs';
 import { CloudfrontKmsPolicy } from './CloudfrontKmsPolicy';
@@ -55,6 +54,13 @@ export class CloudfrontStack extends Stack {
           override: true,
         },
       },
+      //these headers need explicit removing
+      removeHeaders: ['x-amz-replication-status',
+        'x-amz-server-side-encryption',
+        'x-amz-server-side-encryption-aws-kms-key-id',
+        'x-amz-server-side-encryption-bucket-key-enabled',
+        'x-amz-storage-class',
+        'x-amz-version-id'],
       customHeadersBehavior: {
         customHeaders: [
           {
@@ -112,7 +118,8 @@ export class CloudfrontStack extends Stack {
       minimumProtocolVersion: SecurityPolicyProtocol.TLS_V1_2_2021,
     });
 
-    //redirect as default behaviour isn't possible, no cache to ensure the latest version is served
+    //redirect as default behaviour isn't possible,
+    //no cache to ensure the latest version is served
     distribution.addBehavior(
       '/.well-known/security.txt',
       new HttpOrigin('nijmegen.nl'),
@@ -126,17 +133,6 @@ export class CloudfrontStack extends Stack {
     this.addDnsRecords(distribution, projectHostedZoneId, projectHostedZoneName);
 
     this.addPublicBuckets(props.configuration, distribution);
-
-    //export for importing the distribution in the storageStack
-    new StringParameter(this, 'cf-domain', {
-      stringValue: distribution.distributionDomainName,
-      parameterName: Statics.ssmCloudfrontdomainName,
-    });
-    new StringParameter(this, 'cf-id', {
-      stringValue: distribution.distributionId,
-      parameterName: Statics.ssmCloudfrontDistributionId,
-    });
-
   }
 
   private errorResponses() {
@@ -181,10 +177,12 @@ export class CloudfrontStack extends Stack {
           encryptionKey: Key.fromKeyArn(this, `${uniqueId}-key`, ssm.StringParameter.valueForStringParameter(this, Statics.ssmGeoStorageKmsKeyArn)),
         });
 
+        //this doesn't work for existing buckets
         const s3Origin = S3BucketOrigin.withOriginAccessControl(bucket, {
           originAccessLevels: [AccessLevel.READ, AccessLevel.LIST],
         });
 
+        //this is needed for existing buckets
         this.addBucketPolicyForCloudfront(bucket, distribution);
 
         distribution.addBehavior(bucketSettings.cloudfrontBucketConfig.cloudfrontBasePath, s3Origin, {
