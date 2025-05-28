@@ -44,7 +44,7 @@ export class WafStack extends Stack {
         //all requests from our own application, based on IP and origin header are allowed
         //other requests from other (internet) sources are still evaluated by this waf
         {
-          priority: -1,
+          priority: 0,
           name: 'AllowTrustedOriginAndIp',
           action: { allow: {} },
           visibilityConfig: {
@@ -82,7 +82,7 @@ export class WafStack extends Stack {
           },
         },
         {
-          priority: 0,
+          priority: 1,
           overrideAction: { none: {} },
           visibilityConfig: {
             sampledRequestsEnabled: true,
@@ -105,7 +105,7 @@ export class WafStack extends Stack {
         },
         // After counting the SignalNonBrowserUserAgent matches, block all except the excluded ua
         {
-          priority: 1,
+          priority: 2,
           name: 'BlockMostNonBrowserUserAgents',
           statement: {
             andStatement: {
