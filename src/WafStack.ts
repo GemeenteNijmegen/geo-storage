@@ -26,7 +26,7 @@ export class WafStack extends Stack {
       name: 'TrustedIPSet',
       scope: 'CLOUDFRONT',
       ipAddressVersion: 'IPV4',
-      addresses: ['145.11.60.1'],
+      addresses: ['145.11.60.1/32'], //must be in a cidr notation
     });
 
     const acl = new aws_wafv2.CfnWebACL(this, 'waf-geoStorage', {
