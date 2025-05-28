@@ -150,8 +150,25 @@ export class WafStack extends Stack {
             metricName: 'AWS-ManagedRulesBotControlRuleSet',
           },
         },
+        //first block bad reputation ip's before rate limiting them
         {
           priority: 10,
+          overrideAction: { none: {} },
+          visibilityConfig: {
+            sampledRequestsEnabled: true,
+            cloudWatchMetricsEnabled: true,
+            metricName: 'AWS-AmazonIpReputationList',
+          },
+          name: 'AWS-AmazonIpReputationList',
+          statement: {
+            managedRuleGroupStatement: {
+              vendorName: 'AWS',
+              name: 'AWSManagedRulesAmazonIpReputationList',
+            },
+          },
+        },
+        {
+          priority: 20,
           action: rateBasedStatementAction,
           visibilityConfig: {
             sampledRequestsEnabled: true,
@@ -165,22 +182,6 @@ export class WafStack extends Stack {
               //Valid Range: Minimum value of 100. Maximum value of 2000000000.
               limit: 100,
               evaluationWindowSec: 300,
-            },
-          },
-        },
-        {
-          priority: 20,
-          overrideAction: { none: {} },
-          visibilityConfig: {
-            sampledRequestsEnabled: true,
-            cloudWatchMetricsEnabled: true,
-            metricName: 'AWS-AmazonIpReputationList',
-          },
-          name: 'AWS-AmazonIpReputationList',
-          statement: {
-            managedRuleGroupStatement: {
-              vendorName: 'AWS',
-              name: 'AWSManagedRulesAmazonIpReputationList',
             },
           },
         },
