@@ -20,6 +20,15 @@ export class WafStack extends Stack {
       rateBasedStatementAction = { count: {} };
     }
 
+    // Define trusted IPs for which the WAF rules won't be executed
+    // IRvN external ip, needs to change when requesting app changes to SaaS provider
+    const trustedIps = new aws_wafv2.CfnIPSet(this, 'TrustedIPs', {
+      name: 'TrustedIPSet',
+      scope: 'CLOUDFRONT',
+      ipAddressVersion: 'IPV4',
+      addresses: ['145.11.60.1/32'], //must be in a cidr notation
+    });
+
     const acl = new aws_wafv2.CfnWebACL(this, 'waf-geoStorage', {
       defaultAction: { allow: {} },
       description: 'used for public GeoStorage buckets',
@@ -30,8 +39,50 @@ export class WafStack extends Stack {
         metricName: 'geoStorage-web-acl',
       },
       rules: [
+        // Allow rule for trusted IPs with specific origin header
+        //prevent execution of the other WAF rules
+        //all requests from our own application, based on IP and origin header are allowed
+        //other requests from other (internet) sources are still evaluated by this waf
         {
           priority: 0,
+          name: 'AllowTrustedOriginAndIp',
+          action: { allow: {} },
+          visibilityConfig: {
+            sampledRequestsEnabled: true,
+            cloudWatchMetricsEnabled: true,
+            metricName: 'AllowTrustedOriginAndIp',
+          },
+          statement: {
+            andStatement: {
+              statements: [
+                {
+                  byteMatchStatement: {
+                    fieldToMatch: {
+                      singleHeader: {
+                        Name: 'origin',
+                      },
+                    },
+                    positionalConstraint: 'CONTAINS',
+                    searchString: 'kaartviewer.gn.karelstad.nl',
+                    textTransformations: [
+                      {
+                        priority: 0,
+                        type: 'NONE',
+                      },
+                    ],
+                  },
+                },
+                {
+                  ipSetReferenceStatement: {
+                    arn: trustedIps.attrArn,
+                  },
+                },
+              ],
+            },
+          },
+        },
+        {
+          priority: 1,
           overrideAction: { none: {} },
           visibilityConfig: {
             sampledRequestsEnabled: true,
@@ -54,7 +105,7 @@ export class WafStack extends Stack {
         },
         // After counting the SignalNonBrowserUserAgent matches, block all except the excluded ua
         {
-          priority: 1,
+          priority: 2,
           name: 'BlockMostNonBrowserUserAgents',
           statement: {
             andStatement: {
@@ -99,25 +150,9 @@ export class WafStack extends Stack {
             metricName: 'AWS-ManagedRulesBotControlRuleSet',
           },
         },
+        //first block bad reputation ip's before rate limiting them
         {
           priority: 10,
-          action: rateBasedStatementAction,
-          visibilityConfig: {
-            sampledRequestsEnabled: true,
-            cloudWatchMetricsEnabled: true,
-            metricName: 'AWS-RateBasedStatement',
-          },
-          name: 'RateBasedStatement',
-          statement: {
-            rateBasedStatement: {
-              aggregateKeyType: 'IP',
-              //Valid Range: Minimum value of 100. Maximum value of 2000000000.
-              limit: 500,
-            },
-          },
-        },
-        {
-          priority: 20,
           overrideAction: { none: {} },
           visibilityConfig: {
             sampledRequestsEnabled: true,
@@ -129,6 +164,24 @@ export class WafStack extends Stack {
             managedRuleGroupStatement: {
               vendorName: 'AWS',
               name: 'AWSManagedRulesAmazonIpReputationList',
+            },
+          },
+        },
+        {
+          priority: 20,
+          action: rateBasedStatementAction,
+          visibilityConfig: {
+            sampledRequestsEnabled: true,
+            cloudWatchMetricsEnabled: true,
+            metricName: 'AWS-RateBasedStatement',
+          },
+          name: 'RateBasedStatement',
+          statement: {
+            rateBasedStatement: {
+              aggregateKeyType: 'IP',
+              //Valid Range: Minimum value of 100. Maximum value of 2000000000.
+              limit: 100,
+              evaluationWindowSec: 300,
             },
           },
         },
