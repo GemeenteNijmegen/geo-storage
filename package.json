@@ -55,7 +55,7 @@
     "@aws-sdk/client-kms": "^3.844.0",
     "@aws-sdk/client-s3": "^3.844.0",
     "@gemeentenijmegen/aws-constructs": "^0.0.40",
-    "@gemeentenijmegen/dnssec-record": "^0.0.33",
+    "@gemeentenijmegen/dnssec-record": "^0.0.34",
     "aws-cdk-lib": "^2.195.0",
     "cdk-remote-stack": "^2.1.0",
     "constructs": "^10.0.5"
