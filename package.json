@@ -32,7 +32,7 @@
     "projen": "npx projen"
   },
   "devDependencies": {
-    "@gemeentenijmegen/projen-project-type": "^1.10.6",
+    "@gemeentenijmegen/projen-project-type": "^1.11.3",
     "@stylistic/eslint-plugin": "^2",
     "@types/jest": "^29.5.14",
     "@types/node": "^18",
@@ -40,22 +40,22 @@
     "@typescript-eslint/parser": "^8",
     "aws-cdk": "^2",
     "commit-and-tag-version": "^12",
-    "esbuild": "^0.25.5",
+    "esbuild": "^0.25.9",
     "eslint": "^9",
     "eslint-import-resolver-typescript": "^3.10.1",
     "eslint-plugin-import": "^2.32.0",
     "jest": "^29.7.0",
     "jest-junit": "^16",
-    "projen": "^0.93.3",
-    "ts-jest": "^29.4.0",
+    "projen": "^0.94.2",
+    "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@aws-sdk/client-kms": "^3.839.0",
-    "@aws-sdk/client-s3": "^3.839.0",
-    "@gemeentenijmegen/aws-constructs": "^0.0.37",
-    "@gemeentenijmegen/dnssec-record": "^0.0.33",
+    "@aws-sdk/client-kms": "^3.864.0",
+    "@aws-sdk/client-s3": "^3.864.0",
+    "@gemeentenijmegen/aws-constructs": "^0.0.42",
+    "@gemeentenijmegen/dnssec-record": "^0.0.36",
     "aws-cdk-lib": "^2.195.0",
     "cdk-remote-stack": "^2.1.0",
     "constructs": "^10.0.5"
