@@ -46,14 +46,14 @@
     "eslint-plugin-import": "^2.32.0",
     "jest": "^29.7.0",
     "jest-junit": "^16",
-    "projen": "^0.94.2",
+    "projen": "^0.95.2",
     "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@aws-sdk/client-kms": "^3.864.0",
-    "@aws-sdk/client-s3": "^3.864.0",
+    "@aws-sdk/client-kms": "^3.872.0",
+    "@aws-sdk/client-s3": "^3.872.0",
     "@gemeentenijmegen/aws-constructs": "^0.0.42",
     "@gemeentenijmegen/dnssec-record": "^0.0.36",
     "aws-cdk-lib": "^2.195.0",
