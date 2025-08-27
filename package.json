@@ -52,8 +52,8 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@aws-sdk/client-kms": "^3.873.0",
-    "@aws-sdk/client-s3": "^3.873.0",
+    "@aws-sdk/client-kms": "^3.876.0",
+    "@aws-sdk/client-s3": "^3.876.0",
     "@gemeentenijmegen/aws-constructs": "^0.0.42",
     "@gemeentenijmegen/dnssec-record": "^0.0.36",
     "aws-cdk-lib": "^2.195.0",
