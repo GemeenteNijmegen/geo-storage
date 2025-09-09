@@ -50,6 +50,12 @@ export interface Configuration {
    * @default no allow statment for kms keys is added
    */
   allowedToUseKmsKeyArns?: string[];
+
+  /**
+   * IAM User ids that are available for accessing buckets
+   * (includes IAM access key and secret key)
+   */
+  users?: string[];
 }
 
 
@@ -67,6 +73,11 @@ export interface GeoBucketConfig {
   description: string;
   bucketConfiguration: s3.BucketProps;
   cloudfrontBucketConfig?: CloudFrontBucketConfig;
+
+  /**
+   * Define which users have access to the bucket
+   */
+  iamUserAccess?: Record<string, 'r' | 'w' | 'rw'>;
 }
 
 
@@ -78,6 +89,7 @@ export const configurations: { [key: string]: Configuration } = {
     targetEnvironment: Statics.acceptanceEnvironment,
     backupEnvironment: Statics.backupEnvironmentAcceptance,
     buckets: getBucketConfig('acceptance'),
+    users: ['kaartviewer', 'fme'],
   },
   main: {
     branchName: 'main',
@@ -89,6 +101,7 @@ export const configurations: { [key: string]: Configuration } = {
     allowedToUseKmsKeyArns: [
       'arn:aws:kms:eu-west-1:751076321715:key/0e9efe8a-71b6-4218-b94d-8f9df0262674',
     ],
+    users: ['kaartviewer', 'fme'],
   },
 };
 
@@ -107,7 +120,7 @@ export function getConfiguration(buildBranch: string) {
  * @param branchName
  * @returns
  */
-export function getBucketConfig(branchName: string) {
+export function getBucketConfig(branchName: string): GeoBucketConfig[] {
   return [
     {
       cdkId: 'cyclorama-bucket',
@@ -183,7 +196,7 @@ export function getBucketConfig(branchName: string) {
       cdkId: 'kaartviewer-docs-bucket',
       name: Statics.kaartViewerDocsBucket(branchName, false),
       backupName: Statics.kaartViewerDocsBucket(branchName, true),
-      description: '3D Mesh data',
+      description: 'Kaartviewer documenten',
       bucketConfiguration: {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,
@@ -192,6 +205,10 @@ export function getBucketConfig(branchName: string) {
       cloudfrontBucketConfig: {
         exposeTroughCloudfront: true,
         cloudfrontBasePath: 'kvdocs/*',
+      },
+      iamUserAccess: {
+        kaartviewer: 'rw',
+        fme: 'rw',
       },
     },
   ];

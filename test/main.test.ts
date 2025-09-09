@@ -19,6 +19,7 @@ test('StackHasBuckets', () => {
       targetEnvironment: testEnv,
       backupEnvironment: testEnv,
       buckets: getBucketConfig('test'),
+      users: ['kaartviewer', 'fme'],
     },
   });
 
