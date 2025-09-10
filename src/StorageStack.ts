@@ -1,16 +1,16 @@
 import * as crypto from 'crypto';
 import {
+  aws_cloudwatch as cloudwatch,
+  Duration,
+  aws_iam as iam,
+  aws_kms as kms,
   aws_s3 as s3,
+  aws_ssm as ssm,
   Stack,
   StackProps,
-  aws_iam as iam,
-  aws_ssm as ssm,
-  aws_cloudwatch as cloudwatch,
-  aws_kms as kms,
-  Duration,
   Tags,
 } from 'aws-cdk-lib';
-import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { PolicyStatement, User } from 'aws-cdk-lib/aws-iam';
 import { CfnBucket } from 'aws-cdk-lib/aws-s3';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
@@ -34,6 +34,14 @@ export class StorageStack extends Stack {
 
     const thirdPartyUser = this.setupThirdPartyAccessUser();
 
+    // Setup defined users
+    let users: Record<string, User> = {};
+    if (props.configuration.users) {
+      props.configuration.users.forEach(userId => {
+        users[userId] = this.setupUser(userId);
+      });
+    }
+
     this.setupInventoryReportsBucket(backupRole);
 
     const buckets: s3.Bucket[] = [];
@@ -51,6 +59,24 @@ export class StorageStack extends Stack {
 
       // Allow read access to all buckets
       bucket.grantRead(thirdPartyUser);
+
+
+      // Provide access for defined users
+      if (bucketSettings.iamUserAccess) {
+        Object.entries(bucketSettings.iamUserAccess).forEach(([userId, rights]) => {
+          const user = users[userId];
+          if (!user) {
+            throw Error(`Undefined user in bucket settings for bucket ${bucketSettings.cdkId}`);
+          }
+          if (rights == 'r') {
+            bucket.grantRead(user);
+          } else if (rights == 'w') {
+            bucket.grantWrite(user);
+          } else if (rights == 'rw') {
+            bucket.grantReadWrite(user);
+          }
+        });
+      }
 
 
       if (bucketSettings.backupName) {
@@ -335,6 +361,23 @@ export class StorageStack extends Stack {
       resources: ['*'],
     }));
 
+    return user;
+  }
+
+  setupUser(id: string) {
+    const user = new iam.User(this, `${id}-user`);
+    const key = new iam.AccessKey(this, `${id}-user-key`, {
+      user: user,
+    });
+    new Secret(this, `${id}-user-secret`, {
+      secretStringValue: key.secretAccessKey,
+    });
+    user.addToPolicy(new iam.PolicyStatement({
+      sid: 'AllowToListTheBucketsInTheAccount',
+      effect: iam.Effect.ALLOW,
+      actions: ['s3:ListAllMyBuckets'],
+      resources: ['*'],
+    }));
     return user;
   }
 
