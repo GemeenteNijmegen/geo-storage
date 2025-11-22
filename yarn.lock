@@ -99,10 +99,10 @@
     "@smithy/util-utf8" "^2.0.0"
     tslib "^2.6.2"
 
-"@aws-sdk/client-kms@^3.936.0":
-  version "3.936.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-kms/-/client-kms-3.936.0.tgz#9452e80c2069a27b27c35270ea81a2adf43ec903"
-  integrity sha512-Rh2SCIpMqZUtFsgi9CfeTpMrD8Lq1UEBlqQWR2KcPTkf4ypFE3zJNRjZpcWe/QfD6r3Tqs5Hba7ls66Hcp96Sg==
+"@aws-sdk/client-kms@^3.938.0":
+  version "3.938.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-kms/-/client-kms-3.938.0.tgz#e06b8977b3072f70e9fb20c46f57b07e7e1d8764"
+  integrity sha512-q9ddFlPkQTcJL/paieWa3YcXX1kiUsf+aZy47asDopbYjvZLmYNnfCUE9Oa+W4c17H4Yg8KgnXVxy+J3fIXbRw==
   dependencies:
     "@aws-crypto/sha256-browser" "5.2.0"
     "@aws-crypto/sha256-js" "5.2.0"
@@ -2754,9 +2754,9 @@ available-typed-arrays@^1.0.7:
     possible-typed-array-names "^1.0.0"
 
 aws-cdk-lib@^2.195.0:
-  version "2.226.0"
-  resolved "https://registry.yarnpkg.com/aws-cdk-lib/-/aws-cdk-lib-2.226.0.tgz#4573117749f30ac3eee03d6d0b16de5b6b58a2ef"
-  integrity sha512-QothFnuIxq5bobPtU9Owo+Re9ye7sqLgRXOtJSZR3uDywmV+dcRvf9h2VKtFannYKubibk29/7dTrGm6hnpFIQ==
+  version "2.227.0"
+  resolved "https://registry.yarnpkg.com/aws-cdk-lib/-/aws-cdk-lib-2.227.0.tgz#e6cc5c84f3acecd2019d5c92944c27f38e8bcb77"
+  integrity sha512-55zrZrlmtV9IDwciqrqBfy4lV/ZbwZY4nKQosjKJmWC+Y+DYQbK3qO/NbaoeywNFxM5xHZ/bNFYdWqKXNkImWQ==
   dependencies:
     "@aws-cdk/asset-awscli-v1" "2.2.242"
     "@aws-cdk/asset-node-proxy-agent-v6" "^2.1.0"
