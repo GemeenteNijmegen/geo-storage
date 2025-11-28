@@ -59,7 +59,7 @@
       "description": "Create a JavaScript bundle from src/lambda/kms-policy-updater.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/lambda/kms-policy-updater.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/lambda/kms-policy-updater.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/lambda/kms-policy-updater.lambda.ts --target=\"node24\" --platform=\"node\" --outfile=\"assets/lambda/kms-policy-updater.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -68,7 +68,7 @@
       "description": "Continuously update the JavaScript bundle from src/lambda/kms-policy-updater.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/lambda/kms-policy-updater.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/lambda/kms-policy-updater.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/lambda/kms-policy-updater.lambda.ts --target=\"node24\" --platform=\"node\" --outfile=\"assets/lambda/kms-policy-updater.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -77,7 +77,7 @@
       "description": "Create a JavaScript bundle from src/lambda/s3-bucket-policy-updater.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/lambda/s3-bucket-policy-updater.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/lambda/s3-bucket-policy-updater.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/lambda/s3-bucket-policy-updater.lambda.ts --target=\"node24\" --platform=\"node\" --outfile=\"assets/lambda/s3-bucket-policy-updater.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -86,7 +86,7 @@
       "description": "Continuously update the JavaScript bundle from src/lambda/s3-bucket-policy-updater.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/lambda/s3-bucket-policy-updater.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/lambda/s3-bucket-policy-updater.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/lambda/s3-bucket-policy-updater.lambda.ts --target=\"node24\" --platform=\"node\" --outfile=\"assets/lambda/s3-bucket-policy-updater.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
