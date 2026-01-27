@@ -1,3 +1,4 @@
+import { RemoteParameters } from '@gemeentenijmegen/cross-region-parameters';
 import { aws_ssm, Duration, RemovalPolicy, aws_ssm as ssm, Stack, StackProps } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { AccessLevel, AllowedMethods, CachePolicy, Distribution, HeadersFrameOption, HeadersReferrerPolicy, OriginRequestPolicy, PriceClass, ResponseHeadersPolicy, SecurityPolicyProtocol, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
@@ -12,7 +13,6 @@ import { CloudfrontKmsPolicy } from './CloudfrontKmsPolicy';
 import { Configurable, Configuration } from './Configuration';
 import { S3BucketPolicyUpdater } from './S3BucketPolicyUpdater';
 import { Statics } from './Statics';
-import { RemoteParameters } from '@gemeentenijmegen/cross-region-parameters';
 
 export interface CloudfrontStackProps extends Configurable, StackProps { }
 export class CloudfrontStack extends Stack {
