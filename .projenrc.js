@@ -7,7 +7,7 @@ const project = new GemeenteNijmegenCdkApp({
   deps: [
     '@gemeentenijmegen/projen-project-type',
     '@gemeentenijmegen/aws-constructs',
-    'cdk-remote-stack',
+    '@gemeentenijmegen/cross-region-parameters',
     '@gemeentenijmegen/dnssec-record',
     '@aws-sdk/client-kms',
     '@aws-sdk/client-s3',
