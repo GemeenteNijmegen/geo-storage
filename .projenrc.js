@@ -2,11 +2,12 @@ const { GemeenteNijmegenCdkApp } = require('@gemeentenijmegen/projen-project-typ
 const project = new GemeenteNijmegenCdkApp({
   cdkVersion: '2.195.0',
   defaultReleaseBranch: 'main',
-  devDeps: ['@gemeentenijmegen/projen-project-type'],
+  devDeps: [],
   name: 'geo-storage',
   deps: [
+    '@gemeentenijmegen/projen-project-type',
     '@gemeentenijmegen/aws-constructs',
-    'cdk-remote-stack',
+    '@gemeentenijmegen/cross-region-parameters',
     '@gemeentenijmegen/dnssec-record',
     '@aws-sdk/client-kms',
     '@aws-sdk/client-s3',
