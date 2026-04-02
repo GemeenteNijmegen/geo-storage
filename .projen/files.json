@@ -10,6 +10,7 @@
     ".github/workflows/release.yml",
     ".github/workflows/upgrade-acceptance.yml",
     ".gitignore",
+    ".mergify.yml",
     ".npmignore",
     ".nvmrc",
     ".projen/deps.json",
