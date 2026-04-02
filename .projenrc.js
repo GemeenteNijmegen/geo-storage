@@ -18,9 +18,9 @@ const project = new GemeenteNijmegenCdkApp({
   },
   githubOptions: {
     projenCredentials: GithubCredentials.fromApp({
-      appIdSecret: 'PROJEN_APP_ID',         
+      appIdSecret: 'PROJEN_APP_ID',
       privateKeySecret: 'PROJEN_APP_PRIVATE_KEY',
-    })
+    }),
   },
 });
 project.synth();
