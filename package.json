@@ -39,7 +39,7 @@
     "@typescript-eslint/parser": "^8",
     "aws-cdk": "^2",
     "commit-and-tag-version": "^12",
-    "esbuild": "^0.27.5",
+    "esbuild": "^0.28.0",
     "eslint": "^9",
     "eslint-import-resolver-typescript": "^3.10.1",
     "eslint-plugin-import": "^2.32.0",
@@ -51,12 +51,12 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@aws-sdk/client-kms": "^3.1022.0",
-    "@aws-sdk/client-s3": "^3.1022.0",
-    "@gemeentenijmegen/aws-constructs": "^0.0.49",
-    "@gemeentenijmegen/cross-region-parameters": "^0.0.5",
-    "@gemeentenijmegen/dnssec-record": "^0.0.43",
-    "@gemeentenijmegen/projen-project-type": "^1.12.2",
+    "@aws-sdk/client-kms": "^3.1034.0",
+    "@aws-sdk/client-s3": "^3.1034.0",
+    "@gemeentenijmegen/aws-constructs": "^0.0.51",
+    "@gemeentenijmegen/cross-region-parameters": "^0.0.6",
+    "@gemeentenijmegen/dnssec-record": "^0.0.45",
+    "@gemeentenijmegen/projen-project-type": "^1.12.5",
     "aws-cdk-lib": "^2.195.0",
     "constructs": "^10.0.5"
   },
