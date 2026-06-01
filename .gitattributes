@@ -2,7 +2,7 @@
 
 * text=auto eol=lf
 *.snap linguist-generated
-/.eslintrc.json linguist-generated
+/.eslintrc.json linguist-generated linguist-language=JSON-with-Comments
 /.gitattributes linguist-generated
 /.github/pull_request_template.md linguist-generated
 /.github/workflows/auto-merge.yml linguist-generated
@@ -20,9 +20,10 @@
 /.projen/tasks.json linguist-generated
 /cdk.json linguist-generated
 /LICENSE linguist-generated
+/package-lock.json linguist-generated
 /package.json linguist-generated
+/src/CloudfrontKMPolicyResource/CloudfrontKMPolicyResource-function.ts linguist-generated
 /src/lambda/kms-policy-updater-function.ts linguist-generated
 /src/lambda/s3-bucket-policy-updater-function.ts linguist-generated
-/tsconfig.dev.json linguist-generated
-/tsconfig.json linguist-generated
-/yarn.lock linguist-generated
+/tsconfig.dev.json linguist-generated linguist-language=JSON-with-Comments
+/tsconfig.json linguist-generated linguist-language=JSON-with-Comments

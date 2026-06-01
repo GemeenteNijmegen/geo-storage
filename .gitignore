@@ -58,6 +58,7 @@ junit.xml
 /cdk.out/
 .cdk.staging/
 .parcel-cache/
+!/src/CloudfrontKMPolicyResource/CloudfrontKMPolicyResource-function.ts
 !/src/lambda/kms-policy-updater-function.ts
 !/src/lambda/s3-bucket-policy-updater-function.ts
 !/.github/workflows/emergency.yml

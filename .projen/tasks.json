@@ -47,10 +47,31 @@
       "description": "Prepare assets",
       "steps": [
         {
+          "spawn": "bundle:CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda"
+        },
+        {
           "spawn": "bundle:lambda/kms-policy-updater.lambda"
         },
         {
           "spawn": "bundle:lambda/s3-bucket-policy-updater.lambda"
+        }
+      ]
+    },
+    "bundle:CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda": {
+      "name": "bundle:CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda",
+      "description": "Create a JavaScript bundle from src/CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda.ts --target=\"node24\" --platform=\"node\" --outfile=\"assets/CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+        }
+      ]
+    },
+    "bundle:CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda:watch": {
+      "name": "bundle:CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda.ts --target=\"node24\" --platform=\"node\" --outfile=\"assets/CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -195,7 +216,7 @@
       "description": "Install project dependencies and update lockfile (non-frozen)",
       "steps": [
         {
-          "exec": "yarn install --check-files"
+          "exec": "npm install"
         }
       ]
     },
@@ -204,7 +225,7 @@
       "description": "Install project dependencies using frozen lockfile",
       "steps": [
         {
-          "exec": "yarn install --check-files --frozen-lockfile"
+          "exec": "npm ci"
         }
       ]
     },
@@ -335,13 +356,13 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@18 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@types/jest,@types/node,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,projen,ts-jest,ts-node,typescript,@aws-sdk/client-kms,@aws-sdk/client-s3,@gemeentenijmegen/aws-constructs,@gemeentenijmegen/cross-region-parameters,@gemeentenijmegen/dnssec-record,@gemeentenijmegen/projen-project-type"
+          "exec": "npx npm-check-updates@20 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@types/jest,@types/node,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,projen,ts-jest,ts-node,typescript,@aws-sdk/client-kms,@aws-sdk/client-s3,@gemeentenijmegen/aws-constructs,@gemeentenijmegen/cross-region-parameters,@gemeentenijmegen/dnssec-record,@gemeentenijmegen/projen-project-type"
         },
         {
-          "exec": "yarn install --check-files"
+          "exec": "npm install"
         },
         {
-          "exec": "yarn upgrade @stylistic/eslint-plugin @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk commit-and-tag-version esbuild eslint-import-resolver-typescript eslint-plugin-import eslint jest jest-junit projen ts-jest ts-node typescript @aws-sdk/client-kms @aws-sdk/client-s3 @gemeentenijmegen/aws-constructs @gemeentenijmegen/cross-region-parameters @gemeentenijmegen/dnssec-record @gemeentenijmegen/projen-project-type aws-cdk-lib constructs"
+          "exec": "npm update @stylistic/eslint-plugin @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk commit-and-tag-version esbuild eslint-import-resolver-typescript eslint-plugin-import eslint jest jest-junit projen ts-jest ts-node typescript @aws-sdk/client-kms @aws-sdk/client-s3 @gemeentenijmegen/aws-constructs @gemeentenijmegen/cross-region-parameters @gemeentenijmegen/dnssec-record @gemeentenijmegen/projen-project-type aws-cdk-lib constructs"
         },
         {
           "exec": "npx projen"
