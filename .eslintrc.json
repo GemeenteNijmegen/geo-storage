@@ -152,7 +152,6 @@
         "devDependencies": [
           "**/test/**",
           "**/build-tools/**",
-          "src/CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda.ts",
           "src/lambda/kms-policy-updater.lambda.ts",
           "src/lambda/s3-bucket-policy-updater.lambda.ts"
         ],

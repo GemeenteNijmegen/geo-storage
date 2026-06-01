@@ -47,31 +47,10 @@
       "description": "Prepare assets",
       "steps": [
         {
-          "spawn": "bundle:CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda"
-        },
-        {
           "spawn": "bundle:lambda/kms-policy-updater.lambda"
         },
         {
           "spawn": "bundle:lambda/s3-bucket-policy-updater.lambda"
-        }
-      ]
-    },
-    "bundle:CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda": {
-      "name": "bundle:CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda",
-      "description": "Create a JavaScript bundle from src/CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda.ts",
-      "steps": [
-        {
-          "exec": "esbuild --bundle src/CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda.ts --target=\"node24\" --platform=\"node\" --outfile=\"assets/CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
-        }
-      ]
-    },
-    "bundle:CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda:watch": {
-      "name": "bundle:CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda:watch",
-      "description": "Continuously update the JavaScript bundle from src/CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda.ts",
-      "steps": [
-        {
-          "exec": "esbuild --bundle src/CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda.ts --target=\"node24\" --platform=\"node\" --outfile=\"assets/CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },

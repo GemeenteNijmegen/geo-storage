@@ -4,8 +4,6 @@
     "build": "projen build",
     "bump": "projen bump",
     "bundle": "projen bundle",
-    "bundle:CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda": "projen bundle:CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda",
-    "bundle:CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda:watch": "projen bundle:CloudfrontKMPolicyResource/CloudfrontKMPolicyResource.lambda:watch",
     "bundle:lambda/kms-policy-updater.lambda": "projen bundle:lambda/kms-policy-updater.lambda",
     "bundle:lambda/kms-policy-updater.lambda:watch": "projen bundle:lambda/kms-policy-updater.lambda:watch",
     "bundle:lambda/s3-bucket-policy-updater.lambda": "projen bundle:lambda/s3-bucket-policy-updater.lambda",
