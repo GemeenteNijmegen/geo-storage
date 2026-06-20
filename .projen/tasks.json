@@ -208,14 +208,6 @@
         }
       ]
     },
-    "lint": {
-      "name": "lint",
-      "steps": [
-        {
-          "exec": "cfn-lint cdk.out/**/*.template.json -i W3005 W2001 W3045"
-        }
-      ]
-    },
     "package": {
       "name": "package",
       "description": "Creates the distribution package",
